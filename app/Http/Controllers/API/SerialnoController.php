@@ -42,7 +42,7 @@ class SerialnoController extends Controller
         $data = $response->getBody();
         Log::Info($data);
         // $this->verifyOtp($request,$Mobile);
-        return response()->json(['status' => $update]);
+        return response()->json(['status' => $otp]);
     }
 
     public function serialnoverifyotp(Request $request, $mobile)
@@ -70,10 +70,10 @@ class SerialnoController extends Controller
         // $serialno_ocfno = OrderConfirmations::where('ocfno', $ocfno)->first();
         // $serialno_customer = Customers::where('id', $serialno_ocfno->customercode)->first();
         $request->validate([
-            'ocfno' => 'unique:acme_ocf_change',
+            'ocfno' => '',
             'company_name' => 'required',
-            'panno' => 'required|unique:acme_ocf_change',
-            'gstno' => 'required|unique:acme_ocf_change'
+            'panno' => 'required',
+            'gstno' => 'required'
         ]);
             $ocfchange = new OCFchange();
             $ocfchange->ocfno = $ocfno;
@@ -101,6 +101,7 @@ class SerialnoController extends Controller
             'serialno_issue_date' => $serialno_ocfno->fromdate,
             'serialno_validity' => $serialno_ocfno->todate
         ];
+        
         if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
         {
             $serialno_parameter = $serialno_customer->company_name. $serialno_customer->panno.$serialno_customer->gstno;

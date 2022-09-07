@@ -172,7 +172,7 @@ class PackagesController extends Controller
     public function modulestore(Request $request, $packageid)
     {
         $request->validate([
-            'productcode' => 'required',
+            'productcode' => '',
             'name' => 'required',
             'description' => 'required',
             // 'producttype' => 'required'
