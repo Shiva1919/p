@@ -19,7 +19,11 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customers::where('role_id', 10)->take(100)->orderBy('name','asc')->get();
+
+        // $customer = Customers::where('role_id', 10)->take(100)->orderBy('name','asc')->get();
+
+        $customer = Customers::limit(100)->get();
+        return $customer;
         return response()->json($customer);
     }
 
@@ -41,25 +45,23 @@ class CustomersController extends Controller
      */
     public function store(Request $request)
     {
-        
         $request->validate([
-            'tenantcode' => '',
+            'tenantcode' => 'required',
             'name' => 'required',
-            'entrycode' => '',
-            'mobile' => '',
-            'phone' => '',
-            'email' => '',
-            'company_name' => '',
-            'address1' => '',
+            'entrycode' => 'required',
+            'mobile' => 'required',
+            'phone' => 'required',
+            'email' => 'required',
+            'company_name' => 'required',
+            'address1' => 'required',
             'address2' => '',
-            'state' => '',
-            'district' => '',
-            'taluka' => '',
-            'city' => '',
+            'state' => 'required',
+            'district' => 'required',
+            'taluka' => 'required',
+            'city' => 'required',
             'panno' => '',
             'gstno' => '',
-            'noofbranches' => '',
-            'role_id'=> ''
+            'noofbranches' => 'required|numeric',
         ]);
         $insert_customers = Customers::create($request->all());
         return response()->json([$insert_customers]);
@@ -101,25 +103,24 @@ class CustomersController extends Controller
      */
     public function update(Request $request, Customers $customer)
     {
-        $role_id = 10;
         $input = $request->all();
         $validator = Validator::make($input, [
-            'tenantcode' => '',
+            'tenantcode' => 'required',
             'name' => 'required',
-            'entrycode' => '',
-            'mobile' => '',
-            'phone' => '',
-            'email' => '',
-            'company_name' => '',
-            'address1' => '',
+            'entrycode' => 'required',
+            'mobile' => 'required',
+            'phone' => 'required',
+            'email' => 'required',
+            'company_name' => 'required',
+            'address1' => 'required',
             'address2' => '',
-            'state' => '',
-            'district' => '',
-            'taluka' => '',
-            'city' => '',
+            'state' => 'required',
+            'district' => 'required',
+            'taluka' => 'required',
+            'city' => 'required',
             'panno' => '',
             'gstno' => '',
-            'noofbranches' => '',
+            'noofbranches' => 'required|numeric',
         ]);
         if($validator->fails())
         {
@@ -141,7 +142,6 @@ class CustomersController extends Controller
         $customer->panno = $input['panno'];
         $customer->gstno = $input['gstno'];
         $customer->noofbranches = $input['noofbranches'];
-        $customer->role_id = $role_id;
         $customer->save();
         return response()->json([$customer]);
     }
@@ -166,25 +166,29 @@ class CustomersController extends Controller
 
     public function getDistrict($stateid)
     {
-        $district =DB::table('district')->where("stateid",$stateid)->orderBy('districtname','asc')->get();
-        return response()->json($district);
+        $data['district'] =DB::table('district')->where("stateid",$stateid)->orderBy('districtname','asc')->get();
+        return response()->json($data);
     }
 
     public function getTaluka($districtid)
     {
-        $taluka =DB::table('taluka')->where("districtid",$districtid)->orderBy('talukaname','asc')->get();
-        return response()->json($taluka);
+        $data['Taluka'] =DB::table('taluka')->where("districtid",$districtid)->orderBy('talukaname','asc')->get();
+        return response()->json($data);
     }
 
     public function getCity($talukaid)
     {
-        $city =DB::table('city')->where("talukaid",$talukaid)->orderBy('cityname','asc')->get();
-        return response()->json($city);
+        $data['City'] =DB::table('city')->where("talukaid",$talukaid)->orderBy('cityname','asc')->get();
+        return response()->json($data);
     }
 
     public function branchindex($customerid) 
     {
+
         $branch =  Branchs::where('customercode', $customerid)->orderBy('branchname', 'asc')->get();
+
+        // $branch = Branchs::where('customercode', $customerid)->get();
+
         return response()->json($branch);
     }
 
@@ -197,13 +201,13 @@ class CustomersController extends Controller
     public function branchstore(Request $request, $customerid)
     {
         $request->validate([
-            'branchname' => '',
-            'branchaddress1' => '',
-            'branchaddress2' => '',
-            'branchstate' => '',
-            'branchdistrict' => '',
-            'branchtaluka' => '',
-            'branchcity' => ''
+            'branchname' => 'required',
+            'branchaddress1' => 'required',
+            'branchaddress2' => 'required',
+            'branchstate' => 'required',
+            'branchdistrict' => 'required',
+            'branchtaluka' => 'required',
+            'branchcity' => 'required'
         ]);
 
         $branch = new Branchs();
@@ -216,7 +220,7 @@ class CustomersController extends Controller
         $branch->branchcity = $request->branchcity;
         $branch->customercode = $customerid;
         $branch->save();
-        return response()->json($branch);
+        return response()->json([$branch]);
     }
 
     public function branchupdate(Request $request, $customerid, $id)

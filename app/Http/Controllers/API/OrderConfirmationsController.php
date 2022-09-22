@@ -39,21 +39,19 @@ class OrderConfirmationsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-             'salestype'  => '',
+            'salestype'  => 'required',
             'eefOcfnocode' => '',
-             'ocfno' => '',
-            'initialusercount' => '',
-            'fromdate' => '',
-            'todate' => '',
-            'purchasedate' => '',
-            'validityperiodofinitialusers' => '',
+            'ocfno' => 'required',
+            'initialusercount' => 'required|numeric',
+            'fromdate' => 'date_format:d/m/Y',
+            'todate' => 'date_format:d/m/Y',
+            'validityperiodofinitialusers' => 'required',
             'customercode' => 'required',
             'concernperson' => 'required',
             'branchcode' => 'required',
             'packagetype'  => 'required',
             'packagesubtype' => 'required',
-            'moduleid' => '',
-            'narration'  => ''
+            'narration'  => 'required'
         ]);  
        
         $order_confirmation = new OrderConfirmations();  
@@ -74,6 +72,8 @@ class OrderConfirmationsController extends Controller
         $order_confirmation->narration = $request->get('narration');
         $order_confirmation->save();  
         
+   
+        $order_confirmation = OrderConfirmations::create($request->all());
         return response()->json($order_confirmation);
     }
 
@@ -114,7 +114,7 @@ class OrderConfirmationsController extends Controller
     public function update(Request $request,$id)
     {
         return $id;
-        $ocf = OrderConfirmations::where('id', $id)->first();
+        $ocf = orderConfirmations::where('id', $id)->first();
 
         $orderconfirmationdata = [
             'salestype'  => $request->salestype,
@@ -136,6 +136,43 @@ class OrderConfirmationsController extends Controller
        
         $update_ocf = $ocf->update($orderconfirmationdata);
         return response()->json(['response' =>$update_ocf, 'status' => "success"]);
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'salestype'  => 'required',
+            'eefocfnocode' => 'required',
+            'ocfno' => 'required',
+            'initialusercount' => 'required|numeric',
+            'fromdate' => 'date_format:d/m/Y',
+            'todate' => 'date_format:d/m/Y',
+            'validityperiodofinitialusers' => 'required',
+            'customercode' => 'required',
+            'concernperson' => 'required',
+            'branchcode' => 'required',
+            'packagetype'  => 'required',
+            'packagesubtype' => 'required',
+            'narration'  => 'required'
+        ]);
+        if($validator->fails())
+        {
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+        $orderConfirmations=new orderConfirmations;
+        $orderConfirmations->salestype = $input['salestype'];
+        $orderConfirmations->eefocfnocode = $input['eefocfnocode'];
+        $orderConfirmations->ocfno = $input['ocfno'];
+        $orderConfirmations->initialusercount = $input['initialusercount'];
+        $orderConfirmations->fromdate = $input['fromdate'];
+        $orderConfirmations->todate = $input['todate'];
+        $orderConfirmations->validityperiodofinitialusers = $input['validityperiodofinitialusers'];
+        $orderConfirmations->customercode = $input['customercode'];
+        $orderConfirmations->concernperson = $input['concernperson'];
+        $orderConfirmations->branchcode = $input['branchcode'];
+        $orderConfirmations->packagetype = $input['packagetype'];
+        $orderConfirmations->packagesubtype = $input['packagesubtype'];
+        $orderConfirmations->narration = $input['narration'];
+        $orderConfirmations->save();
+        return response()->json([$orderConfirmations]);
+
     }
 
     /**
