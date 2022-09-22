@@ -39,6 +39,7 @@ class OrderConfirmationsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+<<<<<<< HEAD
             'salestype'  => 'required',
             'eefOcfnocode' => '',
             'ocfno' => 'required',
@@ -52,6 +53,21 @@ class OrderConfirmationsController extends Controller
             'packagetype'  => 'required',
             'packagesubtype' => 'required',
             'narration'  => 'required'
+=======
+            'salestype'  => '',
+            'eefOcfnocode' => '',
+            'ocfno' => '',
+            'initialusercount' => '',
+            'fromdate' => 'date_format:d/m/Y',
+            'todate' => 'date_format:d/m/Y',
+            'validityperiodofinitialusers' => '',
+            'customercode' => '',
+            'concernperson' => '',
+            'branchcode' => '',
+            'packagetype'  => '',
+            'packagesubtype' => '',
+            'narration'  => ''
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
         ]);    
         $order_confirmation = OrderConfirmations::create($request->all());
         return response()->json($order_confirmation);
@@ -90,6 +106,7 @@ class OrderConfirmationsController extends Controller
     {
         $input = $request->all();
         $validator = Validator::make($input, [
+<<<<<<< HEAD
             'salestype'  => 'required',
             'eefocfnocode' => 'required',
             'ocfno' => 'required',
@@ -103,6 +120,21 @@ class OrderConfirmationsController extends Controller
             'packagetype'  => 'required',
             'packagesubtype' => 'required',
             'narration'  => 'required'
+=======
+            'salestype'  => '',
+            'eefocfnocode' => '',
+            'ocfno' => '',
+            'initialusercount' => '',
+            'fromdate' => 'date_format:d/m/Y',
+            'todate' => 'date_format:d/m/Y',
+            'validityperiodofinitialusers' => '',
+            'customercode' => '',
+            'concernperson' => '',
+            'branchcode' => '',
+            'packagetype'  => '',
+            'packagesubtype' => '',
+            'narration'  => ''
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
         ]);
         if($validator->fails())
         {

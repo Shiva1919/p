@@ -29,7 +29,11 @@ class PackagesController extends Controller
      */
     public function create()
     {
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     }
 
     /**
@@ -45,7 +49,11 @@ class PackagesController extends Controller
             'description' => 'required',
         ]);
         $insert_package = Packages::create($request->all());
+<<<<<<< HEAD
         return response()->json($insert_package);
+=======
+        return response()->json([$insert_package]);
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     }
 
     /**
@@ -57,7 +65,11 @@ class PackagesController extends Controller
     public function show($id)
     {
         $getbyid_package = Packages::find($id);
+<<<<<<< HEAD
         if (is_null($getbyid_package))
+=======
+        if (is_null($getbyid_package)) 
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
         {
             return $this->sendError('Package not found.');
         }
@@ -91,7 +103,11 @@ class PackagesController extends Controller
         ]);
         if($validator->fails())
         {
+<<<<<<< HEAD
             return $this->sendError('Validation Error.', $validator->errors());
+=======
+            return $this->sendError('Validation Error.', $validator->errors());       
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
         }
         $package->name = $input['name'];
         $package->description = $input['description'];
@@ -111,13 +127,21 @@ class PackagesController extends Controller
         return response()->json([$package]);
     }
 
+<<<<<<< HEAD
     public function subpackageindex($packageid)
+=======
+    public function subpackageindex($packageid) 
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     {
         $subpackage = SubPackages::where('packagetype', $packageid)->get();
         return response()->json($subpackage);
     }
 
+<<<<<<< HEAD
     public function subpackageshow($packageid, $id)
+=======
+    public function subpackageshow($packageid, $id) 
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     {
         $subpackage = SubPackages::where('packagetype', $packageid)->find($id);
         return response()->json($subpackage);
@@ -163,7 +187,11 @@ class PackagesController extends Controller
         return response()->json($module);
     }
 
+<<<<<<< HEAD
     public function moduleshow($packageid, $id)
+=======
+    public function moduleshow($packageid, $id) 
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     {
         $module = Modules::where('producttype', $packageid)->find($id);
         return response()->json($module);
@@ -172,7 +200,11 @@ class PackagesController extends Controller
     public function modulestore(Request $request, $packageid)
     {
         $request->validate([
+<<<<<<< HEAD
             'productcode' => 'required',
+=======
+            'productcode' => '',
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
             'name' => 'required',
             'description' => 'required',
             // 'producttype' => 'required'
@@ -187,7 +219,11 @@ class PackagesController extends Controller
         return response()->json([$module]);
     }
 
+<<<<<<< HEAD
     public function moduleupdate(Request $request, $packageid, $id)
+=======
+    public function moduleupdate(Request $request, $packageid, $id) 
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     {
         $module = Modules::where('producttype', $packageid)->where('id', $id)->first();
         $moduledata = [
@@ -206,4 +242,9 @@ class PackagesController extends Controller
         return response()->json([$delete_module]);
     }
 
+<<<<<<< HEAD
+=======
+    
+
+>>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
 }
