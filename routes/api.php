@@ -104,6 +104,7 @@ Route::get('date_district/{state}/{district}/{todate}/{Fromdate}',[ReportControl
 Route::get('date_state/{state}/{todate}/{Fromdate}',[ReportController::class,'fetchalldata_state']);
 
 //customer name ,panno,gstno verfication
-Route::get('check_verfication/{company}/{gst}/{pan}',[VerficationController::class,'Check_verfication']);
-Route::get('customer_verfication/{tenent_code}/{userid}',[VerficationController::class,'Customer_verfication']);
+Route::get('verfication_list',[VerficationController::class,'details_changes']);
+// Route::get('check_verfication/{company}/{gst}/{pan}',[VerficationController::class,'Check_verfication']);
+Route::get('customer_verfication/{tenent_code}/{userid}/{id}',[VerficationController::class,'Customer_verfication']);
 Route::get('sr_validation/{tenent_code}/{expiring}',[VerficationController::class,'sr_validation']);

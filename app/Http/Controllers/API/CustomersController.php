@@ -19,7 +19,8 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customers::all();
+        $customer = Customers::limit(100)->get();
+        return $customer;
         return response()->json($customer);
     }
 
