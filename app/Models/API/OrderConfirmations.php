@@ -16,6 +16,7 @@ class OrderConfirmations extends Model
         'salestype',
         'packagetype',
         'packagesubtype',
+        'moduleid',
         'fromdate', 
         'todate', 
         'purchasedate',

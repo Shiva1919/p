@@ -5,6 +5,7 @@ use App\Http\Controllers\API\OrderConfirmationsController;
 use App\Http\Controllers\API\PackagesController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\SerialnosController;
+use App\Http\Controllers\PackageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,9 +26,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Package
 Route::resource('package', PackagesController::class);
+Route::get('packagedeactivelist', [PackagesController::class, 'deactivepackageslist']);
 
 // SubPackage
 Route::get('subpackage/{packageid}', [PackagesController::class, 'subpackageindex']);
+Route::get('subpackagedeactivelist/{packageid}', [PackagesController::class, 'deactivesubpackageslist']);
 Route::get('subpackagegetbyid/{packageid}/{id}', [PackagesController::class, 'subpackageshow']);
 Route::post('subpackageadd/{packageid}', [PackagesController::class, 'subpackagestore']);
 Route::put('subpackageupdate/{packageid}/{id}', [PackagesController::class, 'subpackageupdate']);
@@ -35,6 +38,7 @@ Route::delete('subpackagedelete/{packageid}/{id}', [PackagesController::class, '
 
 // Module
 Route::get('module/{id}', [PackagesController::class, 'moduleindex']);
+Route::get('moduledeactivelist/{packageid}', [PackagesController::class, 'deactivemoduleslist']);
 Route::get('modulegetbyid/{packageid}/{id}', [PackagesController::class, 'moduleshow']);
 Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore']);
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
@@ -66,6 +70,7 @@ Route::delete('contactdelete/{customerid}/{id}', [CustomersController::class, 'c
 // Order Confirmation Form
 Route::resource('orderconfirmation', OrderConfirmationsController::class);
 Route::delete('orderconfirmationdelete/{id}', [OrderConfirmationsController::class, 'destroy']);
+Route::get('getrefno/{refno}', [OrderConfirmationsController::class, 'getrefno']);
 
 // Serialno
 Route::resource('serialno', SerialnoController::class);

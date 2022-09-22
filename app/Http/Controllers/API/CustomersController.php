@@ -19,7 +19,7 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customers::where('role_id', 10)->get();
+        $customer = Customers::where('role_id', 10)->take(100)->orderBy('name','asc')->get();
         return response()->json($customer);
     }
 
@@ -184,7 +184,7 @@ class CustomersController extends Controller
 
     public function branchindex($customerid) 
     {
-        $branch =  Branchs::where('customercode', $customerid)->get();
+        $branch =  Branchs::where('customercode', $customerid)->orderBy('branchname', 'asc')->get();
         return response()->json($branch);
     }
 
@@ -258,10 +258,10 @@ class CustomersController extends Controller
     {
         $request->validate([
             'contactpersonname' => 'required',
-            'phoneno' => 'required',
-            'mobileno' => 'required',
-            'emailid' => 'required',
-            'branch' => 'required',
+            'phoneno' => '',
+            'mobileno' => '',
+            'emailid' => '',
+            'branch' => '',
         ]);
 
         $contact = new Contacts();

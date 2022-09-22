@@ -14,6 +14,7 @@ class SubPackages extends Model
     protected $fillable = [
         'name',
         'description',
+        'active',
         'packagetype'
     ];
 }

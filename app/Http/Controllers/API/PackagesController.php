@@ -18,7 +18,13 @@ class PackagesController extends Controller
      */
     public function index()
     {
-        $package = Packages::all();
+        $package = Packages::where('active', 1)->orderBy('name', 'asc')->get();
+        return response()->json($package);
+    }
+
+    public function deactivepackageslist()
+    {
+        $package = Packages::where('active', 0)->orderBy('name', 'asc')->get();
         return response()->json($package);
     }
 
@@ -43,6 +49,7 @@ class PackagesController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'required',
+            'active' => ''
         ]);
         $insert_package = Packages::create($request->all());
         return response()->json([$insert_package]);
@@ -88,6 +95,7 @@ class PackagesController extends Controller
         $validator = Validator::make($input, [
             'name' => 'required',
             'description'=> 'required',
+            'active' => ''
         ]);
         if($validator->fails())
         {
@@ -95,6 +103,7 @@ class PackagesController extends Controller
         }
         $package->name = $input['name'];
         $package->description = $input['description'];
+        $package->active = $input['active'];
         $package->save();
         return response()->json([$package]);
     }
@@ -113,7 +122,13 @@ class PackagesController extends Controller
 
     public function subpackageindex($packageid) 
     {
-        $subpackage = SubPackages::where('packagetype', $packageid)->get();
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('name', 'asc')->get();
+        return response()->json($subpackage);
+    }
+    
+    public function deactivesubpackageslist($packageid) 
+    {
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('name', 'asc')->get();
         return response()->json($subpackage);
     }
 
@@ -128,12 +143,14 @@ class PackagesController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'required',
+            'active' => ''
             // 'packagetype' => 'required'
         ]);
 
         $subpackage = new Subpackages();
         $subpackage->name = $request->name;
         $subpackage->description = $request->description;
+        $subpackage->active = $request->active;
         $subpackage->packagetype =$packageid;
         $subpackage->save();
         return response()->json([$subpackage]);
@@ -144,7 +161,8 @@ class PackagesController extends Controller
         $subpackage = SubPackages::where('packagetype', $packageid)->where('id', $id)->first();
         $subpackagedata = [
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'active' => $request->active
         ];
         $update_subpackage = $subpackage->update($subpackagedata);
         return response()->json([$update_subpackage]);
@@ -159,7 +177,13 @@ class PackagesController extends Controller
 
     public function moduleindex($packageid)
     {
-        $module = Modules::where('producttype', $packageid)->get();
+        $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('name', 'asc')->get();
+        return response()->json($module);
+    }
+    
+    public function deactivemoduleslist($packageid)
+    {
+        $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('name', 'asc')->get();
         return response()->json($module);
     }
 
@@ -175,6 +199,7 @@ class PackagesController extends Controller
             'productcode' => '',
             'name' => 'required',
             'description' => 'required',
+            'active' => ''
             // 'producttype' => 'required'
         ]);
 
@@ -182,6 +207,7 @@ class PackagesController extends Controller
         $module->productcode = $request->productcode;
         $module->name = $request->name;
         $module->description = $request->description;
+        $module->active = $request->active;
         $module->producttype =$packageid;
         $module->save();
         return response()->json([$module]);
@@ -193,7 +219,8 @@ class PackagesController extends Controller
         $moduledata = [
             'productcode' => $request->productcode,
             'name' => $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'active' => $request->active
         ];
         $update_module = $module->update($moduledata);
         return response()->json([$update_module]);

@@ -13,11 +13,12 @@ class Modules extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'id',
-        'parentproductcode',
+        'productcode',
         'name',
         'description', 
         'price',
         'unit',
-        'producttype'
+        'producttype',
+        'active'
     ];
 }
