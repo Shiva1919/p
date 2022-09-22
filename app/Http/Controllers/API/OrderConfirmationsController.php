@@ -152,7 +152,7 @@ class OrderConfirmationsController extends Controller
 
     public function getrefno($refno)
     {
-        $data = OrderConfirmations::where('eefocfnocode', $refno)->get();
+        $data = OrderConfirmations::where('ocfno', $refno)->get();
         return $data;
     }
 }
