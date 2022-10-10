@@ -17,7 +17,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        return Employee::where('role',0)->get();
+        return Employee::where('role_id',0)->get();
     }
     public function status_change($id)
     {

@@ -19,12 +19,18 @@ class CustomersController extends Controller
      */
     public function index()
     {
-
-        // $customer = Customers::where('role_id', 10)->take(100)->orderBy('name','asc')->get();
-
-        $customer = Customers::limit(100)->get();
-        return $customer;
+        $customer = Customers::leftjoin('city', 'users.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
+        ->get( ['city.cityname','users.*' ]);
+        //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
+        
+        // $customer = Customers::limit(100)->get();
         return response()->json($customer);
+    }
+
+    public function deactivecustomerslist()
+    {
+        $package = Customers::where('active', 0)->orderBy('name', 'asc')->get();
+        return response()->json($package);
     }
 
     /**
@@ -45,25 +51,45 @@ class CustomersController extends Controller
      */
     public function store(Request $request)
     {
+        $role_id = 10;
         $request->validate([
-            'tenantcode' => 'required',
-            'name' => 'required',
-            'entrycode' => 'required',
-            'mobile' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
-            'company_name' => 'required',
-            'address1' => 'required',
-            'address2' => '',
-            'state' => 'required',
-            'district' => 'required',
-            'taluka' => 'required',
-            'city' => 'required',
+            'tenantcode' => '',
+            'name' => '',
+            'entrycode' => '',
+            'phone' => '',
+            'email' => '',
+            'company_name' => '',
+            'address1' => '',
+            // 'address2' => '',
+            'state' => '',
+            'district' => '',
+            'taluka' => '',
+            'city' => '',
             'panno' => '',
             'gstno' => '',
-            'noofbranches' => 'required|numeric',
+            'noofbranches' => '',
+            'role_id' => '',
+            'active' => ''
         ]);
-        $insert_customers = Customers::create($request->all());
+        $insert_customers = new Customers();
+        // $insert_customers->tenantcode = $request->tenantcode;
+        $insert_customers->name = $request->name;
+        $insert_customers->entrycode = $request->entrycode;
+        $insert_customers->phone = $request->phone;
+        $insert_customers->email = $request->email;
+        $insert_customers->company_name = $request->company_name;
+        $insert_customers->address1 = $request->address1;
+        // $insert_customers->address2 = $request->address2;
+        $insert_customers->state = $request->state;
+        $insert_customers->district = $request->district;
+        $insert_customers->taluka = $request->taluka;
+        $insert_customers->city = $request->city;
+        $insert_customers->panno = $request->panno;
+        $insert_customers->gstno = $request->gstno;
+        $insert_customers->noofbranches = $request->noofbranches;
+        $insert_customers->role_id = $request->role_id;
+        $insert_customers->active = $request->active;
+        $insert_customers->save();
         return response()->json([$insert_customers]);
     }
 
@@ -103,30 +129,32 @@ class CustomersController extends Controller
      */
     public function update(Request $request, Customers $customer)
     {
+        $role_id = 10;
         $input = $request->all();
         $validator = Validator::make($input, [
-            'tenantcode' => 'required',
-            'name' => 'required',
-            'entrycode' => 'required',
-            'mobile' => 'required',
-            'phone' => 'required',
-            'email' => 'required',
-            'company_name' => 'required',
-            'address1' => 'required',
-            'address2' => '',
-            'state' => 'required',
-            'district' => 'required',
-            'taluka' => 'required',
-            'city' => 'required',
+            'tenantcode' => '',
+            'name' => '',
+            'entrycode' => '',
+            'mobile' => '',
+            'phone' => '',
+            'email' => '',
+            'company_name' => '',
+            'address1' => '',
+            // 'address2' => '',
+            'state' => '',
+            'district' => '',
+            'taluka' => '',
+            'city' => '',
             'panno' => '',
             'gstno' => '',
-            'noofbranches' => 'required|numeric',
+            'noofbranches' => '',
+            'active' => ''
         ]);
         if($validator->fails())
         {
             return $this->sendError('Validation Error.', $validator->errors());       
         }
-        $customer->tenantcode = $input['tenantcode'];
+        // $customer->tenantcode = $input['tenantcode'];
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
         $customer->mobile = $input['mobile'];
@@ -134,7 +162,7 @@ class CustomersController extends Controller
         $customer->email = $input['email'];
         $customer->company_name = $input['company_name'];
         $customer->address1 = $input['address1'];
-        $customer->address2 = $input['address2'];
+        // $customer->address2 = $input['address2'];
         $customer->state = $input['state'];
         $customer->district = $input['district'];
         $customer->taluka = $input['taluka'];
@@ -142,6 +170,8 @@ class CustomersController extends Controller
         $customer->panno = $input['panno'];
         $customer->gstno = $input['gstno'];
         $customer->noofbranches = $input['noofbranches'];
+        $customer->active = $input['active'];
+        $customer->role_id = $role_id;
         $customer->save();
         return response()->json([$customer]);
     }
@@ -203,7 +233,6 @@ class CustomersController extends Controller
         $request->validate([
             'branchname' => 'required',
             'branchaddress1' => 'required',
-            'branchaddress2' => 'required',
             'branchstate' => 'required',
             'branchdistrict' => 'required',
             'branchtaluka' => 'required',
@@ -299,4 +328,6 @@ class CustomersController extends Controller
         $delete_contact= $contactdata->delete();
         return response()->json([$delete_contact]);
     }
+
+    
 }

@@ -10,7 +10,7 @@ class Customers extends Model
 {
     use HasFactory;
     public $table="users";
-    public $timestamps = false;
+    // public $timestamps = false;
     protected $primaryKey = 'id';
     protected $fillable = [
         'id',
@@ -32,12 +32,7 @@ class Customers extends Model
         'company_name', 
         'panno', 
         'gstno', 
-<<<<<<< HEAD
         'noofbranches'
-=======
-        'noofbranches',
-        'role_id'
->>>>>>> 3cf49cd1721069170538a19aa68966f30dd3e704
     ];
 
     // public function setNameAttribute($value)
