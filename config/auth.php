@@ -14,10 +14,9 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
         'passwords' => 'users',
     ],
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
@@ -39,6 +38,11 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+            'hash' => false,
         ],
     ],
 
@@ -63,6 +67,9 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'otp-user' => [
+            'driver' => 'otp-based-auth-provider'
         ],
 
         // 'users' => [

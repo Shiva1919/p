@@ -20,15 +20,15 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => '',
             'email' => '',
-            'mobile' => '',
+            'phone' => '',
             'role_id' => '',
             'password' => '',
         ]);
 
         $user = User::create([
             'name' => $data['name'],
-            'email' => $data['tenantcode'],
-            'mobile' => $data['mobile'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
             'role_id' => $data['role_id'],
             'password' => Hash::make($data['password']),
         ]);

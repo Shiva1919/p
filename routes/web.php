@@ -112,3 +112,7 @@ Route::resource('serialnos', SerialnoController::class, ['parameters' =>
 														'store' => 'ocfno',
 														
 													]]);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

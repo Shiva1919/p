@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class JWTController extends Controller
 {
-   /**
+    /**
      * Create a new AuthController instance.
      *
      * @return void
@@ -30,7 +31,7 @@ class JWTController extends Controller
             'name' => 'required|string|min:2|max:100',
             'role_id' => '',
             'email' => 'required|string|email|max:100|unique:users',
-            'mobile' => '',
+            'phone' => '',
             'gender' => '',
             'password' => 'required|string|min:6',
         ]);
@@ -43,7 +44,7 @@ class JWTController extends Controller
                 'name' => $request->name,
                 'role_id' => $request->role_id,
                 'email' => $request->email,
-                'mobile' => $request->mobile,
+                'phone' => $request->phone,
                 'gender' => $request->gender,
                 'password' => Hash::make($request->password)
             ]);
@@ -128,7 +129,7 @@ class JWTController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => 1
+            'expires_in' => auth()->factory()->getTTL() * 30,
         ]);
     }
 }

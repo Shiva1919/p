@@ -17,25 +17,34 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 class SerialnoController extends Controller
 {
-    public function serialnosendotp(Request $request, $ocfno)
+    public function serialnosendotp(Request $request)
     {
         $Mobile = $request->input('phone');
         $checkmobile =  Customers::where('phone', $request->input('phone'))->first();
+        $serialno_ocfno =  OrderConfirmations::where('ocfno', $request->ocfno)->first();
         // $checkmobile1 =  Customers::where('phone', $Mobile)->first('phone');
-        if($checkmobile == null)
+        if($serialno_ocfno == null && $checkmobile == null)
         {
-            return response()->json(['OTP' => 'Mobile No invalid', 'status' => '1']);
+            return response()->json(['Message' => 'Invalid OCF or Mobile No', 'status' => '1']);
         }
-        $serialno_ocfno =  OrderConfirmations::where('ocfno', $ocfno)->first();
-
-        $otp =   Str::random(6);
+        if($checkmobile == null )
+        {
+            return response()->json(['Message' => 'Mobile No invalid', 'status' => '1']);
+        }
+        if($serialno_ocfno == null)
+        {
+            return response()->json(['Message' => 'Invalid OCF ', 'status' => '1']);
+        }
+       
+        $otp =   Str::random(4);
         // return $otp;
-        $verify = Customers::where('phone', $Mobile)->first();
+        // $verify = Customers::where('phone', $Mobile)->first();
+        $phone = $serialno_ocfno =  Customers::where('id', $serialno_ocfno->customercode)->first();
+        
         $verifyotp = [
             'otp' => $otp,
         ];
-        $update_verifyotp = $verify->update($verifyotp); 
-        // return $verify;
+        $update_verifyotp = $phone->update($verifyotp); 
         $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
        
         Log::info("otp = ".$otp);
@@ -65,23 +74,30 @@ class SerialnoController extends Controller
         $data = $response->getBody();
         Log::Info($data);
         // $data1 = $this->verifyOtp($request,$Mobile);
-        return response()->json(['OTP' => $otp , 'status' => '0', 'data' => $update_verifyotp]);
+        return response()->json(['OTP' => $otp , 'status' => '0', 'message' => 'OTP Generated']);
     }
 
-    public function serialnoverifyotp(Request $request, $mobile)
+    public function serialnoverifyotp(Request $request)
     {
-        $verify = Customers::where('phone', $mobile)->first();
+        $serialno_ocfno =  OrderConfirmations::where('ocfno', $request->ocfno)->first();
+        $phone = $serialno_ocfno =  Customers::where('id', $serialno_ocfno->customercode)->first();
+        //  $phone->otp_expires_time;
+        // $verify = Customers::where('phone', $request->phone)->first();
+        if($phone == null)
+        {
+            return response()->json(['Message' => 'Invalid Mobile No ', 'status' => '1']);
+        }
         $time = date('Y-m-d H:i:s');
-        if($time >= $verify->otp_expires_time)
+        if($time >= $phone->otp_expires_time)
         {
             return response()->json(['status' => '1', 'message' => 'OTP Expired']);
         }
-        else if($request->otp == $verify->otp)
+        else if($request->otp == $phone->otp)
         {
             $verifyotp = [
                 'isverified' => 1
             ]; 
-            $verify->update($verifyotp);  
+            $phone->update($verifyotp);  
             return response()->json(['status' => '0', 'message' => 'Verified']);
         }
         else
@@ -91,22 +107,28 @@ class SerialnoController extends Controller
        
     }
 
-    public function ocfchange(Request $request, $ocfno)
+    public function ocfchange(Request $request)
     {
-        // $serialno_ocfno = OrderConfirmations::where('ocfno', $ocfno)->first();
+         $serialno_ocfno = OrderConfirmations::where('ocfno', $request->ocfno)->first();
+         if($serialno_ocfno->ocfno == null)
+         {
+             return response()->json(['Message' => 'Invalid OCF', 'status' => '1']);
+         }
         // $serialno_customer = Customers::where('id', $serialno_ocfno->customercode)->first();
+      
         $request->validate([
-            'ocfno' => 'acme_ocf_change',
+            'ocfno' => 'required',
             'company_name' => 'required',
             'panno' => 'required',
             'gstno' => 'required'
         ]);
             $ocfchange = new OCFchange();
-            $ocfchange->ocfno = $ocfno;
+            $ocfchange->ocfno = $serialno_ocfno->ocfno;
             $ocfchange->company_name = $request->company_name;
             $ocfchange->panno = $request->panno;
             $ocfchange->gstno = $request->gstno;
             $ocfchange->save();
+           
             if($ocfchange)
             {
                 return response()->json([ 'message' => 'Wait For Verification', 'status' => '0']);
@@ -118,51 +140,95 @@ class SerialnoController extends Controller
             
     }
 
-    public function serialnogenerate(Request $request, $ocfno)
+    public function serialnogenerate(Request $request)
     {
-        $serialno_ocfno = OrderConfirmations::where('ocfno', $ocfno)->first();
+        $serialno_ocfno = OrderConfirmations::where('ocfno', $request->ocfno)->first();
+        if($serialno_ocfno == null)
+        {
+            return response()->json(['Message' => 'Invalid OCF ', 'status' => '1']);
+        }
         $serialno_customers = Customers::where('id', $serialno_ocfno->customercode)->first();   
         // return $serialno_customers;
+        $time = date('Y-m-d H:i:s');
+        $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
         if( $serialno_customers->isverified ==1)
         {
             $serialno_customer = Customers::where('id', $serialno_ocfno->customercode)->first();
 
-            $parameters = [
-                'company_name' => $request->company_name,
-                'panno' => $request->panno,
-                'gstno' => $request->gstno,
-                'transaction_datetime' => $serialno_ocfno->fromdate,
-                'serialno_issue_date' => $serialno_ocfno->fromdate,
-                'serialno_validity' => $serialno_ocfno->todate,
-                'serialno_validity_Encrypt' => $serialno_ocfno->todate
-            ];
-            // return $parameters;
-            if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
-            {
-                $serialno_parameter = $serialno_customer->company_name. $serialno_customer->panno.$serialno_customer->gstno;
-                $serialno = new Serialno();
-                $serialno->ocfno = $ocfno;
-                $serialno->transaction_datetime = $parameters['transaction_datetime'];
-                $serialno->serialno_issue_date = $parameters['serialno_issue_date'];
-                $serialno->serialno_validity = $parameters['serialno_validity'];
-                $serialno->serialno_validity_Encrypt = md5($parameters['serialno_validity_Encrypt']);
-                $serialno->serialno_parameters = $serialno_parameter;
-                $serialno->serialno = md5($serialno_parameter);
-                $serialno->save();
-                if($serialno){
-                    return response()->json(['data' => $serialno, 'status' => '0', 'message' => 'Serial No Generated']);
+            $serialcheck =  Serialno::where('ocfno', $request->ocfno)->first();
+          
+        //    if ($serialcheck->ocfno) {
+           
+            // if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
+            // {
+                $serialno_parameter = $request->comp_name. $request->pan.$request->gst;
+
+            //    $data=[
+            //     "transaction_datetime" => $request['transaction_datetime'],
+            //     "serialno_issue_date" => $request['serialno_issue_date'],
+            //     "serialno_validity" => $request['serialno_validity'],
+            //     "serialno_parameters" => $serialno_parameter,
+            //     "serialno" => md5($serialno_parameter),
+            //    ];
+               $ocf = new Serialno();
+               $ocf->id;
+               $ocf->ocfno = $request->ocfno;
+               $ocf->comp_name = $request->comp_name;
+               $ocf->pan = $request->pan;
+               $ocf->gst = $request->gst;
+               $ocf->transaction_datetime = $time;
+               $ocf->serialno_issue_date = $time;
+               $ocf->serialno_validity = $expirydate;
+               $ocf->serialno_parameters = $serialno_parameter;
+               $ocf->serialno = md5($serialno_parameter);
+               $ocf->save();
+            //    return $ocf;
+                // $serialno = Serialno::where('ocfno', $request->ocfno)->update($data);
+                
+                if($ocf){
+                    return response()->json(['data' => md5($serialno_parameter), 'status' => '0', 'message' => 'Serial No Generated']);
                 }
                 else
                 {
                     return response()->json(['status' => '1', 'message' => 'Invalid Data']);
                 }
                 
-            }
-            else 
-            {
-                return response()->json(['message' => 'Invalid Credentials', 'status' => '1' ]);
-            }   
-        }
+            // }
+            // else 
+            // {
+            //     return response()->json(['message' => 'Invalid Credentials', 'status' => '1' ]);
+            // }
+           
+        //    }
+        //    else{
+        //     if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
+        //     {
+        //         $serialno_parameter = $serialno_customer->company_name. $serialno_customer->panno.$serialno_customer->gstno;
+        //         $serialno = new Serialno();
+        //         $serialno->ocfno = $request->ocfno;
+        //         $serialno->transaction_datetime = $parameters['transaction_datetime'];
+        //         $serialno->serialno_issue_date = $parameters['serialno_issue_date'];
+        //         $serialno->serialno_validity = $parameters['serialno_validity'];
+        //         // $serialno->serialno_validity_Encrypt = md5($parameters['serialno_validity_Encrypt']);
+        //         $serialno->serialno_parameters = $serialno_parameter;
+        //         $serialno->serialno = md5($serialno_parameter);
+        //         $serialno->save();
+             
+        //         if($serialno){
+        //             return response()->json(['data' => $serialno, 'status' => '0', 'message' => 'Serial No Generated']);
+        //         }
+        //         else
+        //         {
+        //             return response()->json(['status' => '1', 'message' => 'Invalid Data']);
+        //         }
+                
+        //     }
+        //     else 
+        //     {
+        //         return response()->json(['message' => 'Invalid Credentials', 'status' => '1' ]);
+        //     }   
+        // }
+    }
         else{
             return response()->json(['message' => 'Unverified', 'status' => '1' ]);
         } 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\API\Users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
@@ -16,15 +18,22 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')
+        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)
                         ->get( ['roles.name as rolename','users.*']);
         // $user = Users::where('active', 1)->orderBy('name', 'asc')->get();
         return $user;
     }
 
+    public function getuserlogin(Request $request)
+    {
+        session_start();  
+        $data =  $_SESSION;
+        return $data;
+    }
+
     public function deactiveuserslist()
     {
-        $user = Users::where('active', 0)->orderBy('name', 'asc')->get();
+        $user = Users::where('active', 0)->orderBy('name', 'asc')->where('role_id', '!=', 10)->get();
         return $user;
     }
 
@@ -46,25 +55,23 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->all();
-        $validator = Validator::make($input, [
-            'tenantcode' => '',
-            'name' => 'required|max:191',
-            'last_name' => '',
-            'email' => '',
-            'phone' => '',
-            'password' => 'required',
-            'active' => '',
-            'role_id' => 'required',
-            'permission_id' => '',
-        ]);
-        
-        if($validator->fails())
-        {
-            return $this->sendError('Validation Error.', $validator->errors());       
-        }
-        $user = Users::create($input);
+        $this->validate(request(),[
+            //put fields to be validated here
+            ]);         
+       
+        $user= new Users();
+            $user->name= $request['name'];
+            $user->last_name= $request['last_name'];
+            $user->email= $request['email'];
+            $user->phone= $request['phone'];
+            $user->password= Hash::make($request['password']);
+            $user->active= $request['active'];
+            $user->role_id= $request['role_id'];
+            $user->permission_id= $request['permission_id'];
+        $user->save();
         return response()->json([$user]);
+
+
     }
 
     /**
@@ -105,7 +112,7 @@ class UsersController extends Controller
     {
         $input = $request->all();
         $validator = Validator::make($input, [
-            'tenantcode' =>'',
+            // 'tenantcode' =>'',
             'name' => 'required',
             'last_name' => '',
             'email' => '',
@@ -119,17 +126,17 @@ class UsersController extends Controller
         {
             return $this->sendError('Validation Error.', $validator->errors());       
         }
-        $user->tenantcode = $input['tenantcode'];
+        // $user->tenantcode = $input['tenantcode'];
         $user->name = $input['name'];
         $user->last_name = $input['last_name'];
         $user->email = $input['email'];
         $user->phone = $input['phone'];
         $user->active = $input['active'];
-        $user->password = $input['password'];
+        $user->password = Hash::make($input['password']);
         $user->role_id = $input['role_id'];
         $user->permission_id = $input['permission_id'];
         $user->save();
-        return $user;
+        // return $user;
         return response()->json($user);
     }
 

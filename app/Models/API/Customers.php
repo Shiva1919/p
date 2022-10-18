@@ -32,7 +32,11 @@ class Customers extends Model
         'company_name', 
         'panno', 
         'gstno', 
-        'noofbranches'
+        'noofbranches',
+        'password',
+        'concernperson',
+        'packagecode',
+        'subpackagecode'
     ];
 
     // public function setNameAttribute($value)

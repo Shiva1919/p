@@ -7,6 +7,8 @@ use App\Models\API\Serialno;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
+
 class VerficationController extends Controller
 {
 
@@ -40,7 +42,7 @@ class VerficationController extends Controller
     }
    }
 //user and emplyee actions on click button
-   function Customer_verfication($serialnumber,$userid,$id)
+   function Customer_verfication(Request $request)
     {         
     //   $InfoUpdate = DB::table('serialno')->where('serialno',$serialnumber)->get();
     //   if (!empty($InfoUpdate)) {
@@ -92,34 +94,36 @@ class VerficationController extends Controller
     //         'status'=>0
     //     ]); 
     // }
-      $InfoUpdate = DB::table('acme_ocf_change')->where('ocfno',$serialnumber)->where('id',$id)->get();
+      $InfoUpdate = DB::table('acme_ocf_change')->where('ocfno',$request->ocfno)->where('id',$request->id)->get();
+      return $InfoUpdate;
       if(!empty($InfoUpdate))
       {  
-        $ocfnumber = DB::table('acme_product_ocf')->where('ocfno',$serialnumber)->first();
+        $ocfnumber = DB::table('acme_product_ocf')->where('ocfno',$request->ocfno)->first();
 //update information 
     $user= DB::table('users')
             ->where('id',$ocfnumber->customercode)
             ->update(['gstno' => $InfoUpdate[0]->gstno,'panno' => $InfoUpdate[0]->panno,'company_name' => $InfoUpdate[0]->company_name]);
 //only admin delelte the recored 
-     if ($userid=='1') {
-    DB::table('acme_ocf_change')->where('ocfno',$serialnumber)->where('id',$id)->delete();
+     
+    //  if ($userid=='1') {
+    DB::table('acme_ocf_change')->where('ocfno',$request->ocfno)->where('id',$request->id)->delete();
     return response()->json([
         'Message'=>'done',
         // 'status'=>'200',
         'status'=>'0',
     ]);
-   }
-   else{
+//    }
+//    else{
     $user= DB::table('acme_ocf_change')
-            ->where('ocfno',$serialnumber)
-            ->update(['passedby' => $userid]);
+            ->where('ocfno',$request->ocfno);
+            // ->update(['passedby' => $userid]);
      return response()->json([
         'Message'=>'Pass by user',
                 'status'=>'0',
                 //'status'=>'200',
             ]);
     
-   }
+//    }
     }
     else
     {
@@ -181,28 +185,49 @@ else{
 
     $request->validate([
         'serialno' => 'required',
-        'todate' => 'required',
+        'fromdate' => 'required',
        
     ]);
   
-    $InfoUpdate= DB::table('serialno')->where('serialno',$request->serialno)->where('serialno_validity_Encrypt',$request->todate)->first();
+    $InfoUpdate= DB::table('serialno')->where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
+    // $date = Carbon::now();
+    $time = date('Y-m-d H:i:s');
+    $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+      return $InfoUpdate->ocfno;
     if (!empty($InfoUpdate)) {
          $cusromer_details= DB::table('acme_product_ocf')->where('ocfno',$InfoUpdate->ocfno)->first(); 
-         $serialno_customers = Customers::where('id', $cusromer_details->customercode)->first();
+        //  $serialno_customers = Customers::where('id', $cusromer_details->customercode)->first();
+        $serial_parameters = Serialno::where('ocfno', $request->ocfno)->orderBy('id','desc')->first();
+        return $serial_parameters->comp_name;
+        // return $parameters;
          //new generated the serial number
-         $update_serialnumber = md5($serialno_customers->company_name.$serialno_customers->panno.$serialno_customers->gstno.($InfoUpdate->serialno_generated_count+1));
-        //update the only serial number and generated count
-       Serialno::where('serialno',$request->serialno)->where('serialno_validity_Encrypt',$request->todate)->update(['serialno' => $update_serialnumber,'serialno_generated_count'=>$InfoUpdate->serialno_generated_count+1]);
-        return response()->json([
+        $update_serialnumber = md5($InfoUpdate->comp_name.$InfoUpdate->pan.$InfoUpdate->gst);
+        // return $update_serialnumber;
+         //update the only serial number and generated count
+    //    Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->save(['serialno' => $update_serialnumber,'serialno_issue_date' => $request->fromdate]);
+        $ocf = Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
+        $ocf->id;
+        $ocf->ocfno = $request->ocfno;
+        $ocf->comp_name = $request->comp_name;
+        $ocf->pan = $request->pan;
+        $ocf->gst = $request->gst;
+        $ocf->transaction_datetime = $time;
+        $ocf->serialno_issue_date = $time;
+        $ocf->serialno_validity = $expirydate;
+        $ocf->serialno_parameters = $update_serialnumber;
+        $ocf->serialno = md5($update_serialnumber);
+        $ocf->save();
+        return $ocf;
+    return response()->json([
             'message'=>'New Serial Number generated',
-            'status'=> 0,
-            'data'=>['serial_number'=> $update_serialnumber],
+            'status'=> '0',
+            'data'=>['serial_number'=> $update_serialnumber, 'Issue_Date' => $request->fromdate],
         ]);
     }
     else{
         return response()->json([
             'message'=>'Serial Number not found',
-            'status'=> 1,
+            'status'=> '1',
         ]);
     }
 }

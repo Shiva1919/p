@@ -5,12 +5,12 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\API\Branchs;
 use App\Models\API\Contacts;
-use App\Models\API\Customers;
+use App\Models\API\OCFCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class CustomersController extends Controller
+class OCFCustomerController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,8 +19,8 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customers::leftjoin('city', 'users.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
-        ->get( ['city.cityname','users.*' ]);
+        $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
+        ->get( ['city.cityname','customer_master.*' ]);
         //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
         
         // $customer = Customers::limit(100)->get();
@@ -29,7 +29,7 @@ class CustomersController extends Controller
 
     public function deactivecustomerslist()
     {
-        $package = Customers::where('active', 0)->orderBy('name', 'asc')->get();
+        $package = OCFCustomer::where('active', 0)->orderBy('name', 'asc')->get();
         return response()->json($package);
     }
 
@@ -58,16 +58,16 @@ class CustomersController extends Controller
             'entrycode' => '',
             'phone' => '',
             'email' => '',
-            'company_name' => '',
+            // 'company_name' => '',
             'address1' => '',
             // 'address2' => '',
             'state' => '',
             'district' => '',
             'taluka' => '',
             'city' => '',
-            'panno' => '',
-            'gstno' => '',
-            'noofbranches' => '',
+            // 'panno' => '',
+            // 'gstno' => '',
+            'noofbranch' => '',
             'role_id' => '',
             'active' => '',
             'password' => '',
@@ -76,25 +76,26 @@ class CustomersController extends Controller
             'subpackagecode' => ''
         ]);
         $password = 'AcmeAcme1994';
-        $insert_customers = new Customers();
+        $insert_customers = new OCFCustomer();
         // $insert_customers->tenantcode = $request->tenantcode;
         $insert_customers->name = $request->name;
         $insert_customers->entrycode = $request->entrycode;
         $insert_customers->phone = $request->phone;
         $insert_customers->email = $request->email;
-        $insert_customers->company_name = $request->company_name;
+        // $insert_customers->company_name = $request->company_name;
         $insert_customers->address1 = $request->address1;
         // $insert_customers->address2 = $request->address2;
         $insert_customers->state = $request->state;
         $insert_customers->district = $request->district;
         $insert_customers->taluka = $request->taluka;
         $insert_customers->city = $request->city;
-        $insert_customers->panno = $request->panno;
-        $insert_customers->gstno = $request->gstno;
-        $insert_customers->noofbranches = $request->noofbranches;
+        // $insert_customers->panno = $request->panno;
+        // $insert_customers->gstno = $request->gstno;
+        $insert_customers->noofbranch = $request->noofbranch;
         $insert_customers->role_id = $request->role_id;
         $insert_customers->active = $request->active;
         $insert_customers->password = $password;
+        $insert_customers->role_id = $role_id;
         $insert_customers->concernperson = $request->concernperson;
         $insert_customers->packagecode = $request->packagecode;
         $insert_customers->subpackagecode = $request->subpackagecode;
@@ -110,7 +111,7 @@ class CustomersController extends Controller
      */
     public function show($id)
     {
-        $getbyid_customer = Customers::find($id);
+        $getbyid_customer = OCFCustomer::find($id);
         if (is_null($getbyid_customer)) 
         {
             return $this->sendError('Customer not found.');
@@ -136,7 +137,7 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Customers $customer)
+    public function update(Request $request, OCFCustomer $customer)
     {
         $role_id = 10;
         $password = 'AcmeAcme1994';
@@ -145,7 +146,7 @@ class CustomersController extends Controller
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
-            'mobile' => '',
+            // 'mobile' => '',
             'phone' => '',
             'email' => '',
             'company_name' => '',
@@ -155,9 +156,9 @@ class CustomersController extends Controller
             'district' => '',
             'taluka' => '',
             'city' => '',
-            'panno' => '',
-            'gstno' => '',
-            'noofbranches' => '',
+            // 'panno' => '',
+            // 'gstno' => '',
+            'noofbranch' => '',
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',
@@ -170,19 +171,19 @@ class CustomersController extends Controller
         // $customer->tenantcode = $input['tenantcode'];
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
-        $customer->mobile = $input['mobile'];
+        // $customer->mobile = $input['mobile'];
         $customer->phone = $input['phone'];
         $customer->email = $input['email'];
-        $customer->company_name = $input['company_name'];
+        // $customer->company_name = $input['company_name'];
         $customer->address1 = $input['address1'];
         // $customer->address2 = $input['address2'];
         $customer->state = $input['state'];
         $customer->district = $input['district'];
         $customer->taluka = $input['taluka'];
         $customer->city = $input['city'];
-        $customer->panno = $input['panno'];
-        $customer->gstno = $input['gstno'];
-        $customer->noofbranches = $input['noofbranches'];
+        // $customer->panno = $input['panno'];
+        // $customer->gstno = $input['gstno'];
+        $customer->noofbranch = $input['noofbranch'];
         $customer->active = $input['active'];
         $customer->concernperson = $input['concernperson'];
         $customer->packagecode = $input['packagecode'];
@@ -199,7 +200,7 @@ class CustomersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Customers $customer)
+    public function destroy(OCFCustomer $customer)
     {
         $customer->delete();
         return response()->json([$customer]);
