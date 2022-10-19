@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\API\Branchs;
 use App\Models\API\Contacts;
+use App\Models\API\Company;
 use App\Models\API\OCFCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class OCFCustomerController extends Controller
         $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
         ->get( ['city.cityname','customer_master.*' ]);
         //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
-        
+
         // $customer = Customers::limit(100)->get();
         return response()->json($customer);
     }
@@ -40,7 +41,7 @@ class OCFCustomerController extends Controller
      */
     public function create()
     {
-        
+
     }
 
     /**
@@ -51,6 +52,8 @@ class OCFCustomerController extends Controller
      */
     public function store(Request $request)
     {
+
+
         $role_id = 10;
         $request->validate([
             'tenantcode' => '',
@@ -77,20 +80,15 @@ class OCFCustomerController extends Controller
         ]);
         $password = 'AcmeAcme1994';
         $insert_customers = new OCFCustomer();
-        // $insert_customers->tenantcode = $request->tenantcode;
         $insert_customers->name = $request->name;
         $insert_customers->entrycode = $request->entrycode;
         $insert_customers->phone = $request->phone;
         $insert_customers->email = $request->email;
-        // $insert_customers->company_name = $request->company_name;
         $insert_customers->address1 = $request->address1;
-        // $insert_customers->address2 = $request->address2;
         $insert_customers->state = $request->state;
         $insert_customers->district = $request->district;
         $insert_customers->taluka = $request->taluka;
         $insert_customers->city = $request->city;
-        // $insert_customers->panno = $request->panno;
-        // $insert_customers->gstno = $request->gstno;
         $insert_customers->noofbranch = $request->noofbranch;
         $insert_customers->role_id = $request->role_id;
         $insert_customers->active = $request->active;
@@ -99,7 +97,21 @@ class OCFCustomerController extends Controller
         $insert_customers->concernperson = $request->concernperson;
         $insert_customers->packagecode = $request->packagecode;
         $insert_customers->subpackagecode = $request->subpackagecode;
-        $insert_customers->save();
+         $insert_customers->save();
+        if(!empty($insert_customers->id)) {
+              foreach ($request->Cdocument as $data ) {
+                $data=[
+                    'customercode'=> $insert_customers->id,
+                    'company_name'=>  $data['company'],
+                    'pan_no'=> $data['pan'],
+                    'gst_no'=> $data['gst'],
+                ];
+
+              Company::create($data);
+            }
+
+        }
+
         return response()->json([$insert_customers]);
     }
 
@@ -112,7 +124,7 @@ class OCFCustomerController extends Controller
     public function show($id)
     {
         $getbyid_customer = OCFCustomer::find($id);
-        if (is_null($getbyid_customer)) 
+        if (is_null($getbyid_customer))
         {
             return $this->sendError('Customer not found.');
         }
@@ -166,7 +178,7 @@ class OCFCustomerController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return $this->sendError('Validation Error.', $validator->errors());
         }
         // $customer->tenantcode = $input['tenantcode'];
         $customer->name = $input['name'];
@@ -230,7 +242,7 @@ class OCFCustomerController extends Controller
         return response()->json($data);
     }
 
-    public function branchindex($customerid) 
+    public function branchindex($customerid)
     {
 
         $branch =  Branchs::where('customercode', $customerid)->orderBy('branchname', 'asc')->get();
@@ -240,7 +252,7 @@ class OCFCustomerController extends Controller
         return response()->json($branch);
     }
 
-    public function branchshow($customerid, $id) 
+    public function branchshow($customerid, $id)
     {
         $branch = Branchs::where('customercode', $customerid)->find($id);
         return response()->json($branch);
@@ -293,13 +305,13 @@ class OCFCustomerController extends Controller
         return response()->json([$delete_branch]);
     }
 
-    public function contactindex($customerid) 
+    public function contactindex($customerid)
     {
         $contact = Contacts::where('customercode', $customerid)->get();
         return response()->json($contact);
     }
 
-    public function contactshow($customerid, $id) 
+    public function contactshow($customerid, $id)
     {
         $contact = Contacts::where('customercode', $customerid)->find($id);
         return response()->json($contact);
@@ -347,5 +359,5 @@ class OCFCustomerController extends Controller
         return response()->json([$delete_contact]);
     }
 
-    
+
 }

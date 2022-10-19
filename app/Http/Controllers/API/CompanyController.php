@@ -45,6 +45,7 @@ class CompanyController extends Controller
             'gst_no' => ''
         ]);
         $insert_package = Company::create($request->all());
+
         return response()->json($insert_package);
     }
 
