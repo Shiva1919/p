@@ -154,6 +154,8 @@ class OCFCustomerController extends Controller
         $role_id = 10;
         $password = 'AcmeAcme1994';
         $input = $request->all();
+
+
         $validator = Validator::make($input, [
             'tenantcode' => '',
             'name' => '',
@@ -180,21 +182,15 @@ class OCFCustomerController extends Controller
         {
             return $this->sendError('Validation Error.', $validator->errors());
         }
-        // $customer->tenantcode = $input['tenantcode'];
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
-        // $customer->mobile = $input['mobile'];
         $customer->phone = $input['phone'];
         $customer->email = $input['email'];
-        // $customer->company_name = $input['company_name'];
         $customer->address1 = $input['address1'];
-        // $customer->address2 = $input['address2'];
         $customer->state = $input['state'];
         $customer->district = $input['district'];
         $customer->taluka = $input['taluka'];
         $customer->city = $input['city'];
-        // $customer->panno = $input['panno'];
-        // $customer->gstno = $input['gstno'];
         $customer->noofbranch = $input['noofbranch'];
         $customer->active = $input['active'];
         $customer->concernperson = $input['concernperson'];
@@ -203,6 +199,21 @@ class OCFCustomerController extends Controller
         $customer->role_id = $role_id;
         $customer->password = $password;
         $customer->save();
+
+        if(!empty($input['id'])) {
+            Company::where('customercode',$input['id'])->delete();
+            foreach ($request->Cdocument as $data ) {
+              $data=[
+                  'customercode'=> $input['id'],
+                  'company_name'=>  $data['company'],
+                  'pan_no'=> $data['pan'],
+                  'gst_no'=> $data['gst'],
+              ];
+
+            Company::create($data);
+          }
+
+      }
         return response()->json([$customer]);
     }
 
