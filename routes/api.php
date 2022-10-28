@@ -20,11 +20,7 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
-<<<<<<< HEAD
-use App\Http\Controllers\PackageController;
-=======
 use App\Http\Controllers\hsnController;
->>>>>>> 82f759b6b9ad35826244b619f844e2b57afad97d
 
 /*
 |--------------------------------------------------------------------------

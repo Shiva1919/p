@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\API\Branchs;
 use App\Models\API\Company;
 use App\Models\API\Contacts;
-use App\Models\API\Company;
 use App\Models\API\OCFCustomer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -371,14 +370,10 @@ class OCFCustomerController extends Controller
         return response()->json([$delete_contact]);
     }
 
-<<<<<<< HEAD
     public function companybycustomer($customerid)
     {
         $company = Company::where('customercode', $customerid)->get();
         return response()->json($company);
     }
     
-=======
-
->>>>>>> 82f759b6b9ad35826244b619f844e2b57afad97d
 }
