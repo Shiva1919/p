@@ -1,30 +1,25 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\CompanyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
 use App\Http\Controllers\ReportController;
+
 use App\Http\Controllers\SendurlController;
+
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\VerficationController;
 use App\Http\Controllers\API\PackagesController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\CustomersController;
-use App\Http\Controllers\API\OCFController;
-use App\Http\Controllers\API\OCFCustomerController;
-use App\Http\Controllers\API\OCFModuleController;
 use App\Http\Controllers\API\OrderConfirmationsController;
 use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
-<<<<<<< HEAD
-use App\Http\Controllers\PackageController;
-=======
-use App\Http\Controllers\hsnController;
->>>>>>> 82f759b6b9ad35826244b619f844e2b57afad97d
+use App\Http\Controllers\IApi;
+use App\Http\Controllers\Activity_log;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +31,6 @@ use App\Http\Controllers\hsnController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('get_hsn/{id}',[hsnController::class,'index']);
 Route::group(['middleware' => 'api'], function($router) {
     Route::post('/register', [JWTController::class, 'register']);
     Route::post('/login', [JWTController::class, 'login']);
@@ -48,6 +42,13 @@ Route::group(['middleware' => 'api'], function($router) {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+//E-invoice
+
+Route::resource('E-invoice',IApi::class);
+   Route::get('activation/{Owncode}/{activation}',[IApi::class,'activation']);
+   Route::get('payment/{Owncode}/{payment}',[IApi::class,'Payment']);
+
+
 
 Route::get('loginuser', [UsersController::class, 'getuserlogin']);
 // Package
@@ -69,23 +70,9 @@ Route::get('modulegetbyid/{packageid}/{id}', [PackagesController::class, 'module
 Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore']);
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
 Route::delete('moduledelete/{packageid}/{id}', [PackagesController::class, 'moduledelete']);
-Route::get('module', [PackagesController::class, 'module']);
 
 // Customer
-// Route::resource('customer', CustomersController::class);
-Route::resource('customer', OCFCustomerController::class);
-//Company get dependent on customer
-Route::get('getcustomer/{customerid}', [OCFCustomerController::class, 'companybycustomer']);
-Route::resource('ocf', OCFController::class);
-Route::get('getocfno/{ocfno}',[ OCFController::class, 'getocfno']);
-//ocf muliple date get by ocf id
-Route::get('getmodaldata/{ocfno}',[ OCFModuleController::class, 'getocfmodalno']);
-Route::resource('ocfmodule', OCFModuleController::class);
-Route::get('ocfmoduledata/{packageid}', [OCFModuleController::class, 'indexs']);
-//ocf last id
-Route::get('getocfid', [OCFController::class, 'getocflastid']);
-//ocf last series
-Route::get('getseries', [OCFController::class, 'getocflastseries']);
+Route::resource('customer', CustomersController::class);
 
 
 Route::get('customerdeactivelist', [CustomersController::class, 'deactivecustomerslist']);
@@ -149,7 +136,7 @@ Route::get('date_state/{state}/{todate}/{Fromdate}',[ReportController::class,'fe
 //customer name ,panno,gstno verfication
 Route::get('verfication_list',[VerficationController::class,'details_changes']);
 // Route::get('check_verfication/{company}/{gst}/{pan}',[VerficationController::class,'Check_verfication']);
-Route::post('customer_verfication',[VerficationController::class,'Customer_verfication']);
+Route::get('customer_verfication/{ocfno}/{userid}/{id}',[VerficationController::class,'Customer_verfication']);
 // Route::get('sr_validation/{serialnumber}/{expiring}',[VerficationController::class,'sr_validation']);
 Route::post('sr_validation_date',[VerficationController::class,'sr_validation_date']);
 
@@ -192,7 +179,3 @@ Route::get('rolesdeactive', [RoleController::class, 'deactiverole']);
  Route::put('permissions/{id}/{active}/status', [PermissionController::class, 'permissionstatus']);
  Route::get('permissionsactive', [PermissionController::class, 'activepermission']);
  Route::get('permissionsdeactive', [PermissionController::class, 'deactivepermission']);
-
-//  Company
-
-Route::resource('company', CompanyController::class);
