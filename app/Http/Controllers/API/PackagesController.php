@@ -232,4 +232,10 @@ class PackagesController extends Controller
         return response()->json([$delete_module]);
     }
 
+    public function module()
+    {
+        $module= Modules::all();
+        return response()->json($module);
+    }
+
 }

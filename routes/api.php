@@ -22,6 +22,7 @@ use App\Http\Controllers\API\PermissionController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
+use App\Http\Controllers\PackageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,12 +66,24 @@ Route::get('modulegetbyid/{packageid}/{id}', [PackagesController::class, 'module
 Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore']);
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
 Route::delete('moduledelete/{packageid}/{id}', [PackagesController::class, 'moduledelete']);
+Route::get('module', [PackagesController::class, 'module']);
 
 // Customer
 // Route::resource('customer', CustomersController::class);
 Route::resource('customer', OCFCustomerController::class);
+//Company get dependent on customer
+Route::get('getcustomer/{customerid}', [OCFCustomerController::class, 'companybycustomer']);
 Route::resource('ocf', OCFController::class);
+Route::get('getocfno/{ocfno}',[ OCFController::class, 'getocfno']);
+//ocf muliple date get by ocf id
+Route::get('getmodaldata/{ocfno}',[ OCFModuleController::class, 'getocfmodalno']);
 Route::resource('ocfmodule', OCFModuleController::class);
+Route::get('ocfmoduledata/{packageid}', [OCFModuleController::class, 'indexs']);
+//ocf last id
+Route::get('getocfid', [OCFController::class, 'getocflastid']);
+//ocf last series
+Route::get('getseries', [OCFController::class, 'getocflastseries']);
+
 
 Route::get('customerdeactivelist', [CustomersController::class, 'deactivecustomerslist']);
 // //Country

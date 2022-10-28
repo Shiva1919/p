@@ -17,5 +17,7 @@ class OCF extends Model
         'companycode',
         'ocfno',
         'ocf_date', 
+        'module_total',
+        'series'
     ];
 }

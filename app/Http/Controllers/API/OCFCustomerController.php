@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\API\Branchs;
+use App\Models\API\Company;
 use App\Models\API\Contacts;
 use App\Models\API\OCFCustomer;
 use Illuminate\Http\Request;
@@ -347,5 +348,10 @@ class OCFCustomerController extends Controller
         return response()->json([$delete_contact]);
     }
 
+    public function companybycustomer($customerid)
+    {
+        $company = Company::where('customercode', $customerid)->get();
+        return response()->json($company);
+    }
     
 }

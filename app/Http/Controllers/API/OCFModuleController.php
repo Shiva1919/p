@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\API\OCF;
+use App\Models\API\OCFCustomer;
 use App\Models\API\OCFModule;
 use Illuminate\Http\Request;
 
@@ -13,10 +15,12 @@ class OCFModuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function indexs($packageid)
     {
-        $ocfmodule = OCFModule::all();
-        return response()->json($ocfmodule);
+        $ocfmodule = OCFModule::where('ocfcode', $packageid)->first();
+        $ocf = OCF::where('id', $ocfmodule->ocfcode)->first();
+        $customer = OCFCustomer::where('id', $ocf->customercode)->first();
+        return response()->json($customer);
     }
 
     /**
@@ -104,5 +108,11 @@ class OCFModuleController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getocfmodalno($ocfcod)
+    {
+         $data = OCFModule::where('ocfcode', $ocfcod)->get();
+        return $data;
     }
 }
