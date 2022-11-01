@@ -61,6 +61,12 @@ class CompanyController extends Controller
         return response()->json($company);
     }
 
+    public function customer_wise_company($id)
+    {
+        $companys = Company::where('customercode', $id)->get();
+        return response()->json($companys);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *
