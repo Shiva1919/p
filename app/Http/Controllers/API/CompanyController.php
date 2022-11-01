@@ -57,7 +57,7 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
-        $company = Company::where('customercode', $id)->get();
+        $company = Company::where('id', $id)->get();
         return response()->json($company);
     }
 

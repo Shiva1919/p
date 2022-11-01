@@ -28,6 +28,13 @@ class OCFCustomerController extends Controller
         return response()->json($customer);
     }
 
+    public function getmoduledata($customerid)
+    {
+        $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
+                                ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
+                                ->where('customer_master.id', $customerid)->get('acme_module.*');
+        return response()->json($getmodules);
+    }
     public function deactivecustomerslist()
     {
         $package = OCFCustomer::where('active', 0)->orderBy('name', 'asc')->get();
@@ -369,10 +376,9 @@ class OCFCustomerController extends Controller
         $delete_contact= $contactdata->delete();
         return response()->json([$delete_contact]);
     }
-
-    public function companybycustomer($customerid)
+     public function companybycustomer($customerid)
     {
-        $company = Company::where('customercode', $customerid)->get();
+        $company = Company::where('customercode', $customerid)->get('company_name');
         return response()->json($company);
     }
     

@@ -17,7 +17,7 @@ class OCFController extends Controller
     public function index()
     {
         $ocf = OCF::all();
-        return response()->json([$ocf]);
+        return response()->json($ocf);
     }       
 
     public function getocflastid()
@@ -44,10 +44,14 @@ class OCFController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request;
         $series = OCF::orderBy('series', 'desc')->first('series');
         $ocf= OCF::where('ocfno', $request->ocfno)->get();
-        if(empty($ocf))
+       
+       
+        if(count($ocf)==0)
         {
+            
             $request->validate([
                 'customercode' => '',
                 'companycode' => '',
@@ -97,13 +101,14 @@ class OCFController extends Controller
             ]);
             $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
            
+           
             // $insert_customers->tenantcode = $request->tenantcode;
             $insert_ocf->customercode = $request->customercode;
             $insert_ocf->companycode = $request->companycode;
             $insert_ocf->ocfno = $request->ocfno;
             $insert_ocf->ocf_date = $request->ocf_date;
             $insert_ocf->module_total=$request->module_total;
-            $insert_ocf->series=$series->series+1;
+            // $insert_ocf->series=$series->series+1;
             $insert_ocf->save();
 
             OCFModule::where('ocfcode',$insert_ocf->id)->delete();
@@ -178,6 +183,6 @@ class OCFController extends Controller
     public function getocfno($ocfno)
     {
          $data = OCF::where('ocfno', $ocfno)->first();
-        return $data;
+        return response()->json($data);
     }
 }

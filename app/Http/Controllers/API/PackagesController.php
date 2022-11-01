@@ -7,6 +7,7 @@ use App\Models\API\Modules;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class PackagesController extends Controller
@@ -209,6 +210,7 @@ class PackagesController extends Controller
         $module->active = $request->active;
         $module->producttype =$packageid;
         $module->save();
+        
         return response()->json([$module]);
     }
 
@@ -236,6 +238,12 @@ class PackagesController extends Controller
     {
         $module= Modules::all();
         return response()->json($module);
+    }
+
+    public function moduletype()
+    {
+        $moduletype= DB::table('module_type')->get();
+        return response()->json($moduletype);
     }
 
 }

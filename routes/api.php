@@ -66,6 +66,8 @@ Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore'])
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
 Route::delete('moduledelete/{packageid}/{id}', [PackagesController::class, 'moduledelete']);
 Route::get('module', [PackagesController::class, 'module']);
+Route::get('moduletype', [PackagesController::class, 'moduletype']);
+Route::get('getmoduledata/{customerid}', [OCFCustomerController::class, 'getmoduledata']);
 
 // Customer
 // Route::resource('customer', CustomersController::class);
