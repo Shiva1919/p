@@ -113,7 +113,6 @@ class OCFCustomerController extends Controller
                     'pan_no'=> $data['pan'],
                     'gst_no'=> $data['gst'],
                 ];
-
               Company::create($data);
             }
 
@@ -131,6 +130,7 @@ class OCFCustomerController extends Controller
     public function show($id)
     {
         $getbyid_customer = OCFCustomer::find($id);
+
         if (is_null($getbyid_customer))
         {
             return $this->sendError('Customer not found.');
@@ -381,5 +381,10 @@ class OCFCustomerController extends Controller
         $company = Company::where('customercode', $customerid)->get('company_name');
         return response()->json($company);
     }
+<<<<<<< HEAD
     
 }
+=======
+
+}
+>>>>>>> 1d46a30363c8cd99d9f07f5d0347edc3c7e5c959

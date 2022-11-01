@@ -33,6 +33,7 @@ use App\Http\Controllers\hsnController;
 |
 */
 Route::get('get_hsn/{id}',[hsnController::class,'index']);
+
 Route::group(['middleware' => 'api'], function($router) {
     Route::post('/register', [JWTController::class, 'register']);
     Route::post('/login', [JWTController::class, 'login']);
