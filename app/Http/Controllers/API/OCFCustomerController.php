@@ -381,10 +381,5 @@ class OCFCustomerController extends Controller
         $company = Company::where('customercode', $customerid)->get('company_name');
         return response()->json($company);
     }
-<<<<<<< HEAD
     
 }
-=======
-
-}
->>>>>>> 1d46a30363c8cd99d9f07f5d0347edc3c7e5c959
