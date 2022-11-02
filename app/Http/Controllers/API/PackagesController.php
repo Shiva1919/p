@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\API\Modules;
+use App\Models\API\ModuleType;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
 use Illuminate\Http\Request;
@@ -199,7 +200,8 @@ class PackagesController extends Controller
             'productcode' => 'required',
             'name' => 'required',
             'description' => 'required',
-            'active' => ''
+            'active' => '',
+            'moduletypeid' => ''
             // 'producttype' => 'required'
         ]);
 
@@ -209,8 +211,9 @@ class PackagesController extends Controller
         $module->description = $request->description;
         $module->active = $request->active;
         $module->producttype =$packageid;
+        $module->moduletypeid = $request->moduletypeid;
         $module->save();
-        
+       
         return response()->json([$module]);
     }
 

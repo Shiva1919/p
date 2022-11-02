@@ -86,11 +86,11 @@ class OCFController extends Controller
 
                 OCFModule::create($data);
                 }
-            return response()->json([$insert_ocf ]);
+            return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data]);
             }
         }
         else
-        {
+        { 
            
             $request->validate([
                 'customercode' => '',
@@ -130,7 +130,7 @@ class OCFController extends Controller
 
                 OCFModule::create($data);
                 }
-            return response()->json([$insert_ocf ]);
+            return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data ]);
             }
         }
     }

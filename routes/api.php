@@ -194,4 +194,7 @@ Route::get('rolesdeactive', [RoleController::class, 'deactiverole']);
 
 //  Company
 Route::get('customer_wise_company/{id}',[CompanyController::class,'customer_wise_company']);
+
 Route::resource('company', CompanyController::class);
+// get company By Id
+Route::get('getcompanyID/{id}', [CompanyController::class, 'getcompanyID']);

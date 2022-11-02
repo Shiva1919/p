@@ -59,24 +59,18 @@ class OCFCustomerController extends Controller
      */
     public function store(Request $request)
     {
-
-
         $role_id = 10;
-        $request->validate([
+        $request->validate([  
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
             'phone' => '',
             'email' => '',
-            // 'company_name' => '',
             'address1' => '',
-            // 'address2' => '',
             'state' => '',
             'district' => '',
             'taluka' => '',
             'city' => '',
-            // 'panno' => '',
-            // 'gstno' => '',
             'noofbranch' => '',
             'role_id' => '',
             'active' => '',
@@ -104,21 +98,21 @@ class OCFCustomerController extends Controller
         $insert_customers->concernperson = $request->concernperson;
         $insert_customers->packagecode = $request->packagecode;
         $insert_customers->subpackagecode = $request->subpackagecode;
-         $insert_customers->save();
+        $insert_customers->save();
         if(!empty($insert_customers->id)) {
               foreach ($request->Cdocument as $data ) {
                 $data=[
                     'customercode'=> $insert_customers->id,
-                    'company_name'=>  $data['company'],
-                    'pan_no'=> $data['pan'],
-                    'gst_no'=> $data['gst'],
+                    'company_name'=>  $data['company_name'],
+                    'pan_no'=> $data['pan_no'],
+                    'gst_no'=> $data['gst_no'],
                 ];
               Company::create($data);
             }
 
         }
 
-        return response()->json([$insert_customers]);
+        return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,' ' => $data]);
     }
 
     /**
