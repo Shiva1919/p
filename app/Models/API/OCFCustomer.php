@@ -29,7 +29,7 @@ class OCFCustomer extends Model
         'noofbranch',
         'password',
         'concernperson',
-        'packagecode',
+        'packagename',
         'subpackagecode'
     ];
 }

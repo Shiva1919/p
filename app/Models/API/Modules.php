@@ -19,6 +19,7 @@ class Modules extends Model
         'price',
         'unit',
         'producttype',
-        'active'
+        'active',
+        'moduletypeid'
     ];
 }
