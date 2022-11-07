@@ -194,6 +194,12 @@ class PackagesController extends Controller
         return response()->json($module);
     }
 
+    public function moduleid($id)
+    {
+        $module = Modules::where('id', $id)->get();
+        return response()->json($module);
+    }
+
     public function modulestore(Request $request, $packageid)
     {
         $request->validate([

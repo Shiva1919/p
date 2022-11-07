@@ -63,6 +63,7 @@ Route::delete('subpackagedelete/{packageid}/{id}', [PackagesController::class, '
 Route::get('module/{id}', [PackagesController::class, 'moduleindex']);
 Route::get('moduledeactivelist/{packageid}', [PackagesController::class, 'deactivemoduleslist']);
 Route::get('modulegetbyid/{packageid}/{id}', [PackagesController::class, 'moduleshow']);
+Route::get('moduleid/{id}', [PackagesController::class, 'moduleid']);
 Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore']);
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
 Route::delete('moduledelete/{packageid}/{id}', [PackagesController::class, 'moduledelete']);
