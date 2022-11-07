@@ -63,19 +63,22 @@ Route::delete('subpackagedelete/{packageid}/{id}', [PackagesController::class, '
 Route::get('module/{id}', [PackagesController::class, 'moduleindex']);
 Route::get('moduledeactivelist/{packageid}', [PackagesController::class, 'deactivemoduleslist']);
 Route::get('modulegetbyid/{packageid}/{id}', [PackagesController::class, 'moduleshow']);
+Route::get('moduleid/{id}', [PackagesController::class, 'moduleid']);
 Route::post('moduleadd/{packageid}', [PackagesController::class, 'modulestore']);
 Route::put('moduleupdate/{packageid}/{id}', [PackagesController::class, 'moduleupdate']);
 Route::delete('moduledelete/{packageid}/{id}', [PackagesController::class, 'moduledelete']);
 Route::get('module', [PackagesController::class, 'module']);
 Route::get('moduletype', [PackagesController::class, 'moduletype']);
 Route::get('getmoduledata/{customerid}', [OCFCustomerController::class, 'getmoduledata']);
-
+Route::get('getmoduletypedata/{moduleid}', [OCFCustomerController::class, 'getmoduletypedata']);
 // Customer
 // Route::resource('customer', CustomersController::class);
 Route::resource('customer', OCFCustomerController::class);
+Route::post('customercreate', [OCFCustomerController::class, 'customercreate']);
 //Company get dependent on customer
 Route::get('getcustomer/{customerid}', [OCFCustomerController::class, 'companybycustomer']);
 Route::resource('ocf', OCFController::class);
+Route::post('OCFstore', [OCFController::class, 'OCFstore']);
 Route::get('getocfno/{ocfno}',[ OCFController::class, 'getocfno']);
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',[ OCFModuleController::class, 'getocfmodalno']);
@@ -129,7 +132,7 @@ Route::resource('Url', UrlController::class);
 
 // fatch State ,District ,Taluka,City,pincode
 Route::get('states',[SendurlController::class,'getState']);
-Route::get('district/{id}',[SendurlController::class,'getDistrict']);
+Route::get('district/{statename}',[SendurlController::class,'getDistrict']);
 Route::get('taluka/{id}',[SendurlController::class,'getTaluka']);
 Route::get('city/{id}',[SendurlController::class,'getCity']);
 
@@ -194,4 +197,7 @@ Route::get('rolesdeactive', [RoleController::class, 'deactiverole']);
 
 //  Company
 Route::get('customer_wise_company/{id}',[CompanyController::class,'customer_wise_company']);
+
 Route::resource('company', CompanyController::class);
+// get company By Id
+Route::get('getcompanyID/{id}', [CompanyController::class, 'getcompanyID']);

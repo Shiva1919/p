@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\API\Branchs;
 use App\Models\API\Company;
 use App\Models\API\Contacts;
+use App\Models\API\Modules;
 use App\Models\API\OCFCustomer;
+use App\Models\Module;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-
+use Validator;
 class OCFCustomerController extends Controller
 {
     /**
@@ -32,7 +34,9 @@ class OCFCustomerController extends Controller
     {
         $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
+                                
                                 ->where('customer_master.id', $customerid)->get('acme_module.*');
+        
         return response()->json($getmodules);
     }
     public function deactivecustomerslist()
@@ -41,6 +45,11 @@ class OCFCustomerController extends Controller
         return response()->json($package);
     }
 
+    public function getmoduletypedata($moduleid)
+    {
+        $data = Modules::leftjoin('module_type', 'acme_module.moduletypeid', '=','module_type.id')->where('acme_module.moduletypeid',$moduleid)->get();
+        return $data;            
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -59,67 +68,260 @@ class OCFCustomerController extends Controller
      */
     public function store(Request $request)
     {
-
-
-        $role_id = 10;
-        $request->validate([
-            'tenantcode' => '',
-            'name' => '',
-            'entrycode' => '',
-            'phone' => '',
-            'email' => '',
-            // 'company_name' => '',
-            'address1' => '',
-            // 'address2' => '',
-            'state' => '',
-            'district' => '',
-            'taluka' => '',
-            'city' => '',
-            // 'panno' => '',
-            // 'gstno' => '',
-            'noofbranch' => '',
-            'role_id' => '',
-            'active' => '',
-            'password' => '',
-            'concernperson' => '',
-            'packagecode' => '',
-            'subpackagecode' => ''
-        ]);
-        $password = 'AcmeAcme1994';
-        $insert_customers = new OCFCustomer();
-        $insert_customers->name = $request->name;
-        $insert_customers->entrycode = $request->entrycode;
-        $insert_customers->phone = $request->phone;
-        $insert_customers->email = $request->email;
-        $insert_customers->address1 = $request->address1;
-        $insert_customers->state = $request->state;
-        $insert_customers->district = $request->district;
-        $insert_customers->taluka = $request->taluka;
-        $insert_customers->city = $request->city;
-        $insert_customers->noofbranch = $request->noofbranch;
-        $insert_customers->role_id = $request->role_id;
-        $insert_customers->active = $request->active;
-        $insert_customers->password = $password;
-        $insert_customers->role_id = $role_id;
-        $insert_customers->concernperson = $request->concernperson;
-        $insert_customers->packagecode = $request->packagecode;
-        $insert_customers->subpackagecode = $request->subpackagecode;
-         $insert_customers->save();
-        if(!empty($insert_customers->id)) {
-              foreach ($request->Cdocument as $data ) {
-                $data=[
-                    'customercode'=> $insert_customers->id,
-                    'company_name'=>  $data['company'],
-                    'pan_no'=> $data['pan'],
-                    'gst_no'=> $data['gst'],
-                ];
-              Company::create($data);
-            }
-
+        $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
+        if(count($entrycode)==0)
+        {
+                $role_id = 10;
+                $password = 'AcmeAcme1994';
+                $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
+                $insert_customers = new OCFCustomer();
+                $insert_customers->name = $request->name;
+                $insert_customers->entrycode = $request->entrycode;
+                $insert_customers->phone = $request->phone;
+                $insert_customers->email = $request->email;
+                $insert_customers->address1 = $request->address1;
+                $insert_customers->state = $request->state;
+                $insert_customers->district = $request->district;
+                $insert_customers->taluka = $request->taluka;
+                $insert_customers->city = $request->city;
+                $insert_customers->noofbranch = $request->noofbranch;
+                $insert_customers->role_id = $request->role_id;
+                $insert_customers->active = $request->active;
+                $insert_customers->password = $password;
+                $insert_customers->role_id = $role_id;
+                $insert_customers->concernperson = $request->concernperson;
+                $insert_customers->packagecode = $request->packagecode;
+                $insert_customers->subpackagecode = $request->subpackagecode;
+                $insert_customers->save();
+                if(!empty($insert_customers->id)) 
+                {
+                    foreach ($request->Cdocument as $data ) {
+                        $data=[
+                            'customercode'=> $insert_customers->id,
+                            'comapnycode'=> $ocfcompanyflastid->id+1,
+                            'company_name'=>  $data['company_name'],
+                            'pan_no'=> $data['pan_no'],
+                            'gst_no'=> $data['gst_no'],
+                        ];
+                    Company::create($data);
+                    }
+                }
+                return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+            
+            
+            // $request->name.$request->phone.$request->packagename;
         }
+        else
+        {
+                $role_id = 10;
+                $password = 'AcmeAcme1994';
+                $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
+                $insert_customers = OCFCustomer::where('entrycode', $request->entrycode)->first();
+                $insert_customers->name = $request->name;
+                $insert_customers->entrycode = $request->entrycode;
+                $insert_customers->phone = $request->phone;
+                $insert_customers->email = $request->email;
+                $insert_customers->address1 = $request->address1;
+                $insert_customers->state = $request->state;
+                $insert_customers->district = $request->district;
+                $insert_customers->taluka = $request->taluka;
+                $insert_customers->city = $request->city;
+                $insert_customers->noofbranch = $request->noofbranch;
+                $insert_customers->role_id = $request->role_id;
+                $insert_customers->active = $request->active;
+                $insert_customers->password = $password;
+                $insert_customers->role_id = $role_id;
+                $insert_customers->concernperson = $request->concernperson;
+                $insert_customers->packagecode = $request->packagecode;
+                $insert_customers->subpackagecode = $request->subpackagecode;
+                $insert_customers->save();
 
-        return response()->json([$insert_customers]);
+                Company::where('customercode',$insert_customers->id)->delete();
+                if(!empty($insert_customers->id))
+                {
+                    foreach ($request->Cdocument as $data )
+                    {
+                        $data=[
+                            'customercode'=> $insert_customers->id,
+                            
+                            'company_name'=>  $data['company_name'],
+                            'pan_no'=> $data['pan_no'],
+                            'gst_no'=> $data['gst_no'],
+                        ];
+                        Company::create($data);
+                    }
+                    return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+                }
+            
+        }
     }
+
+    // public function customercreate(Request $request)
+    // {
+    //     $dataaa=[];
+    //     $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
+    //     if(count($entrycode)==0)
+    //     {
+    //         $rules = array(
+    //             'name' => 'required',
+    //             'entrycode' => '',
+    //             'phone' => 'required',
+    //             'email' => 'required',
+    //             'address1' => 'required',
+    //             'state' => 'required',
+    //             'district' => 'required',
+    //             'taluka' => 'required',
+    //             'city' => 'required',
+    //             'noofbranch' => 'required',
+    //             'active' => 'required',
+    //             'concernperson' => 'required',
+    //             'packagecode' => 'required',
+    //             'subpackagecode' => 'required',   
+    //             // 'data' => [
+    //             //     'company_name'=> 'required',   
+    //             //     'pan_no'=> 'required',   
+    //             //     'gst_no'=> 'required',   
+    //             // ]           
+    //         );
+          
+    //         $validator = Validator::make($request->all(), $rules);
+    //         if ($validator->fails()) 
+    //         {
+    //             return response()->json([
+    //                 'message' => 'Invalid params passed', // the ,message you want to show
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+    //         else
+    //         {
+    //             $role_id = 10;
+    //             $password = 'AcmeAcme1994';
+    //             $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
+    //             $insert_customers = new OCFCustomer();
+    //             $insert_customers->name = $request->name;
+    //             $insert_customers->entrycode = $request->entrycode;
+    //             $insert_customers->phone = $request->phone;
+    //             $insert_customers->email = $request->email;
+    //             $insert_customers->address1 = $request->address1;
+    //             $insert_customers->state = $request->state;
+    //             $insert_customers->district = $request->district;
+    //             $insert_customers->taluka = $request->taluka;
+    //             $insert_customers->city = $request->city;
+    //             $insert_customers->noofbranch = $request->noofbranch;
+    //             $insert_customers->role_id = $request->role_id;
+    //             $insert_customers->active = $request->active;
+    //             $insert_customers->password = $password;
+    //             $insert_customers->role_id = $role_id;
+    //             $insert_customers->concernperson = $request->concernperson;
+    //             $insert_customers->packagecode = $request->packagecode;
+    //             $insert_customers->subpackagecode = $request->subpackagecode;
+    //             $insert_customers->save();
+    //             if(!empty($insert_customers->id)) 
+    //             {
+    //                 foreach ($request->Cdocument as $request ) 
+    //                 {
+    //                         $data=[
+    //                             'customercode'=> $insert_customers->id,
+    //                             // 'companycode'=> $ocfcompanyflastid->id+1,
+    //                             'company_name'=>  $request['company_name'],
+    //                             'pan_no'=> $request['pan_no'],
+    //                             'gst_no'=> $request['gst_no'],
+    //                         ];
+    //                         array_push($dataaa,$data);
+    //                         Company::create($data);
+    //                 }
+    //             }
+    //             return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $dataaa]);
+    //         }
+            
+    //         // $request->name.$request->phone.$request->packagename;
+    //     }
+    //     else
+    //     {
+    //         $rules = array(
+    //             'name' => 'required',
+    //             'entrycode' => '',
+    //             'phone' => 'required',
+    //             'email' => 'required',
+    //             'address1' => 'required',
+    //             'state' => 'required',
+    //             'district' => 'required',
+    //             'taluka' => 'required',
+    //             'city' => 'required',
+    //             'noofbranch' => 'required',
+    //             'role_id' => 'required',
+    //             'active' => 'required',
+    //             'concernperson' => 'required',
+    //             'packagecode' => 'required',
+    //             'subpackagecode' => 'required',
+    //             // 'company_name'=>'required',
+    //             // 'pan_no'=> 'required',
+    //             // 'gst_no'=> 'required',
+    //         );
+        
+    //         $validator = Validator::make($request->all(), $rules);
+    //         if ($validator->fails()) 
+    //         {
+    //             return response()->json([
+    //                 'message' => 'Invalid params passed', // the ,message you want to show
+    //                 'errors' => $validator->errors()
+    //             ], 422);
+    //         }
+    //         else
+    //         {
+    //             $role_id = 10;
+    //             $password = 'AcmeAcme1994';
+    //             $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
+    //             $insert_customers = OCFCustomer::where('entrycode', $request->entrycode)->first();
+    //             $insert_customers->name = $request->name;
+    //             $insert_customers->entrycode = $request->entrycode;
+    //             $insert_customers->phone = $request->phone;
+    //             $insert_customers->email = $request->email;
+    //             $insert_customers->address1 = $request->address1;
+    //             $insert_customers->state = $request->state;
+    //             $insert_customers->district = $request->district;
+    //             $insert_customers->taluka = $request->taluka;
+    //             $insert_customers->city = $request->city;
+    //             $insert_customers->noofbranch = $request->noofbranch;
+    //             $insert_customers->role_id = $request->role_id;
+    //             $insert_customers->active = $request->active;
+    //             $insert_customers->password = $password;
+    //             $insert_customers->role_id = $role_id;
+    //             $insert_customers->concernperson = $request->concernperson;
+    //             $insert_customers->packagecode = $request->packagecode;
+    //             $insert_customers->subpackagecode = $request->subpackagecode;
+    //             $insert_customers->save();
+
+    //             // Company::where('customercode',$insert_customers->id)->delete();
+    //             if(!empty($insert_customers->id))
+    //             {
+    //                 $company = Company::where('customercode',  $insert_customers->id)->get();
+    //                 foreach ($request->Cdocument as $request )
+    //                 {
+                      
+    //                     // return $company;
+    //                     // $data = Company::where('customercode',  $insert_customers->id)->first();
+    //                     // $data->customercode = $insert_customers->id;
+    //                     // // $data->companycode = $ocfcompanyflastid->id+1;
+    //                     // $data->company_name = $request['company_name'];
+    //                     // $data->pan_no = $request['pan_no'];
+    //                     // $data->gst_no = $request['gst_no'];
+    //                     // $data->save();
+    //                         $data=[
+    //                             'customercode'=> $insert_customers->id,
+    //                             // 'companycode'=> $ocfcompanyflastid->id+1,
+    //                             'company_name'=>  $request['company_name'],
+    //                             'pan_no'=> $request['pan_no'],
+    //                             'gst_no'=> $request['gst_no'],
+    //                         ];
+    //                         array_push($dataaa,$data);
+    //                         Company::create($data);
+    //                 }
+    //                 return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company old' => $company, 'Company Updated' => $dataaa ]);
+    //             }
+    //         }
+    //     }
+    // }
 
     /**
      * Display the specified resource.
@@ -163,7 +365,7 @@ class OCFCustomerController extends Controller
         $input = $request->all();
 
 
-        $validator = Validator::make($input, [
+        $request->validate($input, [
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
@@ -185,10 +387,7 @@ class OCFCustomerController extends Controller
             'packagecode' => '',
             'subpackagecode' => ''
         ]);
-        if($validator->fails())
-        {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
+       
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
         $customer->phone = $input['phone'];
