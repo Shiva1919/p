@@ -12,6 +12,7 @@ use App\Http\Controllers\VerficationController;
 use App\Http\Controllers\API\PackagesController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\CustomersController;
+use App\Http\Controllers\API\OCFAPIController;
 use App\Http\Controllers\API\OCFController;
 use App\Http\Controllers\API\OCFCustomerController;
 use App\Http\Controllers\API\OCFModuleController;
@@ -119,7 +120,7 @@ Route::get('getcustomer/{customercode}', [OrderConfirmationsController::class, '
 
 // Serialno
 // Route::resource('serialno', SerialnoController::class);
-Route::post('serialnosendotp', [SerialnoController::class, 'serialnosendotp']);
+Route::post('serialnosendotp/{ocfno}', [SerialnoController::class, 'serialnosendotp']);
 Route::post('serialnoverifyotp', [SerialnoController::class, 'serialnoverifyotp']);
 Route::post('serialnos', [SerialnoController::class, 'serialnogenerate']);
 Route::post('ocfchange', [SerialnoController::class, 'ocfchange']);
@@ -201,3 +202,13 @@ Route::get('customer_wise_company/{id}',[CompanyController::class,'customer_wise
 Route::resource('company', CompanyController::class);
 // get company By Id
 Route::get('getcompanyID/{id}', [CompanyController::class, 'getcompanyID']);
+
+
+
+
+// OCFAPI Routes
+Route::post('customerdata', [OCFAPIController::class, 'customercreate']);
+Route::post('ocfs', [OCFAPIController::class, 'OCF']);
+Route::get('companydata/{customerid}', [OCFAPIController::class, 'getcompany']);
+Route::post('serialnootp', [OCFAPIController::class, 'serialnootp']);
+Route::post('serialnootpverify', [OCFAPIController::class, 'serialnoverifyotp']);
