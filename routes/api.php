@@ -120,7 +120,7 @@ Route::get('getcustomer/{customercode}', [OrderConfirmationsController::class, '
 
 // Serialno
 // Route::resource('serialno', SerialnoController::class);
-Route::post('serialnosendotp/{ocfno}', [SerialnoController::class, 'serialnosendotp']);
+Route::post('serialnosendotp', [SerialnoController::class, 'serialnosendotp']);
 Route::post('serialnoverifyotp', [SerialnoController::class, 'serialnoverifyotp']);
 Route::post('serialnos', [SerialnoController::class, 'serialnogenerate']);
 Route::post('ocfchange', [SerialnoController::class, 'ocfchange']);

@@ -71,6 +71,33 @@ class OCFCustomerController extends Controller
         $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
         if(count($entrycode)==0)
         {
+            $rules = array(
+                'name' => 'required',
+                'entrycode' => '',
+                'phone' => 'required',
+                'whatsappno' => 'required',
+                'email' => 'required',
+                'address1' => 'required',
+                'state' => 'required',
+                'district' => 'required',
+                'taluka' => 'required',
+                'city' => 'required',
+                'active' => 'required',
+                'concernperson' => 'required',
+                'packagecode' => 'required',
+                'subpackagecode' => 'required'
+            );
+        
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) 
+            {
+                return response()->json([
+                    'message' => 'Invalid params passed', // the ,message you want to show
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            else
+            {
                 $role_id = 10;
                 $password = 'AcmeAcme1994';
                 $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
@@ -78,13 +105,13 @@ class OCFCustomerController extends Controller
                 $insert_customers->name = $request->name;
                 $insert_customers->entrycode = $request->entrycode;
                 $insert_customers->phone = $request->phone;
+                $insert_customers->whatsappno = $request->whatsappno;
                 $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
                 $insert_customers->state = $request->state;
                 $insert_customers->district = $request->district;
                 $insert_customers->taluka = $request->taluka;
                 $insert_customers->city = $request->city;
-                $insert_customers->noofbranch = $request->noofbranch;
                 $insert_customers->role_id = $request->role_id;
                 $insert_customers->active = $request->active;
                 $insert_customers->password = $password;
@@ -107,12 +134,40 @@ class OCFCustomerController extends Controller
                     }
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
-            
+            }
             
             // $request->name.$request->phone.$request->packagename;
         }
         else
         {
+            $rules = array(
+                'name' => 'required',
+                'entrycode' => '',
+                'phone' => 'required',
+                'whatsappno' => 'required',
+                'email' => 'required',
+                'address1' => 'required',
+                'state' => 'required',
+                'district' => 'required',
+                'taluka' => 'required',
+                'city' => 'required',
+                'role_id' => 'required',
+                'active' => 'required',
+                'concernperson' => 'required',
+                'packagecode' => 'required',
+                'subpackagecode' => 'required'
+            );
+        
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) 
+            {
+                return response()->json([
+                    'message' => 'Invalid params passed', // the ,message you want to show
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            else
+            {
                 $role_id = 10;
                 $password = 'AcmeAcme1994';
                 $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
@@ -120,13 +175,13 @@ class OCFCustomerController extends Controller
                 $insert_customers->name = $request->name;
                 $insert_customers->entrycode = $request->entrycode;
                 $insert_customers->phone = $request->phone;
+                $insert_customers->whatsappno = $request->whatsappno;
                 $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
                 $insert_customers->state = $request->state;
                 $insert_customers->district = $request->district;
                 $insert_customers->taluka = $request->taluka;
                 $insert_customers->city = $request->city;
-                $insert_customers->noofbranch = $request->noofbranch;
                 $insert_customers->role_id = $request->role_id;
                 $insert_customers->active = $request->active;
                 $insert_customers->password = $password;
@@ -143,7 +198,7 @@ class OCFCustomerController extends Controller
                     {
                         $data=[
                             'customercode'=> $insert_customers->id,
-                            
+                            'comapnycode'=> $ocfcompanyflastid->id+1,
                             'company_name'=>  $data['company_name'],
                             'pan_no'=> $data['pan_no'],
                             'gst_no'=> $data['gst_no'],
@@ -152,11 +207,160 @@ class OCFCustomerController extends Controller
                     }
                     return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
                 }
-            
+            }
         }
     }
 
-    
+    public function customercreate(Request $request)
+    {
+        $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
+        if(count($entrycode)==0)
+        {
+            $rules = array(
+                'name' => 'required',
+                'entrycode' => '',
+                'phone' => 'required',
+                'whatsappno' => 'required',
+                'email' => 'required',
+                'address1' => 'required',
+                'state' => 'required',
+                'district' => 'required',
+                'taluka' => 'required',
+                'city' => 'required',
+                'active' => 'required',
+                'concernperson' => 'required',
+                'packagecode' => 'required',
+                'subpackagecode' => 'required',   
+                'data' => [
+                    'company_name'=> 'required',   
+                    'pan_no'=> 'required',   
+                    'gst_no'=> 'required',   
+                ]           
+            );
+          
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) 
+            {
+                return response()->json([
+                    'message' => 'Invalid params passed', // the ,message you want to show
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            else
+            {
+                $role_id = 10;
+                $password = 'AcmeAcme1994';
+                $insert_customers = new OCFCustomer();
+                $insert_customers->name = $request->name;
+                $insert_customers->entrycode = $request->entrycode;
+                $insert_customers->phone = $request->phone;
+                $insert_customers->whatsappno = $request->whatsappno;
+                $insert_customers->email = $request->email;
+                $insert_customers->address1 = $request->address1;
+                $insert_customers->state = $request->state;
+                $insert_customers->district = $request->district;
+                $insert_customers->taluka = $request->taluka;
+                $insert_customers->city = $request->city;
+                $insert_customers->role_id = $request->role_id;
+                $insert_customers->active = $request->active;
+                $insert_customers->password = $password;
+                $insert_customers->role_id = $role_id;
+                $insert_customers->concernperson = $request->concernperson;
+                $insert_customers->packagecode = $request->packagecode;
+                $insert_customers->subpackagecode = $request->subpackagecode;
+                $insert_customers->save();
+                if(!empty($insert_customers->id)) 
+                {
+                    foreach ($request->Cdocument as $request ) 
+                    {
+                            $data=[
+                                'customercode'=> $insert_customers->id,
+                                'company_name'=>  $request['company_name'],
+                                'pan_no'=> $request['pan_no'],
+                                'gst_no'=> $request['gst_no'],
+                            ];
+                            Company::create($data);
+                    }
+                }
+                return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+            }
+            
+            // $request->name.$request->phone.$request->packagename;
+        }
+        else
+        {
+            $rules = array(
+                'name' => 'required',
+                'entrycode' => '',
+                'phone' => 'required',
+                'whatsappno' => 'required',
+                'email' => 'required',
+                'address1' => 'required',
+                'state' => 'required',
+                'district' => 'required',
+                'taluka' => 'required',
+                'city' => 'required',
+                'role_id' => 'required',
+                'active' => 'required',
+                'concernperson' => 'required',
+                'packagecode' => 'required',
+                'subpackagecode' => 'required',
+                'company_name'=>'required',
+                'pan_no'=> 'required',
+                'gst_no'=> 'required',
+            );
+        
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) 
+            {
+                return response()->json([
+                    'message' => 'Invalid params passed', // the ,message you want to show
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            else
+            {
+                $role_id = 10;
+                $password = 'AcmeAcme1994';
+                $insert_customers = OCFCustomer::where('entrycode', $request->entrycode)->first();
+                $insert_customers->name = $request->name;
+                $insert_customers->entrycode = $request->entrycode;
+                $insert_customers->phone = $request->phone;
+                $insert_customers->whatsappno = $request->whatsappno;
+                $insert_customers->email = $request->email;
+                $insert_customers->address1 = $request->address1;
+                $insert_customers->state = $request->state;
+                $insert_customers->district = $request->district;
+                $insert_customers->taluka = $request->taluka;
+                $insert_customers->city = $request->city;
+                $insert_customers->role_id = $request->role_id;
+                $insert_customers->active = $request->active;
+                $insert_customers->password = $password;
+                $insert_customers->role_id = $role_id;
+                $insert_customers->concernperson = $request->concernperson;
+                $insert_customers->packagecode = $request->packagecode;
+                $insert_customers->subpackagecode = $request->subpackagecode;
+                $insert_customers->save();
+
+                Company::where('customercode',$insert_customers->id)->delete();
+                if(!empty($insert_customers->id))
+                {
+                    foreach ($request->Cdocument as $request )
+                    {
+                       
+                            $data=[
+                                'customercode'=> $insert_customers->id,
+                                'company_name'=>  $request['company_name'],
+                                'pan_no'=> $request['pan_no'],
+                                'gst_no'=> $request['gst_no'],
+                            ];
+                            Company::create($data);
+                    }
+                    return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+                }
+            }
+        }
+    }
 
     /**
      * Display the specified resource.
@@ -200,12 +404,13 @@ class OCFCustomerController extends Controller
         $input = $request->all();
 
 
-        $request->validate($input, [
+        $validator = Validator::make($input, [
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
             // 'mobile' => '',
             'phone' => '',
+            'whatsappno' => '',
             'email' => '',
             'company_name' => '',
             'address1' => '',
@@ -216,23 +421,26 @@ class OCFCustomerController extends Controller
             'city' => '',
             // 'panno' => '',
             // 'gstno' => '',
-            'noofbranch' => '',
+          
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',
             'subpackagecode' => ''
         ]);
-       
+        if($validator->fails())
+        {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
         $customer->phone = $input['phone'];
+        $customer->whatsappno = $input['whatsappno'];
         $customer->email = $input['email'];
         $customer->address1 = $input['address1'];
         $customer->state = $input['state'];
         $customer->district = $input['district'];
         $customer->taluka = $input['taluka'];
         $customer->city = $input['city'];
-        $customer->noofbranch = $input['noofbranch'];
         $customer->active = $input['active'];
         $customer->concernperson = $input['concernperson'];
         $customer->packagecode = $input['packagecode'];

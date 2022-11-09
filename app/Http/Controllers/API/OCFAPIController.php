@@ -8,13 +8,17 @@ use App\Models\API\OCF;
 use App\Models\API\OCFCustomer;
 use App\Models\API\OCFModule;
 use App\Models\API\Serialno;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Validator;
 
 class OCFAPIController extends Controller
 {
+
+    
     public function customercreate(Request $request)
     {
         $dataaa=[];
@@ -165,179 +169,44 @@ class OCFAPIController extends Controller
             }
         }
 
-    public function OCF(Request $request)
-    {
-        $data1=[];
-        $series = OCF::orderBy('series', 'desc')->first('series');
-        $ocf= OCF::where('ocfno', $request->ocfno)->get();
-        $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
-        $companydata= OCF::where('companycode', $request->companycode)->get();
-        if(count($companydata)==0)
+        public function serialnootp(Request $request)
         {
-            $rules = array(
-                // 'customercode' => 'required',
-                'companycode' => 'required',
-                'ocf_date' => 'required',
-            );
-        
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) 
+            $Mobile = $request->input('phone');
+            $checkmobile =  OCFCustomer::where('phone', $request->input('phone'))->first();
+            $checkentrycode =  OCFCustomer::where('entrycode', $request->input('entrycode'))->first();
+            // $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();
+            // $checkmobile1 =  Customers::where('phone', $Mobile)->first('phone');
+            if($checkentrycode == null && $checkmobile == null)
             {
-                return response()->json([
-                    'message' => 'Invalid params passed', // the ,message you want to show
-                    'errors' => $validator->errors()
-                ], 422);
+                return response()->json(['Message' => 'Invalid Code or Mobile No', 'status' => '1']);
             }
-            else
+            if($checkmobile == null )
             {
-                
-                $insert_ocf = new OCF();
-                
-                // $insert_ocf->customercode = $request->customercode;
-                $insert_ocf->companycode = $request->companycode;
-                $insert_ocf->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
-                $insert_ocf->ocf_date = $request->ocf_date;
-                // $insert_ocf->module_total=$request->module_total;
-                $insert_ocf->series=$series->series+1;
-                $insert_ocf->save();
-                if(!empty($insert_ocf->id))
-                {
-                
-                    foreach ($request->Data as $data ) 
-                    {
-                    $data=[
-                        'ocfcode'=> $insert_ocf->id,
-                        'modulename'=> $data['modulename'],
-                        // 'modulecode'=> $data['modulecode'],
-                        'quantity'=> $data['quantity'],
-                        // 'unit'=>  $data['unit'],
-                        'expirydate'=> $data['expirydate'],
-                        // 'amount'=> $data['amount'],
-                        
-                    ];
-                    array_push($data1,$data);
-                    OCFModule::create($data);
-                    }
-                     // serialno
-                   
-                    $company = Company::where('id', $request->companycode)->first();  
-                    $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
-                    $insert_serialno = new Serialno();
-                    $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
-                    $insert_serialno->comp_name = $company->company_name;
-                    $insert_serialno->pan = $company->pan_no;
-                    $insert_serialno->gst = $company->gst_no;
-                    $insert_serialno->serialno_issue_date = $request->ocf_date;
-                    $insert_serialno->serialno_parameters = $serialnoparameters;
-                    $insert_serialno->serialno = md5($serialnoparameters);
-                    $insert_serialno->save();
-
-                return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
-                }
+                return response()->json(['Message' => 'Mobile No invalid', 'status' => '1']);
             }
-        }
-        else
-        {
-            return response()->json(['message' => 'Company Already Exists', 'status' => '1']);
-            // $rules = array(
-            //     'customercode' => 'required',
-            //     'companycode' => 'required',
-            //     'ocfno' => 'required',
-            //     'ocf_date' => 'required',
-            //     'series'=> ''
-            // );
-        
-            // $validator = Validator::make($request->all(), $rules);
-            // if ($validator->fails()) 
-            // {
-            //     return response()->json([
-            //         'message' => 'Invalid params passed', // the ,message you want to show
-            //         'errors' => $validator->errors()
-            //     ], 422);
-            // }
-            // else
-            // {
-               
-                
-            //     $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
-               
-            //     $module = DB::table('module_master')->where('ocfcode', $insert_ocf->id)->sum('amount');
-               
-            //     // $insert_customers->tenantcode = $request->tenantcode;
-            //     $insert_ocf->customercode = $request->customercode;
-            //     $insert_ocf->companycode = $request->companycode;
-            //     $insert_ocf->ocfno = $request->ocfno;
-            //     $insert_ocf->ocf_date = $request->ocf_date;
-                
-            //     // OCFModule::where('ocfcode',$insert_ocf->id)->delete();
-            //     if(!empty($insert_ocf->id))
-            //     {
-                
-            //         foreach ($request->Data as $data )
-            //                 $data=[
-            //                     'ocfcode'=> $insert_ocf->id,
-            //                     'modulename'=> $data['modulename'],
-            //                     // 'modulecode'=> $data['modulecode'],
-            //                     'quantity'=> $data['quantity'],
-            //                     // 'unit'=>  $data['unit'],
-            //                     'expirydate'=> $data['expirydate']
-            //                     // 'amount'=> $data['amount'],   
-            //                 ];
-
-            //                 OCFModule::create($data);
-            //     }
-            //     // $insert_ocf->module_total=$module+$data['amount'];
-            //     $insert_ocf->save();
-
-            //     // serialno
-            //     $insert_serialno = Serialno::where('ocfno', $request->ocfno)->first();
-            //     $company = Company::where('id', $request->companycode)->first();  
-            //     $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
-            //     $insert_serialno->ocfno = $request->ocfno;
-            //     $insert_serialno->comp_name = $company->company_name;
-            //     $insert_serialno->pan = $company->pan_no;
-            //     $insert_serialno->gst = $company->gst_no;
-            //     $insert_serialno->serialno_issue_date = $request->ocf_date;
-            //     $insert_serialno->serialno_parameters = $serialnoparameters;
-            //     $insert_serialno->serialno = md5($serialnoparameters);
-            //     $insert_serialno->save();
-        
-            //     return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $request->all(), 'Serialno' => $insert_serialno ]);
-                
-            // }
-        }
-    }
-
-    public function getcompany($customerid)
-    {
-        $company = Company::where('customercode', $customerid)->get();
-        return response()->json(['message' => 'Company','status' => '0','Company' => $company ]);
-    }
+            if($checkentrycode == null)
+            {
+                return response()->json(['Message' => 'Invalid Code ', 'status' => '1']);
+            }
+           
+            $otp =   Str::random(6);
     
-    public function serialnootp(Request $request)
-    {
-        $Mobile = OCFCustomer::where('phone', $request->phone)->first();
-        
-        $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();
-        if(empty($serialno_ocfno->ocfno))
-        {
-            return response()->json(['message' => 'OTP Send Unsuccessfully', 'status' => 1]);
-        }
-        else{
+            $phone =  OCFCustomer::where('entrycode', $request->input('entrycode'))->first();
+          
+            $verifyotp = [
+                'otp' => $otp,
+            ];
+            $update_verifyotp = $phone->update($verifyotp); 
+            $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
+           
+            Log::info("otp = ".$otp);
+            Log::info("otp_expires_time = ".$otp_expires_time);
+            Cache::put('otp_expires_time', $otp_expires_time);
+            // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
+            $users = OCFCustomer::where('phone','=',$request->phone)->update(['otp_expires_time' => $otp_expires_time]);
             
-            $otp = Str::random(6);
-        }
-    
-        if(empty($Mobile->phone))
-        {
-            return response()->json(['message' => 'Invalid Mobile Number', 'status' => 1]);
-        }
-        else
-        {   // $verifyotps = User::where('mobile', $Mobile)->get();
-
-            $update = OCFCustomer::where('phone', $Mobile->phone)->update(array('otp' => $otp));
-        
-            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$Mobile->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
+            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
+     
             $params = ["to" => ["type" => "whatsapp", "number" => $request->input('number')],
             "from" => ["type" => "whatsapp", "number" => "9139465257"],
             "message" => [
@@ -347,42 +216,191 @@ class OCFAPIController extends Controller
             ]
             ]
             ];
-            // return $params;
+            //  return $params;
             $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
             $client = new \GuzzleHttp\Client();
             $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
             $data = $response->getBody();
             Log::Info($data);
-            // $this->verifyOtp($request,$Mobile);
-            return response()->json(['message' => 'OTP Send Successfully', 'status' => 0, 'OTP' => $otp]);
+            // $data1 = $this->verifyOtp($request,$Mobile);
+            return response()->json(['OTP' => $otp , 'status' => '0', 'message' => 'OTP Generated']);
         }
-    }
-
-    public function serialnoverifyotp(Request $request)
-    {
-        $verify = OCFCustomer::where('phone', $request->phone)->first();
-        if(empty($verify->phone))
+    
+        public function serialnoverifyotp(Request $request)
         {
-            return response()->json(['message' => 'Invalid Mobile Number', 'status' => 1]);
+            // $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();
+            $entrycode = OCFCustomer::where('entrycode', $request->entrycode)->first();
+            $phone =  OCFCustomer::where('id', $entrycode->id)->first();
+            //  $phone->otp_expires_time;
+            // $verify = Customers::where('phone', $request->phone)->first();
+            if($phone == null)
+            {
+                return response()->json(['Message' => 'Invalid Mobile No ', 'status' => '1']);
+            }
+            $time = date('Y-m-d H:i:s');
+            if($time >= $phone->otp_expires_time)
+            {
+                return response()->json(['status' => '1', 'message' => 'OTP Expired']);
+            }
+            else if($request->otp == $phone->otp)
+            {
+                $verifyotp = [
+                    'isverified' => 1
+                ]; 
+                $phone->update($verifyotp);  
+                return response()->json(['status' => '0', 'message' => 'Verified']);
+            }
+            else
+            {
+                return response()->json(['status' => '1' , 'message' => 'Invalid OTP']);
+            }
+        }
+
+    public function OCF(Request $request)
+    {
+        $data1=[];
+        $customer = OCFCustomer::where('id', $request->customercode)->first();
+        if($customer->isverified == 1)
+        {
+            $series = OCF::orderBy('series', 'desc')->first('series');
+            $ocf= OCF::where('ocfno', $request->ocfno)->get();
+            $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
+            $companydata= OCF::where('companycode', $request->companycode)->get();
+            if(count($companydata)==0)
+            {
+                $rules = array(
+                    'customercode' => 'required',
+                    'companycode' => 'required',
+                    'ocf_date' => 'required',
+                );
+            
+                $validator = Validator::make($request->all(), $rules);
+                if ($validator->fails()) 
+                {
+                    return response()->json([
+                        'message' => 'Invalid params passed', // the ,message you want to show
+                        'errors' => $validator->errors()
+                    ], 422);
+                }
+                else
+                {
+                    
+                    $insert_ocf = new OCF();
+                    $insert_ocf->customercode = $request->customercode;
+                    $insert_ocf->companycode = $request->companycode;
+                    $insert_ocf->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
+                    $insert_ocf->ocf_date = $request->ocf_date;
+                    // $insert_ocf->module_total=$request->module_total;
+                    $insert_ocf->series=$series->series+1;
+                    $insert_ocf->save();
+                    if(!empty($insert_ocf->id))
+                    {
+                    
+                        foreach ($request->Data as $data ) 
+                        {
+                        $data=[
+                            'ocfcode'=> $insert_ocf->id,
+                            'modulename'=> $data['modulename'],
+                            // 'modulecode'=> $data['modulecode'],
+                            'quantity'=> $data['quantity'],
+                            // 'unit'=>  $data['unit'],
+                            'expirydate'=> $data['expirydate'],
+                            // 'amount'=> $data['amount'],
+                            
+                        ];
+                        array_push($data1,$data);
+                        OCFModule::create($data);
+                        }
+                        // serialno
+                    
+                        $company = Company::where('id', $request->companycode)->first();  
+                        $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+                        $insert_serialno = new Serialno();
+                        $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
+                        $insert_serialno->comp_name = $company->company_name;
+                        $insert_serialno->pan = $company->pan_no;
+                        $insert_serialno->gst = $company->gst_no;
+                        $insert_serialno->serialno_issue_date = $request->ocf_date;
+                        $insert_serialno->serialno_parameters = $serialnoparameters;
+                        $insert_serialno->serialno = md5($serialnoparameters);
+                        $insert_serialno->save();
+
+                    return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
+                    }
+                }
+            }
+            else
+            {
+                return response()->json(['message' => 'Company Already Exists', 'status' => '1']);
+                // $rules = array(
+                //     'customercode' => 'required',
+                //     'companycode' => 'required',
+                //     'ocfno' => 'required',
+                //     'ocf_date' => 'required',
+                //     'series'=> ''
+                // );
+                // $validator = Validator::make($request->all(), $rules);
+                // if ($validator->fails()) 
+                // {
+                //     return response()->json([
+                //         'message' => 'Invalid params passed', // the ,message you want to show
+                //         'errors' => $validator->errors()
+                //     ], 422);
+                // }
+                // else
+                // {                    
+                //     $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
+                //     $module = DB::table('module_master')->where('ocfcode', $insert_ocf->id)->sum('amount');
+                //     // $insert_customers->tenantcode = $request->tenantcode;
+                //     $insert_ocf->customercode = $request->customercode;
+                //     $insert_ocf->companycode = $request->companycode;
+                //     $insert_ocf->ocfno = $request->ocfno;
+                //     $insert_ocf->ocf_date = $request->ocf_date;
+                //     // OCFModule::where('ocfcode',$insert_ocf->id)->delete();
+                //     if(!empty($insert_ocf->id))
+                //     { 
+                //         foreach ($request->Data as $data )
+                //                 $data=[
+                //                     'ocfcode'=> $insert_ocf->id,
+                //                     'modulename'=> $data['modulename'],
+                //                     // 'modulecode'=> $data['modulecode'],
+                //                     'quantity'=> $data['quantity'],
+                //                     // 'unit'=>  $data['unit'],
+                //                     'expirydate'=> $data['expirydate']
+                //                     // 'amount'=> $data['amount'],   
+                //                 ];
+                //                 OCFModule::create($data);
+                //     }
+                //     // $insert_ocf->module_total=$module+$data['amount'];
+                //     $insert_ocf->save();
+                //     // serialno
+                //     $insert_serialno = Serialno::where('ocfno', $request->ocfno)->first();
+                //     $company = Company::where('id', $request->companycode)->first();  
+                //     $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+                //     $insert_serialno->ocfno = $request->ocfno;
+                //     $insert_serialno->comp_name = $company->company_name;
+                //     $insert_serialno->pan = $company->pan_no;
+                //     $insert_serialno->gst = $company->gst_no;
+                //     $insert_serialno->serialno_issue_date = $request->ocf_date;
+                //     $insert_serialno->serialno_parameters = $serialnoparameters;
+                //     $insert_serialno->serialno = md5($serialnoparameters);
+                //     $insert_serialno->save();
+                //     return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $request->all(), 'Serialno' => $insert_serialno ]); 
+                // }
+            }
         }
         else
         {
-            $verifyotp = [
-                'isverified' => $request->isverified
-            ];
+            return response()->json(['message' => 'Please Verify Customer','status' => 1]);
         }
         
-        $update_verifyotp = $verify->update($verifyotp);
-       
-        if($verify->isverified == $verify->otp)
-        {
-            return response()->json(['status' => 'Success']);
-        }
-        else
-        {
-            return response()->json(['status' => 'Fail']);
-        }
-        return response()->json($update_verifyotp);
     }
+
+    public function getcompany($customerid)
+    {
+        $company = Company::where('customercode', $customerid)->get();
+        return response()->json(['message' => 'Company','status' => 0,'Company' => $company ]);
+    }
+    
 
 }
