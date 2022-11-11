@@ -4,10 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\API\Customers;
+use App\Models\API\OCF;
 use App\Models\API\OCFchange;
 use App\Models\API\OrderConfirmations;
 use App\Models\API\Serialno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -16,14 +18,14 @@ class SerialnoController extends Controller
 {
     public function serialnosendotp(Request $request, $ocfno)
     {
-        $Mobile = $request->input('mobile');
-        $serialno_ocfno =  OrderConfirmations::where('ocfno', $ocfno)->first();
-
-        $otp = $serialno_ocfno->ocfno + rand(1000, 9999);
-      
+        $Mobile = $request->input('phone');
+        $serialno_ocfno =  OCF::where('ocfno', $ocfno)->first();
+        $serialno= [$serialno_ocfno->ocfno];
+        $otp = Str::random(6);
+        return $otp;
         // $verifyotps = User::where('mobile', $Mobile)->get();
 
-        $update = DB::table('users')->where('mobile', $Mobile)->update(array('otp' => $otp));
+        $update = DB::table('users')->where('phone', $Mobile)->update(array('otp' => $otp));
        
         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$Mobile&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
         $params = ["to" => ["type" => "whatsapp", "number" => $request->input('number')],
@@ -47,7 +49,7 @@ class SerialnoController extends Controller
 
     public function serialnoverifyotp(Request $request, $mobile)
     {
-        $verify = Customers::where('mobile', $mobile)->first();
+        $verify = Customers::where('phone', $mobile)->first();
         $verifyotp = [
             'isverified' => $request->isverified
         ];
