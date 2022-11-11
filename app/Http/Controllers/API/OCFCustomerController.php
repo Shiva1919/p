@@ -34,9 +34,9 @@ class OCFCustomerController extends Controller
     {
         $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-                                
+
                                 ->where('customer_master.id', $customerid)->get('acme_module.*');
-        
+
         return response()->json($getmodules);
     }
     public function deactivecustomerslist()
@@ -47,8 +47,8 @@ class OCFCustomerController extends Controller
 
     public function getmoduletypedata($moduleid)
     {
-        $data = Modules::leftjoin('module_type', 'acme_module.moduletypeid', '=','module_type.id')->where('acme_module.moduletypeid',$moduleid)->get();
-        return $data;            
+        $data = Modules::leftjoin('module_type', 'acme_module.moduletypeid', '=','module_type.id')->where('acme_module.moduletypeid',$moduleid)->get('module_type.*');
+        return $data;
     }
     /**
      * Show the form for creating a new resource.
@@ -93,7 +93,7 @@ class OCFCustomerController extends Controller
                 $insert_customers->packagecode = $request->packagecode;
                 $insert_customers->subpackagecode = $request->subpackagecode;
                 $insert_customers->save();
-                if(!empty($insert_customers->id)) 
+                if(!empty($insert_customers->id))
                 {
                     foreach ($request->Cdocument as $data ) {
                         $data=[
@@ -107,8 +107,8 @@ class OCFCustomerController extends Controller
                     }
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
-            
-            
+
+
             // $request->name.$request->phone.$request->packagename;
         }
         else
@@ -143,7 +143,7 @@ class OCFCustomerController extends Controller
                     {
                         $data=[
                             'customercode'=> $insert_customers->id,
-                            
+
                             'company_name'=>  $data['company_name'],
                             'pan_no'=> $data['pan_no'],
                             'gst_no'=> $data['gst_no'],
@@ -152,7 +152,7 @@ class OCFCustomerController extends Controller
                     }
                     return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
                 }
-            
+
         }
     }
 
@@ -176,16 +176,16 @@ class OCFCustomerController extends Controller
     //             'active' => 'required',
     //             'concernperson' => 'required',
     //             'packagecode' => 'required',
-    //             'subpackagecode' => 'required',   
+    //             'subpackagecode' => 'required',
     //             // 'data' => [
-    //             //     'company_name'=> 'required',   
-    //             //     'pan_no'=> 'required',   
-    //             //     'gst_no'=> 'required',   
-    //             // ]           
+    //             //     'company_name'=> 'required',
+    //             //     'pan_no'=> 'required',
+    //             //     'gst_no'=> 'required',
+    //             // ]
     //         );
-          
+
     //         $validator = Validator::make($request->all(), $rules);
-    //         if ($validator->fails()) 
+    //         if ($validator->fails())
     //         {
     //             return response()->json([
     //                 'message' => 'Invalid params passed', // the ,message you want to show
@@ -216,9 +216,9 @@ class OCFCustomerController extends Controller
     //             $insert_customers->packagecode = $request->packagecode;
     //             $insert_customers->subpackagecode = $request->subpackagecode;
     //             $insert_customers->save();
-    //             if(!empty($insert_customers->id)) 
+    //             if(!empty($insert_customers->id))
     //             {
-    //                 foreach ($request->Cdocument as $request ) 
+    //                 foreach ($request->Cdocument as $request )
     //                 {
     //                         $data=[
     //                             'customercode'=> $insert_customers->id,
@@ -233,7 +233,7 @@ class OCFCustomerController extends Controller
     //             }
     //             return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $dataaa]);
     //         }
-            
+
     //         // $request->name.$request->phone.$request->packagename;
     //     }
     //     else
@@ -258,9 +258,9 @@ class OCFCustomerController extends Controller
     //             // 'pan_no'=> 'required',
     //             // 'gst_no'=> 'required',
     //         );
-        
+
     //         $validator = Validator::make($request->all(), $rules);
-    //         if ($validator->fails()) 
+    //         if ($validator->fails())
     //         {
     //             return response()->json([
     //                 'message' => 'Invalid params passed', // the ,message you want to show
@@ -298,7 +298,7 @@ class OCFCustomerController extends Controller
     //                 $company = Company::where('customercode',  $insert_customers->id)->get();
     //                 foreach ($request->Cdocument as $request )
     //                 {
-                      
+
     //                     // return $company;
     //                     // $data = Company::where('customercode',  $insert_customers->id)->first();
     //                     // $data->customercode = $insert_customers->id;
@@ -387,7 +387,7 @@ class OCFCustomerController extends Controller
             'packagecode' => '',
             'subpackagecode' => ''
         ]);
-       
+
         $customer->name = $input['name'];
         $customer->entrycode = $input['entrycode'];
         $customer->phone = $input['phone'];
@@ -580,5 +580,5 @@ class OCFCustomerController extends Controller
         $company = Company::where('customercode', $customerid)->get('company_name');
         return response()->json($company);
     }
-    
+
 }
