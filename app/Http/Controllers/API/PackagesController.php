@@ -251,7 +251,7 @@ class PackagesController extends Controller
 
     public function moduletype()
     {
-        $moduletype= DB::table('module_type')->get();
+        $moduletype= DB::table('acme_module_type')->get();
         return response()->json($moduletype);
     }
 

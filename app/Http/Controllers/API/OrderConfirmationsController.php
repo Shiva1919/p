@@ -22,7 +22,7 @@ class OrderConfirmationsController extends Controller
                                                 ->leftjoin('acme_package', 'acme_product_ocf.packagetype', '=', 'acme_package.id')
                                                 ->leftjoin('acme_subpackage', 'acme_product_ocf.packagesubtype', '=', 'acme_subpackage.id')
                                                 ->leftjoin('acme_module', 'acme_product_ocf.moduleid', '=', 'acme_module.id')
-                                                ->get( ['users.name','acme_product_ocf.*' , 'acme_package.name as packagename', 'acme_subpackage.name as subpackagename', 'acme_module.name as modulename']);
+                                                ->get( ['users.name','acme_product_ocf.*' , 'acme_package.name as packagename', 'acme_subpackage.name as subpackagename', 'acme_module.modulename']);
         // $order_confirmations = OrderConfirmations::left_join('users',)
         // ->get('users.name');
         // return $order_confirmations;
@@ -212,7 +212,7 @@ class OrderConfirmationsController extends Controller
                                         ->leftjoin('acme_subpackage', 'acme_product_ocf.packagesubtype', '=', 'acme_subpackage.id')
                                         ->leftjoin('acme_module', 'acme_product_ocf.moduleid', '=', 'acme_module.id')
                                         ->where('customercode', $customer->id)
-                                        ->get(['acme_product_ocf.*' , 'acme_package.name as packagename', 'acme_subpackage.name as subpackagename', 'acme_module.name as modulename']);
+                                        ->get(['acme_product_ocf.*' , 'acme_package.packagename as packagename', 'acme_subpackage.name as subpackagename', 'acme_module.modulename']);
         return response()->json($customerocf);
     }
 

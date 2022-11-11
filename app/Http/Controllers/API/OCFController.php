@@ -95,7 +95,7 @@ class OCFController extends Controller
                 
                 $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
                
-                // $module = DB::table('module_master')->where('ocfcode', $insert_ocf->id)->sum('amount');
+                // $module = DB::table('ocf_modules')->where('ocfcode', $insert_ocf->id)->sum('amount');
                
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
@@ -138,7 +138,7 @@ class OCFController extends Controller
      */
     public function show($id)
     {
-        $module = DB::table('module_master')->where('ocfcode', $id)->sum('amount');
+        $module = DB::table('ocf_modules')->where('ocfcode', $id)->sum('amount');
         return $module;
     }
 

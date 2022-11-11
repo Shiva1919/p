@@ -21,6 +21,7 @@ class SerialnoController extends Controller
 {
     public function serialnosendotp(Request $request)
     {
+        // $ocf = OCF::leftjoin('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')->where('companycode', $company->id)->get(['ocf_modules.modulename', 'ocf_modules.quantity',  'ocf_modules.expirydate']);
         $Mobile = $request->input('phone');
         $checkmobile =  OCFCustomer::where('phone', $request->input('phone'))->first();
         $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();

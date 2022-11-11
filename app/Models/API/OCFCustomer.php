@@ -30,6 +30,7 @@ class OCFCustomer extends Model
         'password',
         'concernperson',
         'packagename',
-        'subpackagecode'
+        'subpackagecode',
+        'customercode'
     ];
 }
