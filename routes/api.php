@@ -215,3 +215,4 @@ Route::get('companydata/{customerid}', [OCFAPIController::class, 'getcompany']);
 Route::get('companyocf', [OCFAPIController::class, 'companyocf']);
 Route::post('serialnootp', [OCFAPIController::class, 'serialnootp']);
 Route::post('serialnootpverify', [OCFAPIController::class, 'serialnoverifyotp']);
+Route::post('broadcastmessage', [OCFAPIController::class, 'broadcastmessage']);

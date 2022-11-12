@@ -16,7 +16,8 @@ use App\Models\API\OCFCustomer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-
+use App\Models\API\BroadcastMessage;
+use App\Models\API\Packages;
 use Illuminate\Support\Facades\Cache;
 
 class OCFAPIController extends Controller
@@ -27,8 +28,6 @@ class OCFAPIController extends Controller
     {
         $dataaa=[];
         $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
-        if(count($entrycode)==0)
-        {
             $rules = array(
                 'name' => 'required',
                 'entrycode' => '',
@@ -87,7 +86,7 @@ class OCFAPIController extends Controller
                 //                 'gst_no'=> $request['gst_no'],
                 //             ];
                 //             array_push($dataaa,$data);
-                //             Company::create($data);
+                //             Company::create($data);   
                 //     }
                 // }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers]);
@@ -95,85 +94,7 @@ class OCFAPIController extends Controller
             
             // $request->name.$request->phone.$request->packagename;
         }
-        else
-        {
-            $rules = array(
-                'name' => 'required',
-                'entrycode' => '',
-                'phone' => 'required',
-                'email' => 'required',
-                'address1' => 'required',
-                'state' => 'required',
-                'district' => 'required',
-                'taluka' => 'required',
-                'city' => 'required',
-                'whatsappno' => 'required',
-                'concernperson' => 'required',
-                'packagecode' => 'required',
-                'subpackagecode' => 'required',
-                // 'company_name'=>'required',
-                // 'pan_no'=> 'required',
-                // 'gst_no'=> 'required',
-            );
-        
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) 
-            {
-                return response()->json([
-                    'message' => 'Invalid params passed', // the ,message you want to show
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            else
-            {
-                $role_id = 10;
-                $password = 'AcmeAcme1994';
-                $ocfcustomerlastid = OCFCustomer::orderBy('id', 'desc')->first();
-                $insert_customers = OCFCustomer::where('entrycode', $request->entrycode)->first();
-                $insert_customers->name = $request->name;
-                $insert_customers->entrycode = $request->entrycode;
-                $insert_customers->phone = $request->phone;
-                $insert_customers->email = $request->email;
-                $insert_customers->address1 = $request->address1;
-                $insert_customers->state = $request->state;
-                $insert_customers->district = $request->district;
-                $insert_customers->taluka = $request->taluka;
-                $insert_customers->city = $request->city;
-                $insert_customers->whatsappno = $request->whatsappno;
-                $insert_customers->concernperson = $request->concernperson;
-                $insert_customers->packagecode = $request->packagecode;
-                $insert_customers->subpackagecode = $request->subpackagecode;
-                $insert_customers->save();
-
-                // Company::where('customercode',$insert_customers->id)->delete();
-                // if(!empty($insert_customers->id))
-                // {
-                //     $company = Company::where('customercode',  $insert_customers->id)->get();
-                //     foreach ($request->Cdocument as $request )
-                //     {
-                      
-                //         // return $company;
-                //         // $data = Company::where('customercode',  $insert_customers->id)->first();
-                //         // $data->customercode = $insert_customers->id;
-                //         // // $data->companycode = $ocfcompanyflastid->id+1;
-                //         // $data->company_name = $request['company_name'];
-                //         // $data->pan_no = $request['pan_no'];
-                //         // $data->gst_no = $request['gst_no'];
-                //         // $data->save();
-                //             $data=[
-                //                 'customercode'=> $insert_customers->id,
-                //                 // 'companycode'=> $ocfcompanyflastid->id+1,
-                //                 'company_name'=>  $request['company_name'],
-                //                 'pan_no'=> $request['pan_no'],
-                //                 'gst_no'=> $request['gst_no'],
-                //             ];
-                //             array_push($dataaa,$data);
-                //             Company::create($data);
-                //     }
-                    return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $request->all(), 'Customercode' => $ocfcustomerlastid->id ]);
-                }
-            }
-        }
+       
 
         public function company(Request $request)
         {
@@ -286,8 +207,6 @@ class OCFAPIController extends Controller
     {
         $data1=[];
         $customer = OCFCustomer::where('id', $request->customercode)->first();
-        if($customer->isverified == 1)
-        {
             $series = OCF::orderBy('series', 'desc')->first('series');
             $ocf= OCF::where('ocfno', $request->ocfno)->first();
             $modules = DB::table('ocf_modules')->where('ocfcode', $ocf->id)->get();
@@ -351,29 +270,25 @@ class OCFAPIController extends Controller
                             }
                         }
                         // serialno
-                    
+                        
                         $company = Company::where('id', $request->companycode)->first();  
                         $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+                        $time = date('Y-m-d H:i:s');
+                        $expirydate = date('Y-m-d H:i:s', strtotime($request->ocf_date . " +1 year") );
                         $insert_serialno = new Serialno();
                         $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
                         $insert_serialno->comp_name = $company->company_name;
                         $insert_serialno->pan = $company->pan_no;
                         $insert_serialno->gst = $company->gst_no;
                         $insert_serialno->serialno_issue_date = $request->ocf_date;
+                        $insert_serialno->serialno_validity = $expirydate;
                         $insert_serialno->serialno_parameters = $serialnoparameters;
                         $insert_serialno->serialno = md5($serialnoparameters);
                         $insert_serialno->save();
-
+                        return $insert_serialno;
                     return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
                     }
                 }
-            
-            
-        }
-        else
-        {
-            return response()->json(['message' => 'Please Verify Customer','status' => 1]);
-        }
         
     }
 
@@ -408,4 +323,69 @@ class OCFAPIController extends Controller
             return response()->json(['message' => 'Company', 'status' => 0, 'Company' => $company,'Modules' => $module, 'Serial' => $serial]);
         }
     }
+
+    public function broadcastmessage(Request $request)
+    {
+        $rules = array(
+            'messagetype' => 'required',
+            'customercode' => 'required',
+            'datefrom' => 'required|date_format:Y-m-d H:i:s', 
+            'todate' => 'required|date_format:Y-m-d H:i:s',
+            'description' => 'required',
+            'Active' => ''
+        );
+      
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) 
+        {
+            return response()->json([
+                'message' => 'Invalid params passed', // the ,message you want to show
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        else 
+        {
+            $broadcast_message = new BroadcastMessage();
+            $broadcast_message->MessageType = $request->messagetype;
+            $broadcast_message->CustomerCode = $request->customercode;
+            $broadcast_message->DateFrom = $request->datefrom;
+            $broadcast_message->ToDate = $request->todate;
+            $broadcast_message->Description = $request->description;
+            $broadcast_message->save();
+
+            if($request->messagetype == 1)
+            {
+                $packages = Packages::all();
+                $customers = OCFCustomer::all();
+                return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Packages' => $packages, 'Customers' => $customers,'Broadcast Message' => $broadcast_message]);
+            }
+            elseif($request->messagetype == 2)
+            {
+                $package = Packages::where('id', $request->customercode)->first();
+                if($package == null)
+                {
+                    return response()->json(['message' => 'Invalid Package', 'status' => 1]);
+                }
+                else{
+                    
+                    return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Package' => $package, 'Broadcast Message' => $broadcast_message]);
+                }
+            }
+            elseif($request->messagetype == 3)
+            {
+                $customer = OCFCustomer::where('id', $request->customercode)->first();
+                if($customer == null)
+                {
+                    return response()->json(['message' => 'Invalid Customer', 'status' => 1]);
+                }
+                else{
+                    return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Customer' => $customer, 'Broadcast Message' => $broadcast_message]);
+                }
+            }
+            else{
+                return response()->json(['message' => 'Invalid Message Type', 'status' => 1]);
+            }
+        }        
+    }
+
 }
