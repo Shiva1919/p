@@ -22,14 +22,14 @@ class OCFController extends Controller
     {
         $ocf = OCF::all();
         return response()->json($ocf);
-    }       
+    }
 
     public function getocflastid()
     {
         $ocf = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
         return response()->json($ocf);
     }
-  
+
     /**
      * Show the form for creating a new resource.
      *
@@ -48,17 +48,17 @@ class OCFController extends Controller
      */
     public function store(Request $request)
     {
-        // return $request;
+
         $series = OCF::orderBy('series', 'desc')->first('series');
         $ocf= OCF::where('ocfno', $request->ocfno)->get();
         $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
 
         if(count($ocf)==0)
         {
-                
+
                 $insert_ocf = new OCF();
                 // $customer = OCFCustomer::where('id', $request->customercode)->first();
-                // $company = Company::where('customercode', $customer->id)->get();  
+                // $company = Company::where('customercode', $customer->id)->get();
                 // return $company;
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
@@ -70,18 +70,26 @@ class OCFController extends Controller
                 $insert_ocf->save();
                 if(!empty($insert_ocf->id))
                 {
-                
-                    foreach ($request->Dcoument as $data ) 
+
+                    foreach ($request->Dcoument as $data )
                     {
+
+                        $module_unit = DB::table('acme_module')
+                        ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
+                        ->where('acme_module.ModuleName',$data['modulecode'])
+                        ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
-                        'modulename'=> $data['modulename'],
+                        'modulename'=> $data['modulecode'],
                         'modulecode'=> $data['modulecode'],
+                        'moduletypes'=> $module_unit[0]->moduletype,
                         'quantity'=> $data['quantity'],
-                        'unit'=>  $data['unit'],
+                        'unit'=>  $module_unit[0]->unit,
                         'expirydate'=> $data['expirydate'],
                         'amount'=> $data['amount'],
-                        
+                        'activation'=> $data['activation']
+
                     ];
 
                     OCFModule::create($data);
@@ -91,12 +99,12 @@ class OCFController extends Controller
         }
         else
         {
-            
-                
+
+
                 $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
-               
+
                 // $module = DB::table('ocf_modules')->where('ocfcode', $insert_ocf->id)->sum('amount');
-               
+
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
                 $insert_ocf->companycode = $request->companycode;
@@ -109,26 +117,37 @@ class OCFController extends Controller
                 OCFModule::where('ocfcode',$insert_ocf->id)->delete();
                 if(!empty($insert_ocf->id))
                 {
-                
-                    foreach ($request->Dcoument as $data )
-                            $data=[
-                                'ocfcode'=> $insert_ocf->id,
-                                'modulename'=> $data['modulename'],
-                                'modulecode'=> $data['modulecode'],
-                                'quantity'=> $data['quantity'],
-                                'unit'=>  $data['unit'],
-                                'expirydate'=> $data['expirydate'],
-                                'amount'=> $data['amount'],   
-                            ];
 
-                            OCFModule::create($data);
-                        }
+                    foreach ($request->Dcoument as $data ){
+                    $module_unit=[];
+                    $module_unit = DB::table('acme_module')
+                    ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
+                    ->where('acme_module.ModuleName',$data['modulecode'])
+                    ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+
+                    $data=[
+                        'ocfcode'=> $insert_ocf->id,
+                        'modulename'=> $data['modulecode'],
+                        'modulecode'=> $data['modulecode'],
+                        'moduletypes'=> $module_unit[0]->moduletype,
+                        'quantity'=> $data['quantity'],
+                        'unit'=>  $module_unit[0]->unit,
+                        'expirydate'=> $data['expirydate'],
+                        'amount'=> $data['amount'],
+                        'activation'=> $data['activation']
+
+                    ];
+
+                        OCFModule::create($data);
+
+                }
                 return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data ]);
-                
+
             }
     }
+}
 
-    
+
 
     /**
      * Display the specified resource.
