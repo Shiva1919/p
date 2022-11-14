@@ -18,6 +18,7 @@ class Modules extends Model
         'description', 
         'price',
         'unit',
+        'moduletype',
         'producttype',
         'active',
         'moduletypeid'

@@ -81,6 +81,8 @@ Route::get('getcustomer/{customerid}', [OCFCustomerController::class, 'companyby
 Route::resource('ocf', OCFController::class);
 Route::post('OCFstore', [OCFController::class, 'OCFstore']);
 Route::get('getocfno/{ocfno}',[ OCFController::class, 'getocfno']);
+Route::get('getocf_customer/{customer}', [OCFController::class, 'getocf_customer']);
+Route::get('getocf_modules/{ocf}', [OCFController::class, 'getocf_modules']);
 Route::get('ocflist', [OCFCustomerController::class, 'ocflist']);
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',[ OCFModuleController::class, 'getocfmodalno']);
@@ -93,7 +95,7 @@ Route::get('getseries', [OCFController::class, 'getocflastseries']);
 
 
 Route::get('customerdeactivelist', [CustomersController::class, 'deactivecustomerslist']);
-// //Country
+//Country
 // Route::get('state', [CustomersController::class, 'getState']);
 // Route::get('district/{stateid}', [CustomersController::class, 'getDistrict']);
 // Route::get('taluka/{districtid}', [CustomersController::class, 'getTaluka']);
@@ -134,7 +136,7 @@ Route::resource('Url', UrlController::class);
 
 // fatch State ,District ,Taluka,City,pincode
 Route::get('states',[SendurlController::class,'getState']);
-Route::get('district/{statename}',[SendurlController::class,'getDistrict']);
+Route::get('district/{id}',[SendurlController::class,'getDistrict']);
 Route::get('taluka/{id}',[SendurlController::class,'getTaluka']);
 Route::get('city/{id}',[SendurlController::class,'getCity']);
 

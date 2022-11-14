@@ -181,4 +181,16 @@ class OCFController extends Controller
          $data = OCF::where('ocfno', $ocfno)->first();
         return response()->json($data);
     }
+
+    public function getocf_customer($customer)
+    {
+        $data = OCF::where('customercode', $customer)->get();
+        return response()->json($data);
+    }
+
+    public function getocf_modules($ocf)
+    {
+        $data = DB::table('ocf_modules')->where('ocfcode', $ocf)->get();
+        return response()->json($data);
+    }
 }

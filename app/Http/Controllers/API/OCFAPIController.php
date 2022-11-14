@@ -248,6 +248,7 @@ class OCFAPIController extends Controller
                                 ->where('customer_master.id', $request->customercode)
                                 ->where('acme_module.ModuleName',$data['modulename'])
                                 ->get(['acme_module.*', 'acme_module_type.*']);
+                           
                             if(count($getmoduledata)==0)
                             {
                                 return response()->json(['message' => 'Check Module','status' => 1]);
@@ -262,6 +263,7 @@ class OCFAPIController extends Controller
                                     // 'unit'=>  $data['unit'],
                                     'expirydate'=> $data['expirydate'],
                                     'amount'=> $data['amount'],
+                                    'moduletypes' => $getmoduledata[0]['moduletype'],
                                     'modulecode' => $getmoduledata[0]['productcode'],
                                     'unit' => $getmoduledata[0]['unit']
                                 ];
@@ -273,7 +275,6 @@ class OCFAPIController extends Controller
                         
                         $company = Company::where('id', $request->companycode)->first();  
                         $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
-                        $time = date('Y-m-d H:i:s');
                         $expirydate = date('Y-m-d H:i:s', strtotime($request->ocf_date . " +1 year") );
                         $insert_serialno = new Serialno();
                         $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
@@ -285,8 +286,7 @@ class OCFAPIController extends Controller
                         $insert_serialno->serialno_parameters = $serialnoparameters;
                         $insert_serialno->serialno = md5($serialnoparameters);
                         $insert_serialno->save();
-                        return $insert_serialno;
-                    return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
+                        return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
                     }
                 }
         
@@ -310,12 +310,12 @@ class OCFAPIController extends Controller
             $module = DB::table('ocf_master')
                             ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                             ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
-                            ->join('acme_module', 'ocf_modules.moduletype', '=', 'acme_module.id')
+                            ->join('acme_module', 'ocf_modules.moduletypes', '=', 'acme_module.id')
                             ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
                             ->where('ocf_master.customercode', $request->customercode)
-                            ->groupBy('ocf_modules.moduletype')
+                            ->groupBy('ocf_modules.moduletypes')
                             ->get();
-            $x=json_encode($module);           
+            // $x=json_encode($module);           
             // $ciphertext = base64_encode(openssl_encrypt($x, "AES-128-CBC", "AcmeInfovision", OPENSSL_RAW_DATA, openssl_random_pseudo_bytes(16)));
             // var_dump($ciphertext);
 
@@ -361,7 +361,8 @@ class OCFAPIController extends Controller
             }
             elseif($request->messagetype == 2)
             {
-                $package = Packages::where('id', $request->customercode)->first();
+                $customer = OCFCustomer::where('id', $request->customercode)->first();
+                $package = Packages::where('id', $customer->packagecode)->first();
                 if($package == null)
                 {
                     return response()->json(['message' => 'Invalid Package', 'status' => 1]);
@@ -386,6 +387,57 @@ class OCFAPIController extends Controller
                 return response()->json(['message' => 'Invalid Message Type', 'status' => 1]);
             }
         }        
+    }
+
+    function sr_validation_date(Request $request){
+
+        $request->validate([
+            'company_name' => 'required',
+            'pan_no' => 'required',
+            'gst_no' => 'required'
+        ]);
+      
+        $InfoUpdate= DB::table('serialno')->where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
+        // $date = Carbon::now();
+        $time = date('Y-m-d H:i:s');
+        $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+          return $InfoUpdate->ocfno;
+        if (!empty($InfoUpdate)) {
+             $cusromer_details= DB::table('acme_product_ocf')->where('ocfno',$InfoUpdate->ocfno)->first(); 
+            //  $serialno_customers = Customers::where('id', $cusromer_details->customercode)->first();
+            $serial_parameters = Serialno::where('ocfno', $request->ocfno)->orderBy('id','desc')->first();
+            return $serial_parameters->comp_name;
+            // return $parameters;
+             //new generated the serial number
+            $update_serialnumber = md5($InfoUpdate->comp_name.$InfoUpdate->pan.$InfoUpdate->gst);
+            // return $update_serialnumber;
+             //update the only serial number and generated count
+        //    Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->save(['serialno' => $update_serialnumber,'serialno_issue_date' => $request->fromdate]);
+            $ocf = Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
+            $ocf->id;
+            $ocf->ocfno = $request->ocfno;
+            $ocf->comp_name = $request->comp_name;
+            $ocf->pan = $request->pan;
+            $ocf->gst = $request->gst;
+            $ocf->transaction_datetime = $time;
+            $ocf->serialno_issue_date = $time;
+            $ocf->serialno_validity = $expirydate;
+            $ocf->serialno_parameters = $update_serialnumber;
+            $ocf->serialno = md5($update_serialnumber);
+            $ocf->save();
+            return $ocf;
+        return response()->json([
+                'message'=>'New Serial Number generated',
+                'status'=> '0',
+                'data'=>['serial_number'=> $update_serialnumber, 'Issue_Date' => $request->fromdate],
+            ]);
+        }
+        else{
+            return response()->json([
+                'message'=>'Serial Number not found',
+                'status'=> '1',
+            ]);
+        }
     }
 
 }

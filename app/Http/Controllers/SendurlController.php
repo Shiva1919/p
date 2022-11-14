@@ -109,20 +109,20 @@ class SendurlController extends Controller
     }
     public function getDistrict($request)
     {
-        $data =DB::table('district')->where("dstatename",$request)->orderBy('districtname','asc')->get();
+        $data =DB::table('district')->where("stateid",$request)->orderBy('districtname','asc')->get();
         return response()->json($data);
     }
 
     public function getTaluka($request)
     {
         
-        $data =DB::table('taluka')->where("tdistrictname",$request)->orderBy('talukaname','asc')->get();
+        $data =DB::table('taluka')->where("districtid",$request)->orderBy('talukaname','asc')->get();
         return response()->json($data);
     }
 
     public function getCity($request)
     {
-        $data =DB::table('city')->where("ctalukaname",$request)->orderBy('cityname','asc')->get();
+        $data =DB::table('city')->where("talukaid",$request)->orderBy('cityname','asc')->get();
         return response()->json($data);
     }
     public function customername($num){

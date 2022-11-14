@@ -260,7 +260,7 @@ class OCFCustomerController extends Controller
             'email' => '',
             'company_name' => '',
             'address1' => '',
-            // 'address2' => '',
+            'address2' => '',
             'state' => '',
             'district' => '',
             'taluka' => '',
@@ -283,6 +283,7 @@ class OCFCustomerController extends Controller
         $customer->whatsappno = $input['whatsappno'];
         $customer->email = $input['email'];
         $customer->address1 = $input['address1'];
+        $customer->address2 = $input['address2'];
         $customer->state = $input['state'];
         $customer->district = $input['district'];
         $customer->taluka = $input['taluka'];

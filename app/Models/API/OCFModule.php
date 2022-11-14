@@ -16,6 +16,7 @@ class OCFModule extends Model
         'modulecode',
         'modulename',
         'quantity',
+        'moduletypes',
         'unit', 
         'expirydate', 
         'amount', 
