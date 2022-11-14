@@ -13,7 +13,7 @@ class Packages extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'id',
-        'name',
+        'packagename',
         'description',
         'active'
     ];

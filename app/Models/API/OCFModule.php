@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OCFModule extends Model
 {
     use HasFactory;
-    public $table="module_master";
+    public $table="ocf_modules";
     // public $timestamps = false;
     protected $primaryKey = 'id';
     protected $fillable = [

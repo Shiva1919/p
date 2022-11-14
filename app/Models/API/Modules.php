@@ -14,7 +14,7 @@ class Modules extends Model
     protected $fillable = [
         'id',
         'productcode',
-        'name',
+        'ModuleName',
         'description', 
         'price',
         'unit',

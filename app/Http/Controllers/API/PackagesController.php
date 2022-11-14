@@ -20,13 +20,13 @@ class PackagesController extends Controller
      */
     public function index()
     {
-        $package = Packages::where('active', 1)->orderBy('name', 'asc')->get();
+        $package = Packages::where('active', 1)->orderBy('packagename', 'asc')->get();
         return response()->json($package);
     }
 
     public function deactivepackageslist()
     {
-        $package = Packages::where('active', 0)->orderBy('name', 'asc')->get();
+        $package = Packages::where('active', 0)->orderBy('packagename', 'asc')->get();
         return response()->json($package);
     }
 
@@ -123,13 +123,13 @@ class PackagesController extends Controller
 
     public function subpackageindex($packageid)
     {
-        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('name', 'asc')->get();
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('subpackagename', 'asc')->get();
         return response()->json($subpackage);
     }
     
     public function deactivesubpackageslist($packageid) 
     {
-        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('name', 'asc')->get();
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('subpackagename', 'asc')->get();
         return response()->json($subpackage);
     }
 
@@ -251,7 +251,7 @@ class PackagesController extends Controller
 
     public function moduletype()
     {
-        $moduletype= DB::table('module_type')->get();
+        $moduletype= DB::table('acme_module_type')->get();
         return response()->json($moduletype);
     }
 
