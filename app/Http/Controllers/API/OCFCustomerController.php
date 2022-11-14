@@ -34,9 +34,9 @@ class OCFCustomerController extends Controller
     {
         $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-
-                                ->where('customer_master.id', $customerid)->get('acme_module.*');
-
+                                ->where('customer_master.id', $customerid)
+                                ->get('*');
+return $getmodules;
         return response()->json($getmodules);
     }
     public function deactivecustomerslist()
@@ -47,7 +47,7 @@ class OCFCustomerController extends Controller
 
     public function getmoduletypedata($moduleid)
     {
-        $data = Modules::leftjoin('module_type', 'acme_module.moduletypeid', '=','module_type.id')->where('acme_module.moduletypeid',$moduleid)->get('module_type.*');
+        $data = Modules::leftjoin('acme_module_type', 'acme_module.moduletypeid', '=','acme_module_type.id')->where('acme_module.moduletypeid',$moduleid)->get('acme_module_type.*');
         return $data;
     }
     /**
