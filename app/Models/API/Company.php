@@ -13,7 +13,6 @@ class Company extends Model
     protected $fillable = [
         'id',
         'customercode',
-        'customercode',
         'company_name',
         'pan_no',
         'gst_no'

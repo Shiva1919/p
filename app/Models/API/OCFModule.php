@@ -15,13 +15,14 @@ class OCFModule extends Model
         'ocfcode',
         'modulecode',
         'modulename',
-        'quantity',
         'moduletypes',
-        'unit', 
-        'expirydate', 
-        'amount', 
-        'total', 
+        'quantity',
+        'unit',
+        'expirydate',
+        'activation',
+        'amount',
+        'total',
     ];
 
-    
+
 }

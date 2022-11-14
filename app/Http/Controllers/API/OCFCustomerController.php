@@ -34,9 +34,8 @@ class OCFCustomerController extends Controller
     {
         $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-                                
-                                ->where('customer_master.id', $customerid)->get('acme_module.*');
-        
+                               ->where('customer_master.id', $customerid)->get('acme_module.*');
+
         return response()->json($getmodules);
     }
     public function deactivecustomerslist()
@@ -47,8 +46,10 @@ class OCFCustomerController extends Controller
 
     public function getmoduletypedata($moduleid)
     {
-        $data = Modules::leftjoin('acme_module_type', 'acme_module.moduletypeid', '=','acme_module_type.id')->where('acme_module.moduletypeid',$moduleid)->get();
-        return $data;            
+        $data = Modules::leftjoin('acme_module_type', 'acme_module.moduletypeid', '=','acme_module_type.id')->where('acme_module.moduletypeid',$moduleid)->get('acme_module_type.*');
+        return $data;
+        // $data = Modules::leftjoin('acme_module_type', 'acme_module.moduletypeid', '=','acme_module_type.id')->where('acme_module.moduletypeid',$moduleid)->get();
+        // return $data;
     }
     /**
      * Show the form for creating a new resource.
@@ -87,9 +88,9 @@ class OCFCustomerController extends Controller
                 'packagecode' => 'required',
                 'subpackagecode' => 'required'
             );
-        
+
             $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) 
+            if ($validator->fails())
             {
                 return response()->json([
                     'message' => 'Invalid params passed', // the ,message you want to show
@@ -119,7 +120,7 @@ class OCFCustomerController extends Controller
                 $insert_customers->packagecode = $request->packagecode;
                 $insert_customers->subpackagecode = $request->subpackagecode;
                 $insert_customers->save();
-                if(!empty($insert_customers->id)) 
+                if(!empty($insert_customers->id))
                 {
                     foreach ($request->Cdocument as $data ) {
                         $data=[
@@ -134,7 +135,7 @@ class OCFCustomerController extends Controller
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
-            
+
             // $request->name.$request->phone.$request->packagename;
         }
         else
@@ -155,9 +156,9 @@ class OCFCustomerController extends Controller
                 'packagecode' => 'required',
                 'subpackagecode' => 'required'
             );
-        
+
             $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) 
+            if ($validator->fails())
             {
                 return response()->json([
                     'message' => 'Invalid params passed', // the ,message you want to show
@@ -267,7 +268,7 @@ class OCFCustomerController extends Controller
             'city' => '',
             // 'panno' => '',
             // 'gstno' => '',
-          
+
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',
@@ -477,5 +478,5 @@ class OCFCustomerController extends Controller
         $company = Company::where('customercode', $customer->id)->get();
         return $company;
     }
-    
+
 }
