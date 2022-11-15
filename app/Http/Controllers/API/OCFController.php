@@ -52,7 +52,6 @@ class OCFController extends Controller
         $series = OCF::orderBy('series', 'desc')->first('series');
         $ocf= OCF::where('ocfno', $request->ocfno)->get();
         $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
-
         if(count($ocf)==0)
         {
 
@@ -63,10 +62,17 @@ class OCFController extends Controller
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
                 $insert_ocf->companycode = $request->companycode;
-                $insert_ocf->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
+                if (!$series && !$ocflastid ) {
+                    $insert_ocf->ocfno = ('OCF11');
+                    $insert_ocf->series=01;
+                }
+                else {
+                    $insert_ocf->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
+                    $insert_ocf->series=$series->series+1;
+                }
+
                 $insert_ocf->ocf_date = $request->ocf_date;
                 $insert_ocf->module_total=$request->module_total;
-                $insert_ocf->series=$series->series+1;
                 $insert_ocf->save();
                 if(!empty($insert_ocf->id))
                 {
