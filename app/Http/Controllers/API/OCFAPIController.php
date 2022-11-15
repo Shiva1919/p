@@ -27,7 +27,13 @@ class OCFAPIController extends Controller
     public function customercreate(Request $request)
     {
         $dataaa=[];
-        $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
+        $customercode= OCFCustomer::where('id', $request->customercode)->first();
+        if($request->customercode )
+        {
+            return response()->json(['message' => 'Customer  Already Exist','status' => 0,'Customer' => $customercode]);
+        }
+        else
+        {
             $rules = array(
                 'name' => 'required',
                 'entrycode' => '',
@@ -89,9 +95,9 @@ class OCFAPIController extends Controller
                 //             Company::create($data);   
                 //     }
                 // }
-                return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers]);
+                return response()->json(['message' => 'Customer Saved Successfully','status' => 0,'Customer' => $insert_customers]);
             }
-            
+        }    
             // $request->name.$request->phone.$request->packagename;
         }
        
@@ -124,15 +130,15 @@ class OCFAPIController extends Controller
             // $checkmobile1 =  Customers::where('phone', $Mobile)->first('phone');
             if($checkentrycode == null && $checkmobile == null)
             {
-                return response()->json(['Message' => 'Invalid Code or Mobile No', 'status' => '1']);
+                return response()->json(['Message' => 'Invalid Code or Mobile No', 'status' => 1]);
             }
             if($checkmobile == null )
             {
-                return response()->json(['Message' => 'Mobile No invalid', 'status' => '1']);
+                return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
             }
             if($checkentrycode == null)
             {
-                return response()->json(['Message' => 'Invalid Code ', 'status' => '1']);
+                return response()->json(['Message' => 'Invalid Code ', 'status' => 1]);
             }
            
             $otp =   Str::random(6);
@@ -169,7 +175,7 @@ class OCFAPIController extends Controller
             $data = $response->getBody();
             Log::Info($data);
             // $data1 = $this->verifyOtp($request,$Mobile);
-            return response()->json(['OTP' => $otp , 'status' => '0', 'message' => 'OTP Generated']);
+            return response()->json(['OTP' => $otp , 'status' => 0, 'message' => 'OTP Generated']);
         }
     
         public function serialnoverifyotp(Request $request)
@@ -182,12 +188,12 @@ class OCFAPIController extends Controller
             // $verify = Customers::where('phone', $request->phone)->first();
             if($customer == null)
             {
-                return response()->json(['Message' => 'Invalid Mobile No ', 'status' => '1']);
+                return response()->json(['Message' => 'Invalid Mobile No ', 'status' => 1]);
             }
             $time = date('Y-m-d H:i:s');
             if($time >= $customer->otp_expires_time)
             {
-                return response()->json(['status' => '1', 'message' => 'OTP Expired']);
+                return response()->json(['status' => 1, 'message' => 'OTP Expired']);
             }
             else if($request->otp == $customer->otp)
             {
@@ -195,11 +201,11 @@ class OCFAPIController extends Controller
                     'isverified' => 1
                 ]; 
                 $customer->update($verifyotp);  
-                return response()->json(['status' => '0', 'message' => 'Verified', 'Company' => $company]);
+                return response()->json(['status' => 0, 'message' => 'Verified', 'Company' => $company]);
             }
             else
             {
-                return response()->json(['status' => '1' , 'message' => 'Invalid OTP']);
+                return response()->json(['status' => 1 , 'message' => 'Invalid OTP']);
             }
         }
 
@@ -209,7 +215,7 @@ class OCFAPIController extends Controller
         $customer = OCFCustomer::where('id', $request->customercode)->first();
             $series = OCF::orderBy('series', 'desc')->first('series');
             $ocf= OCF::where('ocfno', $request->ocfno)->first();
-            $modules = DB::table('ocf_modules')->where('ocfcode', $ocf->id)->get();
+            // $modules = DB::table('ocf_modules')->where('ocfcode', $ocf->id)->get();
             $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
             $companydata= OCF::where('companycode', $request->companycode)->get();
               $rules = array(
@@ -286,7 +292,7 @@ class OCFAPIController extends Controller
                         $insert_serialno->serialno_parameters = $serialnoparameters;
                         $insert_serialno->serialno = md5($serialnoparameters);
                         $insert_serialno->save();
-                        return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
+                        return response()->json(['message' => 'OCF Created Successfully','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1, 'Serialno' => $insert_serialno]);
                     }
                 }
         
@@ -389,55 +395,45 @@ class OCFAPIController extends Controller
         }        
     }
 
-    function sr_validation_date(Request $request){
-
+    function sr_validity(Request $request)
+    {
         $request->validate([
             'company_name' => 'required',
             'pan_no' => 'required',
             'gst_no' => 'required'
         ]);
-      
-        $InfoUpdate= DB::table('serialno')->where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
-        // $date = Carbon::now();
-        $time = date('Y-m-d H:i:s');
-        $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
-          return $InfoUpdate->ocfno;
-        if (!empty($InfoUpdate)) {
-             $cusromer_details= DB::table('acme_product_ocf')->where('ocfno',$InfoUpdate->ocfno)->first(); 
-            //  $serialno_customers = Customers::where('id', $cusromer_details->customercode)->first();
-            $serial_parameters = Serialno::where('ocfno', $request->ocfno)->orderBy('id','desc')->first();
-            return $serial_parameters->comp_name;
-            // return $parameters;
-             //new generated the serial number
-            $update_serialnumber = md5($InfoUpdate->comp_name.$InfoUpdate->pan.$InfoUpdate->gst);
-            // return $update_serialnumber;
-             //update the only serial number and generated count
-        //    Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->save(['serialno' => $update_serialnumber,'serialno_issue_date' => $request->fromdate]);
-            $ocf = Serialno::where('serialno',$request->serialno)->where('serialno_issue_date',$request->fromdate)->orderBy('id','desc')->first();
-            $ocf->id;
-            $ocf->ocfno = $request->ocfno;
-            $ocf->comp_name = $request->comp_name;
-            $ocf->pan = $request->pan;
-            $ocf->gst = $request->gst;
-            $ocf->transaction_datetime = $time;
-            $ocf->serialno_issue_date = $time;
-            $ocf->serialno_validity = $expirydate;
-            $ocf->serialno_parameters = $update_serialnumber;
-            $ocf->serialno = md5($update_serialnumber);
-            $ocf->save();
-            return $ocf;
-        return response()->json([
-                'message'=>'New Serial Number generated',
-                'status'=> '0',
-                'data'=>['serial_number'=> $update_serialnumber, 'Issue_Date' => $request->fromdate],
-            ]);
+
+        $company = Company::where('company_name', $request->company_name)->where('pan_no', $request->pan_no)->where('gst_no', $request->gst_no)->first();
+        
+        if($company == null)
+        {
+            
+            return response()->json(['message' => 'Invalid Creditionals', 'status' => 1]);
         }
         else{
-            return response()->json([
-                'message'=>'Serial Number not found',
-                'status'=> '1',
-            ]);
+           $issue_date = OCF::where('ocfno', $request->ocfno)->first();
+           if($issue_date->ocf_date == $request->issuedate)
+           {
+            $company = Company::where('id', $company->id)->first();  
+            $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+            $time = date('Y-m-d H:i:s');
+            $expirydate = date('Y-m-d H:i:s', strtotime($request->ocf_date . " +1 year") );
+            $insert_serialno = new Serialno();
+            $insert_serialno->ocfno = $request->ocfno;
+            $insert_serialno->comp_name = $company->company_name;
+            $insert_serialno->pan = $company->pan_no;
+            $insert_serialno->gst = $company->gst_no;
+            $insert_serialno->serialno_issue_date = $time;
+            $insert_serialno->serialno_validity = $expirydate;
+            $insert_serialno->serialno_parameters = $serialnoparameters;
+            $insert_serialno->serialno = md5($serialnoparameters);
+            $insert_serialno->save();
+            return response()->json(['message' => 'Seriano Verified','status' => 0, 'Serialno' => $insert_serialno]);
+           }
+           else
+           {
+            return response()->json(['message' => 'Seriano Unverified','status' => 1]);
+           }
         }
     }
-
 }
