@@ -145,6 +145,21 @@ class SerialnoController extends Controller
 
     public function serialnogenerate(Request $request)
     {
+         // serialno
+                        
+                        // $company = Company::where('id', $request->companycode)->first();  
+                        // $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+                        // $expirydate = date('Y-m-d H:i:s', strtotime($request->ocf_date . " +1 year") );
+                        // $insert_serialno = new Serialno();
+                        // $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
+                        // $insert_serialno->comp_name = $company->company_name;
+                        // $insert_serialno->pan = $company->pan_no;
+                        // $insert_serialno->gst = $company->gst_no;
+                        // $insert_serialno->serialno_issue_date = $request->ocf_date;
+                        // $insert_serialno->serialno_validity = $expirydate;
+                        // $insert_serialno->serialno_parameters = $serialnoparameters;
+                        // $insert_serialno->serialno = md5($serialnoparameters);
+                        // $insert_serialno->save();
         $serialno_ocfno = OCF::where('ocfno', $request->ocfno)->first();
         if($serialno_ocfno == null)
         {

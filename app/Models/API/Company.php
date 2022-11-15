@@ -15,6 +15,8 @@ class Company extends Model
         'customercode',
         'company_name',
         'pan_no',
-        'gst_no'
+        'gst_no',
+        'InstallationType',
+        'InstallationDesc'
     ];
 }
