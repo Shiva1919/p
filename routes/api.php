@@ -86,6 +86,7 @@ Route::resource('ocf',                              OCFController::class);
 Route::post('OCFstore',                            [OCFController::class, 'OCFstore']);
 Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getocfno']);
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
+
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
 //ocf muliple date get by ocf id
@@ -211,6 +212,11 @@ Route::get('getcompanyID/{id}',                            [CompanyController::c
 // OCFAPI Routes
 Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
 Route::post('company',                                     [OCFAPIController::class, 'company']);
+
+//ocf list rout
+Route::get('getocf_customer_company/{customer}', [CustomersController::class, 'ocflist']);
+
+
 Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
 Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
 Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);

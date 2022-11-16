@@ -126,8 +126,8 @@ class PackagesController extends Controller
         $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('subpackagename', 'asc')->get();
         return response()->json($subpackage);
     }
-    
-    public function deactivesubpackageslist($packageid) 
+
+    public function deactivesubpackageslist($packageid)
     {
         $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('subpackagename', 'asc')->get();
         return response()->json($subpackage);
@@ -181,7 +181,7 @@ class PackagesController extends Controller
         $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('ModuleName', 'asc')->get();
         return response()->json($module);
     }
-    
+
     public function deactivemoduleslist($packageid)
     {
         $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('ModuleName', 'asc')->get();
@@ -219,12 +219,13 @@ class PackagesController extends Controller
         $module->producttype =$packageid;
         $module->moduletypeid = $request->moduletypeid;
         $module->save();
-       
+
         return response()->json([$module]);
     }
 
     public function moduleupdate(Request $request, $packageid, $id)
     {
+        // return $request;
         $module = Modules::where('producttype', $packageid)->where('id', $id)->first();
         $moduledata = [
             'productcode' => $request->productcode,
@@ -256,4 +257,3 @@ class PackagesController extends Controller
     }
 
 }
-  
