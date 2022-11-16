@@ -22,7 +22,7 @@ class CustomersController extends Controller
         $customer = Customers::leftjoin('city', 'users.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
         ->get( ['city.cityname','users.*' ]);
         //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
-        
+
         // $customer = Customers::limit(100)->get();
         return response()->json($customer);
     }
@@ -40,7 +40,7 @@ class CustomersController extends Controller
      */
     public function create()
     {
-        
+
     }
 
     /**
@@ -111,13 +111,83 @@ class CustomersController extends Controller
     public function show($id)
     {
         $getbyid_customer = Customers::find($id);
-        if (is_null($getbyid_customer)) 
+        if (is_null($getbyid_customer))
         {
             return $this->sendError('Customer not found.');
         }
         return response()->json($getbyid_customer);
     }
+    public function ocflist($id)
+    {
+        $module =array();
+        $company =array();
+        $ocf =array();
+        $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get();
 
+//compnay list
+        for ($i=0; $i < count($getbyid_customer) ; $i++) {
+
+            $com=[
+                   'company_name'=>$getbyid_customer[$i]->company_name,
+
+            ];
+            array_push($company,$com);
+
+            $company_ocf = DB::table('ocf_master')
+                            ->where('customercode',$id)
+                            ->where('companycode',$getbyid_customer[$i]->id)
+                            ->get();
+
+                            // return $company_ocf[0]->Series;
+
+            if (count($company_ocf)!=0) {
+                //ocf list
+                 for ($b=0; $b < count($company_ocf); $b++) {
+
+                    $ocfdata=[
+                        'company_name'=>$getbyid_customer[$i]->company_name,
+                        'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
+
+                 ];
+                 array_push($ocf,$ocfdata);
+
+
+
+
+                    $ocf_modules = DB::table('ocf_modules')
+                    ->where('ocfcode',$company_ocf[$b]->id)
+                    ->get();
+//module list
+                    for ($c=0; $c < count($ocf_modules) ; $c++) {
+                        $data=[
+                            'id'=>$getbyid_customer[$i]->id,
+                            'company_name'=>$getbyid_customer[$i]->company_name,
+                            'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
+                            'module_name'=>$ocf_modules[$c]->modulename,
+                            'quantity'=>$ocf_modules[$c]->quantity,
+                        ];
+                    }
+                    array_push($module,$data);
+                    //module list
+
+                }
+
+            }
+            else{
+                $data=[
+                    'id'=>$getbyid_customer[$i]->id,
+                    'company_name'=>$getbyid_customer[$i]->company_name,
+                    'ocf_no'=>'',
+                    'module_name'=>'',
+                    'quantity'=>'',
+                ];
+                array_push($module,$data);
+            }
+        }
+        // return $ocflist;
+
+        return response()->json(['ocflist'=>$module,'company'=>$company,'Ocf'=>$ocf]);
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -165,7 +235,7 @@ class CustomersController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return $this->sendError('Validation Error.', $validator->errors());
         }
         // $customer->tenantcode = $input['tenantcode'];
         $customer->name = $input['name'];
@@ -229,7 +299,7 @@ class CustomersController extends Controller
         return response()->json($data);
     }
 
-    public function branchindex($customerid) 
+    public function branchindex($customerid)
     {
 
         $branch =  Branchs::where('customercode', $customerid)->orderBy('branchname', 'asc')->get();
@@ -239,7 +309,7 @@ class CustomersController extends Controller
         return response()->json($branch);
     }
 
-    public function branchshow($customerid, $id) 
+    public function branchshow($customerid, $id)
     {
         $branch = Branchs::where('customercode', $customerid)->find($id);
         return response()->json($branch);
@@ -292,13 +362,13 @@ class CustomersController extends Controller
         return response()->json([$delete_branch]);
     }
 
-    public function contactindex($customerid) 
+    public function contactindex($customerid)
     {
         $contact = Contacts::where('customercode', $customerid)->get();
         return response()->json($contact);
     }
 
-    public function contactshow($customerid, $id) 
+    public function contactshow($customerid, $id)
     {
         $contact = Contacts::where('customercode', $customerid)->find($id);
         return response()->json($contact);
@@ -346,5 +416,5 @@ class CustomersController extends Controller
         return response()->json([$delete_contact]);
     }
 
-    
+
 }
