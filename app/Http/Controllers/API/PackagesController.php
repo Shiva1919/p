@@ -48,7 +48,7 @@ class PackagesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'packagename' => 'required|string',
             'description' => 'required',
             'active' => ''
         ]);
@@ -94,7 +94,7 @@ class PackagesController extends Controller
     {
         $input = $request->all();
         $validator = Validator::make($input, [
-            'name' => 'required',
+            'packagename' => 'required',
             'description'=> 'required',
             'active' => ''
         ]);
@@ -102,7 +102,7 @@ class PackagesController extends Controller
         {
             return $this->sendError('Validation Error.', $validator->errors());
         }
-        $package->name = $input['name'];
+        $package->packagename = $input['packagename'];
         $package->description = $input['description'];
         $package->active = $input['active'];
         $package->save();
@@ -142,14 +142,14 @@ class PackagesController extends Controller
     public function subpackagestore(Request $request, $packageid)
     {
         $request->validate([
-            'name' => 'required',
+            'subpackagename' => 'required',
             'description' => 'required',
             'active' => ''
             // 'packagetype' => 'required'
         ]);
 
         $subpackage = new Subpackages();
-        $subpackage->name = $request->name;
+        $subpackage->subpackagename = $request->subpackagename;
         $subpackage->description = $request->description;
         $subpackage->active = $request->active;
         $subpackage->packagetype =$packageid;
@@ -161,7 +161,7 @@ class PackagesController extends Controller
     {
         $subpackage = SubPackages::where('packagetype', $packageid)->where('id', $id)->first();
         $subpackagedata = [
-            'name' => $request->name,
+            'subpackagename' => $request->subpackagename,
             'description' => $request->description,
             'active' => $request->active
         ];
@@ -178,13 +178,13 @@ class PackagesController extends Controller
 
     public function moduleindex($packageid)
     {
-        $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('name', 'asc')->get();
+        $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('ModuleName', 'asc')->get();
         return response()->json($module);
     }
     
     public function deactivemoduleslist($packageid)
     {
-        $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('name', 'asc')->get();
+        $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('ModuleName', 'asc')->get();
         return response()->json($module);
     }
 
@@ -204,7 +204,7 @@ class PackagesController extends Controller
     {
         $request->validate([
             'productcode' => 'required',
-            'name' => 'required',
+            'ModuleName' => 'required',
             'description' => 'required',
             'active' => '',
             'moduletypeid' => ''
@@ -213,7 +213,7 @@ class PackagesController extends Controller
 
         $module = new Modules();
         $module->productcode = $request->productcode;
-        $module->name = $request->name;
+        $module->ModuleName = $request->ModuleName;
         $module->description = $request->description;
         $module->active = $request->active;
         $module->producttype =$packageid;
@@ -228,7 +228,7 @@ class PackagesController extends Controller
         $module = Modules::where('producttype', $packageid)->where('id', $id)->first();
         $moduledata = [
             'productcode' => $request->productcode,
-            'name' => $request->name,
+            'ModuleName' => $request->ModuleName,
             'description' => $request->description,
             'active' => $request->active
         ];
