@@ -126,7 +126,7 @@ class CustomersController extends Controller
 
 //compnay list
         for ($i=0; $i < count($getbyid_customer) ; $i++) {
-
+$com=[];
             $com=[
                    'company_name'=>$getbyid_customer[$i]->company_name,
 
@@ -143,22 +143,19 @@ class CustomersController extends Controller
             if (count($company_ocf)!=0) {
                 //ocf list
                  for ($b=0; $b < count($company_ocf); $b++) {
-
+$ocfdata=[];
                     $ocfdata=[
                         'company_name'=>$getbyid_customer[$i]->company_name,
                         'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
 
                  ];
                  array_push($ocf,$ocfdata);
-
-
-
-
-                    $ocf_modules = DB::table('ocf_modules')
+                   $ocf_modules = DB::table('ocf_modules')
                     ->where('ocfcode',$company_ocf[$b]->id)
                     ->get();
 //module list
-                    for ($c=0; $c < count($ocf_modules) ; $c++) {
+                    for ($c=0; $c < count($ocf_modules); $c++) {
+                        $data=[];
                         $data=[
                             'id'=>$getbyid_customer[$i]->id,
                             'company_name'=>$getbyid_customer[$i]->company_name,
@@ -166,8 +163,9 @@ class CustomersController extends Controller
                             'module_name'=>$ocf_modules[$c]->modulename,
                             'quantity'=>$ocf_modules[$c]->quantity,
                         ];
+                        array_push($module,$data);
                     }
-                    array_push($module,$data);
+
                     //module list
 
                 }

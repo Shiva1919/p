@@ -49,9 +49,13 @@ class OCFController extends Controller
     public function store(Request $request)
     {
 
-        $series = OCF::orderBy('series', 'desc')->first('series');
-        $ocf= OCF::where('ocfno', $request->ocfno)->get();
-        $ocflastid = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
+        $str = substr($request->ocfno,3);
+
+        $series = OCF::orderBy('Series', 'desc')->first();
+        $ocf= OCF::where('DocNo', $str)->get();
+        $ocflastid = OCF::orderBy('id', 'desc')->orderBy('Series', 'desc')->first();
+
+
         if(count($ocf)==0)
         {
 
@@ -62,17 +66,18 @@ class OCFController extends Controller
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
                 $insert_ocf->companycode = $request->companycode;
-                if (!$series && !$ocflastid ) {
-                    $insert_ocf->ocfno = ('OCF11');
-                    $insert_ocf->series=01;
+
+
+                if (!$series && !$ocflastid) {
+                   $insert_ocf->DocNo=01;
                 }
                 else {
-                    $insert_ocf->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
-                    $insert_ocf->series=$series->series+1;
-                }
 
+                    $insert_ocf->DocNo=$series->DocNo+1;
+                }
+                $insert_ocf->Series = ('OCF');
                 $insert_ocf->ocf_date = $request->ocf_date;
-                $insert_ocf->module_total=$request->module_total;
+                $insert_ocf->AmountTotal=$request->module_total;
                 $insert_ocf->save();
                 if(!empty($insert_ocf->id))
                 {
@@ -107,16 +112,15 @@ class OCFController extends Controller
         {
 
 
-                $insert_ocf = OCF::where('ocfno', $request->ocfno)->first();
+                $insert_ocf = OCF::where('DocNo', $str)->first();
 
                 // $module = DB::table('ocf_modules')->where('ocfcode', $insert_ocf->id)->sum('amount');
 
                 // $insert_customers->tenantcode = $request->tenantcode;
                 $insert_ocf->customercode = $request->customercode;
                 $insert_ocf->companycode = $request->companycode;
-                $insert_ocf->ocfno = $request->ocfno;
                 $insert_ocf->ocf_date = $request->ocf_date;
-                $insert_ocf->module_total=$request->module_total;
+                $insert_ocf->AmountTotal=$request->module_total;
                 // $insert_ocf->series=$series->series+1;
                 $insert_ocf->save();
 
@@ -203,7 +207,8 @@ class OCFController extends Controller
 
     public function getocfno($ocfno)
     {
-         $data = OCF::where('ocfno', $ocfno)->first();
+        $str = substr($ocfno, 3);
+       $data = OCF::where('DocNo', $str)->first();
         return response()->json($data);
     }
 
