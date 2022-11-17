@@ -48,7 +48,7 @@ class PackagesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'packagename' => 'required|string',
             'description' => 'required',
             'active' => ''
         ]);
@@ -204,7 +204,7 @@ class PackagesController extends Controller
     {
         $request->validate([
             'productcode' => 'required',
-            'name' => 'required',
+            'ModuleName' => 'required',
             'description' => 'required',
             'active' => '',
             'moduletypeid' => ''
@@ -213,7 +213,7 @@ class PackagesController extends Controller
 
         $module = new Modules();
         $module->productcode = $request->productcode;
-        $module->name = $request->name;
+        $module->ModuleName = $request->ModuleName;
         $module->description = $request->description;
         $module->active = $request->active;
         $module->producttype =$packageid;

@@ -129,6 +129,8 @@ class OCFCustomerController extends Controller
                             'company_name'=>  $data['company_name'],
                             'pan_no'=> $data['pan_no'],
                             'gst_no'=> $data['gst_no'],
+                            'InstallationType' => $data['InstallationType'],
+                            'InstallationDesc' => $data['InstallationDesc']
                         ];
                     Company::create($data);
                     }
@@ -200,6 +202,8 @@ class OCFCustomerController extends Controller
                             'company_name'=>  $data['company_name'],
                             'pan_no'=> $data['pan_no'],
                             'gst_no'=> $data['gst_no'],
+                            'InstallationType' => $data['InstallationType'],
+                            'InstallationDesc' => $data['InstallationDesc']
                         ];
                         Company::create($data);
                     }
