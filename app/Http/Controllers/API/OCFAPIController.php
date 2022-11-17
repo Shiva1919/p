@@ -489,7 +489,7 @@ class OCFAPIController extends Controller
                 $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
                 $data = $response->getBody();
                 Log::Info($data);
-                return response()->json(['OTP' => $otp , 'status' => 0, 'message' => 'OTP Generated Update Company']);  
+                return response()->json(['message' => 'OTP Generated Update Company','status' => 2]);  
             }
             else
             {
@@ -539,7 +539,7 @@ class OCFAPIController extends Controller
         }
         else if($request->issuedate)
         {
-            $checkserial = Serialno::where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
+            $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
             $company = Company::where('id', $company->id)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
             if($checkserial)
             {  
@@ -630,7 +630,7 @@ class OCFAPIController extends Controller
                     $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
                     $data = $response->getBody();
                     Log::Info($data);
-                    return response()->json(['OTP' => $otp , 'status' => 0, 'message' => 'OTP Generated Update Serial']);  
+                    return response()->json(['message' => 'OTP Generated Update Serial','status' => 2]);  
                 }
                 else
                 {
@@ -668,7 +668,7 @@ class OCFAPIController extends Controller
                         return response()->json(['message' => 'Serialno Updated', 'status' => 0, 'Company' => $company,'Modules' => $module, 'Serial' => $insert_serialno]);
                     }
                     else
-                    {
+                    {  
                         return response()->json(['status' => 1 , 'message' => 'Invalid OTP']);
                     }
                 }        

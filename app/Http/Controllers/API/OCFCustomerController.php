@@ -22,7 +22,7 @@ class OCFCustomerController extends Controller
      */
     public function index()
     {
-        $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.cityname')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
+        $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
         ->get( ['city.cityname','customer_master.*' ]);
         //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
 
@@ -69,9 +69,6 @@ class OCFCustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $entrycode= OCFCustomer::where('entrycode', $request->entrycode)->get();
-        if(count($entrycode)==0)
-        {
             $rules = array(
                 'name' => 'required',
                 'entrycode' => '',
@@ -139,78 +136,8 @@ class OCFCustomerController extends Controller
             }
 
             // $request->name.$request->phone.$request->packagename;
-        }
-        else
-        {
-            $rules = array(
-                'name' => 'required',
-                'entrycode' => '',
-                'phone' => 'required',
-                'whatsappno' => 'required',
-                'email' => 'required',
-                'address1' => 'required',
-                'state' => 'required',
-                'district' => 'required',
-                'taluka' => 'required',
-                'city' => 'required',
-                'active' => 'required',
-                'concernperson' => 'required',
-                'packagecode' => 'required',
-                'subpackagecode' => 'required'
-            );
-
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails())
-            {
-                return response()->json([
-                    'message' => 'Invalid params passed', // the ,message you want to show
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            else
-            {
-                $role_id = 10;
-                $password = 'AcmeAcme1994';
-                $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
-                $insert_customers = OCFCustomer::where('entrycode', $request->entrycode)->first();
-                $insert_customers->name = $request->name;
-                $insert_customers->entrycode = $request->entrycode;
-                $insert_customers->phone = $request->phone;
-                $insert_customers->whatsappno = $request->whatsappno;
-                $insert_customers->email = $request->email;
-                $insert_customers->address1 = $request->address1;
-                $insert_customers->state = $request->state;
-                $insert_customers->district = $request->district;
-                $insert_customers->taluka = $request->taluka;
-                $insert_customers->city = $request->city;
-                $insert_customers->active = $request->active;
-                $insert_customers->password = $password;
-                $insert_customers->role_id = $role_id;
-                $insert_customers->concernperson = $request->concernperson;
-                $insert_customers->packagecode = $request->packagecode;
-                $insert_customers->subpackagecode = $request->subpackagecode;
-                $insert_customers->save();
-
-                Company::where('customercode',$insert_customers->id)->delete();
-                if(!empty($insert_customers->id))
-                {
-                    foreach ($request->Cdocument as $data )
-                    {
-                        $data=[
-                            'customercode'=> $insert_customers->id,
-                            'comapnycode'=> $ocfcompanyflastid->id+1,
-                            'company_name'=>  $data['company_name'],
-                            'pan_no'=> $data['pan_no'],
-                            'gst_no'=> $data['gst_no'],
-                            'InstallationType' => $data['InstallationType'],
-                            'InstallationDesc' => $data['InstallationDesc']
-                        ];
-                        Company::create($data);
-                    }
-                    return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
-                }
-            }
-        }
+        
+        
     }
 
     /**
@@ -309,6 +236,8 @@ class OCFCustomerController extends Controller
                   'company_name'=>  $data['company'],
                   'pan_no'=> $data['pan'],
                   'gst_no'=> $data['gst'],
+                  'InstallationType' => $data['InstallationType'],
+                  'InstallationDesc' => $data['InstallationDesc']
               ];
 
             Company::create($data);
