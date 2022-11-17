@@ -22,6 +22,7 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
+use App\Http\Controllers\IApi;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::get('get_hsn/{id}',[hsnController::class,'index']);  // Provide valadation of HSN code
+
+//E-invoice
+
+   Route::resource('E-invoice',IApi::class);
+   Route::get('activation/{Owncode}/{activation}',[IApi::class,'activation']);
+   Route::get('payment/{Owncode}/{payment}',[IApi::class,'Payment']);
 
 Route::get('loginuser',   [UsersController::class, 'getuserlogin']);         // Auto Login
 
