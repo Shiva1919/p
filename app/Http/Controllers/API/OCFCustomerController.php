@@ -73,6 +73,7 @@ class OCFCustomerController extends Controller
                 'name' => 'required',
                 'entrycode' => '',
                 'phone' => 'required',
+                'whatsappno' => 'required',
                 'email' => 'required',
                 'address1' => 'required',
                 'state' => 'required',
@@ -102,7 +103,7 @@ class OCFCustomerController extends Controller
                 $insert_customers->name = $request->name;
                 $insert_customers->entrycode = $request->entrycode;
                 $insert_customers->phone = $request->phone;
-                $insert_customers->whatsappno = $request->phone;
+                $insert_customers->whatsappno = $request->whatsappno;
                 $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
                 $insert_customers->state = $request->state;
