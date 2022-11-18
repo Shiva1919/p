@@ -227,14 +227,10 @@ class OCFAPIController extends Controller
     public function OCF(Request $request)             // create new ocf
     {
         $data1=[];
-        $customer = OCFCustomer::where('id', $request->customercode)->first();
         $series = OCF::orderBy('series', 'desc')->first('series');
-        $ocf= OCF::where('docno', $request->ocfno)->first();
         $series= $request->series;
         if ($request->series==null) $series="OCF";
         $ocflastid = OCF::where('series', $series)->orderBy('DocNo', 'desc')->first();
-        // return $ocflastid->DocNo;
-        $companydata= OCF::where('companycode', $request->companycode)->get();
         $rules = array(
             'customercode' => 'required',
             'companycode' => 'required',
@@ -264,14 +260,12 @@ class OCFAPIController extends Controller
                         foreach ($request->Data as $data ) 
                         {
                             $getmoduledata = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
-                                ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-                                ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
-                                ->where('customer_master.id', $request->customercode)
-                                ->where('acme_module.ModuleName',$data['modulename'])
-                                ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
+                                                        ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
+                                                        ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
+                                                        ->where('customer_master.id', $request->customercode)
+                                                        ->where('acme_module.ModuleName',$data['modulename'])
+                                                        ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
 
-                            // return($getmoduledata);
-                           
                             if(count($getmoduledata)==0)
                             {
                                 return response()->json(['message' => 'Check Module','status' => 1]);
@@ -281,14 +275,11 @@ class OCFAPIController extends Controller
                                 $data=[
                                     'ocfcode'=> $insert_ocf->id,
                                     'modulename'=> $data['modulename'],
-                                    // 'modulecode'=> $data['modulecode'],
                                     'quantity'=> $data['quantity'],
-                                    // 'unit'=>  $data['unit'],
                                     'expirydate'=> $data['expirydate'],
                                     'amount'=> $data['amount'],
                                     'moduletypes' => $getmoduledata[0]['acme_module_typeid'],
                                     'modulecode' => $getmoduledata[0]['moduleid'],
-                                    // 'unit' => $getmoduledata[0]['unit']
                                 ];
                                 array_push($data1,$data);
                                 OCFModule::create($data);
@@ -300,14 +291,8 @@ class OCFAPIController extends Controller
                 }
         
     }
-
-    public function getcompany($customerid)
-    {
-        $company = Company::where('customercode', $customerid)->get();
-        return response()->json(['message' => 'Company','status' => 0,'Company' => $company ]);
-    }
     
-    public function companyocf(Request $request)
+    public function companyocf(Request $request) //Serial no AP
     {
         $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
         

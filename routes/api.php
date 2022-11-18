@@ -225,7 +225,6 @@ Route::get('getocf_customer_company/{customer}', [CustomersController::class, 'o
 
 
 Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
-Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
 Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
 Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
 Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
