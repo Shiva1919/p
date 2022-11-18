@@ -19,6 +19,12 @@ class RoleController extends Controller
         return response()->json( $roles);
     }
 
+    public function rolesgetexcept()
+    {
+        $rolesdata = Role::where('active', 1)->where('id', '!=' ,10)->get();
+        return $rolesdata;
+    }
+
     public function deactiverolesslist()
     {
         $role = Role::where('active', 0)->orderBy('name', 'asc')->get();

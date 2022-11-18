@@ -205,7 +205,7 @@ class OCFAPIController extends Controller
             {
                 return response()->json(['Message' => 'Invalid Mobile No ', 'status' => 1]);
             }
-            $time = date('Y-m-d H:i:s');
+            $time = date('d-m-Y');
             if($time >= $customer->otp_expires_time)
             {
                 return response()->json(['status' => 1, 'message' => 'OTP Expired']);
@@ -234,7 +234,7 @@ class OCFAPIController extends Controller
         $rules = array(
             'customercode' => 'required',
             'companycode' => 'required',
-            'ocf_date' => 'required',
+        
         );
             
         $validator = Validator::make($request->all(), $rules);
@@ -246,13 +246,14 @@ class OCFAPIController extends Controller
                     ], 422);
         }
         else
-        {                    
+        {     
+            $time = date('d-m-Y');               
             $insert_ocf = new OCF();
             $insert_ocf->customercode = $request->customercode;
             $insert_ocf->companycode = $request->companycode;
             $insert_ocf->DocNo = ($ocflastid->DocNo+1);
             $insert_ocf->series =($series);
-            $insert_ocf->ocf_date = $request->ocf_date;
+            $insert_ocf->ocf_date = $time;
             $insert_ocf->save();
             
             if(!empty($insert_ocf->id))
@@ -302,7 +303,7 @@ class OCFAPIController extends Controller
         }
         else
         {
-            $time = date('Y-m-d H:i:s');
+            $time = date('d-m-Y');
             // DB::raw('max(CASE WHEN acme_module_type.expiry = 1 THEN 0 ELSE 1 END) as Expired')
             // DB::raw('(CASE WHEN acme_module_type.expiry = 1  WHEN ocf_modules.expirydate == $time 1 THEN 0 ELSE 1 END) as expired_modules')
             $module = DB::table('ocf_master')
@@ -321,7 +322,7 @@ class OCFAPIController extends Controller
             // var_dump($ciphertext);
 
             $serial = md5($module);
-            $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+            $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
             $insert_serialno = new Serialno();
             $insert_serialno->ocfno = $request->companycode;
             $insert_serialno->comp_name = $company->company_name;
@@ -340,8 +341,8 @@ class OCFAPIController extends Controller
         $rules = array(
             'messagetype' => 'required',
             'customercode' => 'required',
-            'datefrom' => 'required|date_format:Y-m-d H:i:s', 
-            'todate' => 'required|date_format:Y-m-d H:i:s',
+            'datefrom' => 'required|date_format:d-m-Y', 
+            'todate' => 'required|date_format:d-m-Y',
             'description' => 'required',
             'Active' => ''
         );
@@ -423,7 +424,7 @@ class OCFAPIController extends Controller
         {    
             
             $time = date('Y-m-d ');
-            $expirytime = date('Y-m-d H:i:s', strtotime($time . " +5 minutes") );
+            $expirytime = date('d-m-Y', strtotime($time . " +5 minutes") );
             
             if($request->otp == "")
             {
@@ -502,8 +503,8 @@ class OCFAPIController extends Controller
 
                     $companys = Company::where('id', $request->companycode)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
                     $serial = md5($module);
-                    $time = date('Y-m-d H:i:s');
-                    $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+                    $time = date('d-m-Y');
+                    $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                     $insert_serialno = new Serialno();
                     $insert_serialno->ocfno = $request->companycode;
                     $insert_serialno->comp_name = $companys->company_name;
@@ -550,8 +551,8 @@ class OCFAPIController extends Controller
                     // var_dump($ciphertext);
         
                     $serial = md5($module);
-                    $time = date('Y-m-d H:i:s');
-                    $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+                    $time = date('d-m-Y');
+                    $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                     $insert_serialno = new Serialno();
                     $insert_serialno->ocfno = $request->companycode;
                     $insert_serialno->comp_name = $company->company_name;
@@ -638,8 +639,8 @@ class OCFAPIController extends Controller
                                     ->get();
                     
                         $serial = md5($module);
-                        $time = date('Y-m-d H:i:s');
-                        $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
+                        $time = date('d-m-Y ');
+                        $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                         $insert_serialno = new Serialno();
                         $insert_serialno->ocfno = $request->companycode;
                         $insert_serialno->comp_name = $company->company_name;
@@ -663,6 +664,12 @@ class OCFAPIController extends Controller
             return response()->json(['message' => 'Enter Issue Date And Serial NO', 'status' => 1]);
         }
             
+    }
+
+    public function date_time()
+    {
+        $time = date('d-m-Y H:i:s');
+        return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
     }
            
     

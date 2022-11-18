@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\JSONStoreController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\SerialnosController;
 use App\Http\Controllers\BranchController;
@@ -116,3 +117,5 @@ Route::resource('serialnos', SerialnoController::class, ['parameters' =>
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('customerjson', [JSONStoreController::class, 'index']);

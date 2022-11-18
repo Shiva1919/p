@@ -12,6 +12,7 @@ use App\Http\Controllers\VerficationController;
 use App\Http\Controllers\API\PackagesController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\CustomersController;
+use App\Http\Controllers\API\JSONStoreController;
 use App\Http\Controllers\API\OCFAPIController;
 use App\Http\Controllers\API\OCFController;
 use App\Http\Controllers\API\OCFCustomerController;
@@ -22,7 +23,6 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
-use App\Http\Controllers\IApi;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,18 +43,27 @@ Route::group(['middleware' => 'api'], function($router) {
     Route::get('/profile',   [JWTController::class, 'profile']);
 });
 
+Route::post('logindata', [AuthController::class,'login']);
+Route::post('registerdata', [AuthController::class,'register']);
+
+Route::get('packagedata', [PackagesController::class, 'index'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+    
+Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
+Route::post('company',                                     [OCFAPIController::class, 'company']);
+Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
+Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
+Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
+Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
+Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
+Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
+Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
+Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
 });
 
 
 Route::get('get_hsn/{id}',[hsnController::class,'index']);  // Provide valadation of HSN code
-
-//E-invoice
-
-   Route::resource('E-invoice',IApi::class);
-   Route::get('activation/{Owncode}/{activation}',[IApi::class,'activation']);
-   Route::get('payment/{Owncode}/{payment}',[IApi::class,'Payment']);
 
 Route::get('loginuser',   [UsersController::class, 'getuserlogin']);         // Auto Login
 
@@ -93,7 +102,6 @@ Route::resource('ocf',                              OCFController::class);
 Route::post('OCFstore',                            [OCFController::class, 'OCFstore']);
 Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getocfno']);
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
-
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
 //ocf muliple date get by ocf id
@@ -197,6 +205,7 @@ Route::get('customerlogin/{tenantcode}/{password}/{token}',[UsersController::cla
 
 //Role
 Route::resource('roles',                                    RoleController::class);
+Route::get('rolesgetexcept',                               [RoleController::class, 'rolesgetexcept']);
 Route::get('rolesdeactivelist',                            [RoleController::class, 'deactiverolesslist']);
 Route::put('roles/{id}/{active}',                          [RoleController::class, 'rolestatus']);
 Route::get('rolesactive',                                  [RoleController::class, 'activerole']);
@@ -217,16 +226,16 @@ Route::resource('company',                                  CompanyController::c
 Route::get('getcompanyID/{id}',                            [CompanyController::class, 'getcompanyID']);
 
 // OCFAPI Routes
-Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
-Route::post('company',                                     [OCFAPIController::class, 'company']);
+Route::post('customerdata',                                [OCFAPIController::class, 'customercreate'])->middleware('auth:sanctum');
+Route::post('company',                                     [OCFAPIController::class, 'company'])->middleware('auth:sanctum');
+Route::post('ocfs',                                        [OCFAPIController::class, 'OCF'])->middleware('auth:sanctum');
+Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany'])->middleware('auth:sanctum');
+Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
+Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp'])->middleware('auth:sanctum');
+Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp'])->middleware('auth:sanctum');
+Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
+Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
+Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
 
-//ocf list rout
-Route::get('getocf_customer_company/{customer}', [CustomersController::class, 'ocflist']);
-
-
-Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
-Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
-Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
-Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
-Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
-Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
+// Json Data
+Route::get('customerjson', [JSONStoreController::class, 'index']);
