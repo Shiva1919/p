@@ -12,6 +12,7 @@ use App\Http\Controllers\VerficationController;
 use App\Http\Controllers\API\PackagesController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\CustomersController;
+use App\Http\Controllers\API\JSONStoreController;
 use App\Http\Controllers\API\OCFAPIController;
 use App\Http\Controllers\API\OCFController;
 use App\Http\Controllers\API\OCFCustomerController;
@@ -45,9 +46,20 @@ Route::group(['middleware' => 'api'], function($router) {
 Route::post('logindata', [AuthController::class,'login']);
 Route::post('registerdata', [AuthController::class,'register']);
 
+Route::get('packagedata', [PackagesController::class, 'index'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-
+    
+Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
+Route::post('company',                                     [OCFAPIController::class, 'company']);
+Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
+Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
+Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
+Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
+Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
+Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
+Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
+Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
 });
 
 
@@ -92,9 +104,6 @@ Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getoc
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
-Route::get('getocf_customer_company/{id}',         [CustomersController::class, 'ocflist']);
-
-
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',                 [OCFModuleController::class, 'getocfmodalno']);
 Route::resource('ocfmodule',                        OCFModuleController::class);
@@ -228,3 +237,5 @@ Route::post('serialno_validity',                           [OCFAPIController::cl
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
 
+// Json Data
+Route::get('customerjson', [JSONStoreController::class, 'index']);
