@@ -763,7 +763,7 @@ class OCFAPIController extends Controller
     {
         //  $getcustomer = OCFCustomer::where('role_id', 10)->get();
       
-        $user = OCFCustomer::where('id', $request->companycode)->where('active', 1)->first();
+        $user = OCFCustomer::where('id', $request->customercode)->where('active', 1)->first();
 
         if(!$user || $request->password !=$user->password)
         {
@@ -778,7 +778,7 @@ class OCFAPIController extends Controller
                  'token' => $token,
                  'status' => '0' 
         ];
-          $autologin = 'http://172.16.2.127:4200/customer/customerlogin/'.$request->companycode.'/'.$token ;
+          $autologin = 'https://crm.acmeinfovision.com/customer/customerlogin/'.$request->customercode.'/'.$token ;
             //  return response($response, 200);
             return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
         }
