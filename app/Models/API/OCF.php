@@ -15,9 +15,9 @@ class OCF extends Model
         'id',
         'customercode',
         'companycode',
-        'ocfno',
-        'ocf_date', 
-        'module_total',
-        'series'
-    ];
+        'Series',
+        'DocNo',
+        'ocf_date',
+        'AmountTotal',
+      ];
 }

@@ -26,8 +26,9 @@ class OCFController extends Controller
 
     public function getocflastid()
     {
-        $ocf = OCF::orderBy('id', 'desc')->orderBy('series', 'desc')->first();
-        return response()->json($ocf);
+        $ocf = OCF::orderBy('DocNo', 'desc')->get();
+        return $ocf[0];
+        // return response()->json($ocf);
     }
 
     /**
@@ -51,7 +52,7 @@ class OCFController extends Controller
 
         $str = substr($request->ocfno,3);
 
-        $series = OCF::orderBy('Series', 'desc')->first();
+        $series = OCF::orderBy('DocNo', 'desc')->first();
         $ocf= OCF::where('DocNo', $str)->get();
         $ocflastid = OCF::orderBy('id', 'desc')->orderBy('Series', 'desc')->first();
 
