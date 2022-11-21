@@ -104,10 +104,6 @@ Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getoc
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
-
-//ocf multiple list data
-Route::get('get_ocfdata_list_customerwise/{DocNo}', [OCFController::class, 'get_ocfdata_list_customerwise']);
-
 Route::get('getocf_customer_company/{id}',         [CustomersController::class, 'ocflist']);
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',                 [OCFModuleController::class, 'getocfmodalno']);
@@ -241,8 +237,8 @@ Route::post('serialnootpverify',                           [OCFAPIController::cl
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
-Route::post('pincode',                                     [OCFAPIController::class, 'pincode'])->middleware('auth:sanctum');
-Route::get('autologin',                                    [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
+Route::get('pincode',                                      [OCFAPIController::class, 'pincode']);
+Route::get('autologin',                                    [OCFAPIController::class, 'autologin']);
 
 // Json Data
 Route::get('customerjson', [JSONStoreController::class, 'index']);

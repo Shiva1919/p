@@ -112,7 +112,7 @@ class OCFModuleController extends Controller
 
     public function getocfmodalno($ocfcod)
     {
-         $data = OCFModule::where('ocfcode', $ocfcod)->get();
+         $data = OCFModule::where('modulecode', $ocfcod)->get();
         return $data;
     }
 }
