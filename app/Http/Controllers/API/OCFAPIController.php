@@ -223,7 +223,7 @@ class OCFAPIController extends Controller
                                 ->join('ocf_master', 'company_master.customercode', '=', 'ocf_master.customercode')
                                 ->where('company_master.customercode', $customer->id)
                                 ->get();
-              
+                
                 
                 // $modules = DB::table('ocf_modules')->where('ocfcode', $ocf[0]->id)->get();
                 return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $customer, 'Company' => $company ] );
