@@ -141,19 +141,11 @@ class OCFController extends Controller
                         Cache::put('otp_expires_time', $otp_expires_time);
                         // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
                         $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
-<<<<<<< HEAD
-                        
-                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
-                
-                        $params = 
-                        [   
-=======
 
                         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
 
                         $params =
                         [
->>>>>>> c26e4528fa35b003492010d3a747bdc3e071e213
                             "to" => ["type" => "whatsapp", "number" => $customer->phone],
                             "from" => ["type" => "whatsapp", "number" => "9422031763"],
                             "message" =>
