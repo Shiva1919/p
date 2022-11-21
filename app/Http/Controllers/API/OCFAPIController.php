@@ -205,8 +205,9 @@ class OCFAPIController extends Controller
             {
                 return response()->json(['Message' => 'Invalid Mobile No ', 'status' => 1]);
             }
-            $time = date('d-m-Y');
-            if($time >= $customer->otp_expires_time)
+            $time = date('d-m-Y H:i:s');
+            
+            if($time <= $customer->otp_expires_time)
             {
                 return response()->json(['status' => 1, 'message' => 'OTP Expired']);
             }
@@ -216,7 +217,10 @@ class OCFAPIController extends Controller
                     'isverified' => 1
                 ]; 
                 $customer->update($verifyotp);  
-                return response()->json(['status' => 0, 'message' => 'Verified']);
+                $company = Company::where('customercode', $request->customercode)->get();
+                $ocf = OCF::where('customercode', $request->customercode)->get();
+                $modules = DB::table('ocf_modules')->where('ocfcode', $ocf[0]->id)->get();
+                return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $customer, 'Company' => $company, 'OCF' => $ocf, 'Modules' => $modules]);
             }
             else
             {
@@ -283,11 +287,67 @@ class OCFAPIController extends Controller
                                     'modulecode' => $getmoduledata[0]['moduleid'],
                                 ];
                                 array_push($data1,$data);
-                                OCFModule::create($data);
+                                $ocfmoduledata = OCFModule::create($data);
+                                $customer = OCFCustomer::where('id', $request->customercode)->first();
+                                if($ocfmoduledata == null)
+                                {
+                                    return response()->json(['message' => 'OCF not Saved']);
+                                }
+                                else
+                                {
+                                        $checkmobile =  OCFCustomer::where('phone', $customer->phone)->first();
+                            
+                                        if($checkmobile == null)
+                                        {
+                                            return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
+                                        }
+                                        if($checkmobile == null )
+                                        {
+                                            return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
+                                        }
+                                    
+                                        $otp =  rand(100000, 999999);
+                                        
+                                        $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();
+                                        
+                                        $verifyotp = [
+                                            'otp' => $otp,
+                                        ];
+                                        $update_verifyotp = $phone->update($verifyotp); 
+                                        $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
+                                        
+                                        Log::info("otp = ".$otp);
+                                        Log::info("otp_expires_time = ".$otp_expires_time);
+                                        Cache::put('otp_expires_time', $otp_expires_time);
+                                        // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
+                                        $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
+                                        
+                                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
+                                
+                                        $params = 
+                                        [   
+                                            "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                                            "message" => 
+                                            [
+                                                "content" => 
+                                                [
+                                                    "type" => "text",
+                                                    "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                                ]
+                                            ]
+                                        ];
+                                        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                                        $client = new \GuzzleHttp\Client();
+                                        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                                        $data = $response->getBody();
+                                        Log::Info($data);
+                                        return response()->json(['message' => 'OCF Created Successfully OTP Generated Update','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1]);
+                                }
                             }
                         }
                        
-                        return response()->json(['message' => 'OCF Created Successfully','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1]);
+                        
                     }
                 }
         
@@ -341,8 +401,8 @@ class OCFAPIController extends Controller
         $rules = array(
             'messagetype' => 'required',
             'customercode' => 'required',
-            'datefrom' => 'required|date_format:d-m-Y', 
-            'todate' => 'required|date_format:d-m-Y',
+            'datefrom' => 'required|date_format:d-m-Y H:i:s', 
+            'todate' => 'required|date_format:d-m-Y H:i:s',
             'description' => 'required',
             'Active' => ''
         );
@@ -439,7 +499,7 @@ class OCFAPIController extends Controller
                     return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
                 }
             
-                $otp =   Str::random(6);
+                $otp =  rand(100000, 999999);
                 
                 $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();
                 
@@ -580,7 +640,7 @@ class OCFAPIController extends Controller
                         return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
                     }
                 
-                    $otp =   Str::random(6);
+                    $otp = rand(100000, 999999);
             
                     $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();
                     
@@ -671,6 +731,39 @@ class OCFAPIController extends Controller
         $time = date('d-m-Y H:i:s');
         return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
     }
-           
+        
+    public function autologin(Request $request) 
+    {
+        //  $getcustomer = OCFCustomer::where('role_id', 10)->get();
+      
+        $user = OCFCustomer::where('id', $request->companycode)->where('active', 1)->first();
+
+        if(!$user || $request->password !=$user->password)
+        {
+            return response(['message' => 'Invalid Credentials', 'status' => '1']);
+        }
+        else
+        {
+            $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
+            
+            $response = [
+              
+                 'token' => $token,
+                 'status' => '0' 
+        ];
+          $autologin = 'http://172.16.2.127:4200/customer/customerlogin/'.$request->companycode.'/'.$token ;
+            //  return response($response, 200);
+            return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
+        }
+    }
+
+    public function pincode(Request $request)
+    {
+        $city = DB::table('city')->where('pincode', $request->pincode)->get();
+        $taluka = DB::table('taluka')->where('id', $city[0]->talukaid)->first();
+        $district = DB::table('district')->where('id', $taluka->districtid)->first();
+        $state = DB::table('state')->where('id', $district->stateid)->first();
+        return response()->json(['message' => 'City', 'status' => 0, 'State' => $state, 'District' => $district, 'Taluka' => $taluka, 'City' => $city]);
+    }
     
 }

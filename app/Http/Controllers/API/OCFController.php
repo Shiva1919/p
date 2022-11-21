@@ -9,7 +9,10 @@ use App\Models\API\OCFCustomer;
 use App\Models\API\OCFModule;
 use App\Models\Module;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Validator;
 class OCFController extends Controller
 {
@@ -79,6 +82,7 @@ class OCFController extends Controller
                 $insert_ocf->ocf_date = $request->ocf_date;
                 $insert_ocf->AmountTotal=$request->module_total;
                 $insert_ocf->save();
+
                 if(!empty($insert_ocf->id))
                 {
 
@@ -87,13 +91,13 @@ class OCFController extends Controller
 
                         $module_unit = DB::table('acme_module')
                         ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
-                        ->where('acme_module.ModuleName',$data['modulecode'])
+                        ->where('acme_module.ModuleName',$data['modulename'])
                         ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
-
+                        // return $module_unit;
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
-                        'modulename'=> $data['modulecode'],
-                        'modulecode'=> $data['modulecode'],
+                        'modulename'=> $data['modulename'],
+                        // 'modulecode'=> $data['modulecode'],
                         'moduletypes'=> $module_unit[0]->moduletype,
                         'quantity'=> $data['quantity'],
                         'unit'=>  $module_unit[0]->unit,
@@ -103,10 +107,67 @@ class OCFController extends Controller
 
                     ];
 
-                    OCFModule::create($data);
-                    }
-                return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data]);
+                   $ocfmoduledata = OCFModule::create($data);
+                   $customer = OCFCustomer::where('id', $request->customercode)->first();
+                   if($ocfmoduledata == null)
+                   {
+                     return response()->json(['message' => 'OCF not Saved']);
+                   }
+                   else
+                   {
+                        $checkmobile =  OCFCustomer::where('phone', $customer->phone)->first();
+            
+                        if($checkmobile == null)
+                        {
+                            return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
+                        }
+                        if($checkmobile == null )
+                        {
+                            return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
+                        }
+                    
+                        $otp =  rand(100000, 999999);
+                        
+                        $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();
+                        
+                        $verifyotp = [
+                            'otp' => $otp,
+                        ];
+                        $update_verifyotp = $phone->update($verifyotp); 
+                        $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
+                        
+                        Log::info("otp = ".$otp);
+                        Log::info("otp_expires_time = ".$otp_expires_time);
+                        Cache::put('otp_expires_time', $otp_expires_time);
+                        // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
+                        $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
+                        
+                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
+                
+                        $params = 
+                        [   
+                            "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                            "message" => 
+                            [
+                                "content" => 
+                                [
+                                    "type" => "text",
+                                    "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                ]
+                            ]
+                        ];
+                        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                        $client = new \GuzzleHttp\Client();
+                        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                        $data = $response->getBody();
+                        Log::Info($data);
+                      
+                        return response()->json(['message' => 'OCF Created Successfully OTP Generated Update Company','status' => '0','OCF' => $insert_ocf, 'Module' => $data]);
+                   }
+               
                 }
+            }
         }
         else
         {

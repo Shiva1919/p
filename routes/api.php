@@ -91,6 +91,7 @@ Route::post('OCFstore',                            [OCFController::class, 'OCFst
 Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getocfno']);
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
+
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',                 [OCFModuleController::class, 'getocfmodalno']);
@@ -170,7 +171,7 @@ Route::post('sr_validation_date',                 [VerficationController::class,
 
 Route::post('registers',                          [AuthController::class, 'register']);
 Route::post('logins',                             [AuthController::class, 'login']);
-Route::get('getlogin/{tenantcode}/{password}',    [AuthController::class, 'getlogin']);
+Route::get('getlogin',    [AuthController::class, 'getlogin']);
 Route::get('gettoken',                            [AuthController::class, 'gettoken']);
 Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcustomerlogin']);
 Route::get('getcustid/{id}',                      [AuthController::class, 'getid']);
@@ -224,4 +225,6 @@ Route::post('serialnootpverify',                           [OCFAPIController::cl
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
+Route::post('pincode',                                      [OCFAPIController::class, 'pincode'])->middleware('auth:sanctum');
+Route::get('autologin',                                    [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
 

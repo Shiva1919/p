@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\API\OCFCustomer;
 use App\Models\API\TokenData;
 use App\Models\token;
 use App\Models\User;
@@ -66,62 +67,62 @@ class AuthController extends Controller
         }
     }
 
-    // public function getlogin($login, $password) 
-    // {
-    //     $getcustomer = User::where('role_id', 10)->get();
-    //     //  return $getcustomer;
-    //     $user = User::where('id', $login)->where('active', 1)->first();
-    //     if(!$user || $password!=$user->password)
-    //     {
-    //         return response(['message' => 'Invalid Credentials', 'status' => '1']);
-    //     }
-    //     else
-    //     {
-    //         $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
+    public function getlogin(Request $request) 
+    {
+        $getcustomer = User::where('role_id', 10)->get();
+        //  return $getcustomer;
+        $user = User::where('id', $request->companycode)->where('active', 1)->first();
+        if(!$user || $request->password !=$user->password)
+        {
+            return response(['message' => 'Invalid Credentials', 'status' => '1']);
+        }
+        else
+        {
+            $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
             
-    //         $response = [
+            $response = [
               
-    //              'token' => $token,
-    //              'status' => '0' 
-    //     ];
+                 'token' => $token,
+                 'status' => '0' 
+        ];
           
-    //         //  return response($response, 200);
-    //         return response()->json($response);
-    //     }
-    // }
+            //  return response($response, 200);
+            return response()->json($response);
+        }
+    }
 
-    // public function getcustomerlogin($login, $token)
-    // {
-    //     $user = User::where('id', $login)->where('active', 1)->first();
-    //     $checktoken = DB::table('personal_access_tokens')->where('token', $token)->get('token');
-    //     $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
-    //     if($user && $checktoken == null)
-    //     {
-    //         return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
-    //     }
+    public function getcustomerlogin($login, $token)
+    {
+        $user = User::where('id', $login)->where('active', 1)->first();
+        $checktoken = DB::table('personal_access_tokens')->where('token', $token)->get('token');
+        $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
+        if($user && $checktoken == null)
+        {
+            return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
+        }
         
-    //     return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken]);
-    // }
+        return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken]);
+    }  
 
-    // public function token(Request $request) 
-    // {
-    //     if (!Auth::attempt($request->only(['id', 'password']))) {
-    //         abort(403);
-    //     } 
-    //     $user = new User();
+    public function token(Request $request) 
+    {
+        if (!Auth::attempt($request->only(['id', 'password']))) {
+            abort(403);
+        } 
+        $user = new User();
 
-    //     $token = $user->createToken('Our Token');
-    //     return response()->json([
-    //         'token' => $token->plainTextToken,
-    //         'expired_at' => $token->accessToken->expired_at
-    //     ]);
-    // }
+        $token = $user->createToken('Our Token');
+        return response()->json([
+            'token' => $token->plainTextToken,
+            'expired_at' => $token->accessToken->expired_at
+        ]);
+    }
 
-    // public function gettoken()
-    // {
-    //     $gettoken = TokenData::all();
-    //     return $gettoken;
-    // }
+    public function gettoken()
+    {
+        $gettoken = TokenData::all();
+        return $gettoken;
+    }
 
     public function logout()
     {
