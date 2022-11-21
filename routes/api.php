@@ -228,6 +228,7 @@ Route::post('serialnootpverify',                           [OCFAPIController::cl
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
-Route::post('pincode',                                      [OCFAPIController::class, 'pincode'])->middleware('auth:sanctum');
-Route::get('autologin',                                    [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
+Route::post('pincode',                                     [OCFAPIController::class, 'pincode'])->middleware('auth:sanctum');
+Route::post('autologin',                                   [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
+Route::post('broadcast_messages',                          [OCFAPIController::class, 'broadcast_messages'])->middleware('auth:sanctum');
 

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\API\BroadcastMessage;
 use App\Models\API\Packages;
+use App\Models\API\SubPackages;
 use Illuminate\Support\Facades\Cache;
 
 class OCFAPIController extends Controller
@@ -200,7 +201,7 @@ class OCFAPIController extends Controller
     
         public function serialnoverifyotp(Request $request)  // currenlty unused
         {
-            $customer =  OCFCustomer::where('id', $request->customercode)->first();
+            $customer =  OCFCustomer::where('otp', $request->otp)->first();
             if($customer == null)
             {
                 return response()->json(['Message' => 'Invalid Mobile No ', 'status' => 1]);
@@ -217,10 +218,15 @@ class OCFAPIController extends Controller
                     'isverified' => 1
                 ]; 
                 $customer->update($verifyotp);  
-                $company = Company::where('customercode', $request->customercode)->get();
-                $ocf = OCF::where('customercode', $request->customercode)->get();
-                $modules = DB::table('ocf_modules')->where('ocfcode', $ocf[0]->id)->get();
-                return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $customer, 'Company' => $company, 'OCF' => $ocf, 'Modules' => $modules]);
+                $company = DB::table('company_master')
+                                ->select('company_master.*',DB::raw('CONCAT(ocf_master.Series, ocf_master.DocNo) as OCFNo'), 'ocf_master.ocf_date')
+                                ->join('ocf_master', 'company_master.customercode', '=', 'ocf_master.customercode')
+                                ->where('company_master.customercode', $customer->id)
+                                ->get();
+              
+                
+                // $modules = DB::table('ocf_modules')->where('ocfcode', $ocf[0]->id)->get();
+                return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $customer, 'Company' => $company ] );
             }
             else
             {
@@ -399,12 +405,18 @@ class OCFAPIController extends Controller
     public function broadcastmessage(Request $request)
     {
         $rules = array(
-            'messagetype' => 'required',
+            'messagetarget' => 'required',
             'customercode' => 'required',
             'datefrom' => 'required|date_format:d-m-Y H:i:s', 
             'todate' => 'required|date_format:d-m-Y H:i:s',
-            'description' => 'required',
-            'Active' => ''
+            'messagetitle' => 'required',
+            // 'messagedesc ' => 'required',
+            // 'active' => 'required',
+            // 'howmanydaystodisplay' => 'required',
+            // 'allowtomarkasread'=> '',
+            // 'rolecode' => '',
+            // 'url' => '',
+            // 'specialkeytoclose' => ''
         );
       
         $validator = Validator::make($request->all(), $rules);
@@ -418,33 +430,48 @@ class OCFAPIController extends Controller
         else 
         {
             $broadcast_message = new BroadcastMessage();
-            $broadcast_message->MessageType = $request->messagetype;
+            $broadcast_message->MessageTarget = $request->messagetarget;
             $broadcast_message->CustomerCode = $request->customercode;
+            $broadcast_message->PackageType = $request->packagecode;
+            $broadcast_message->PackageSubType = $request->subpackagecode;
+            $broadcast_message->CompanyCode = $request->companycode;
+            $broadcast_message->GstType = $request->gstcode;
             $broadcast_message->DateFrom = $request->datefrom;
             $broadcast_message->ToDate = $request->todate;
-            $broadcast_message->Description = $request->description;
+            $broadcast_message->MessageTitle = $request->messagetitle;
+            $broadcast_message->MessageDesc = $request->messagedesc;
+            $broadcast_message->Active = $request->active;
+            $broadcast_message->HowManyDaysToDisplay = $request->howmanydaystodisplay;
+            $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
+            $broadcast_message->RoleCode = $request->rolecode;
+            $broadcast_message->URLString = $request->url;
+            $broadcast_message->SpecialKeyToClose = $request->specialkeytoclose;
+            $broadcast_message->MessageDescMarathi = $request->messagedescmarathi;
+            $broadcast_message->MessageDescHindi = $request->messagedeschindi;
+            $broadcast_message->MessageDescKannada = $request->messagedesckannada;
+            $broadcast_message->MessageDescGujarathi = $request->messagedescgujarathi;
             $broadcast_message->save();
 
-            if($request->messagetype == 1)
+            if($request->messagetarget == 1)
             {
                 $packages = Packages::all();
                 $customers = OCFCustomer::all();
                 return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Packages' => $packages, 'Customers' => $customers,'Broadcast Message' => $broadcast_message]);
             }
-            elseif($request->messagetype == 2)
+            elseif($request->messagetarget == 2)
             {
-                $customer = OCFCustomer::where('id', $request->customercode)->first();
-                $package = Packages::where('id', $customer->packagecode)->first();
+                $package = Packages::where('id', $request->packagecode)->first();
+                $subpackage = SubPackages::where('id', $request->subpackagecode)->get();
                 if($package == null)
                 {
                     return response()->json(['message' => 'Invalid Package', 'status' => 1]);
                 }
                 else{
                     
-                    return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Package' => $package, 'Broadcast Message' => $broadcast_message]);
+                    return response()->json(['message' => 'Broadcast Messages', 'status' => 0, 'Package' => $package, 'Subpackage' => $subpackage, 'Broadcast Message' => $broadcast_message]);
                 }
             }
-            elseif($request->messagetype == 3)
+            elseif($request->messagetarget == 3)
             {
                 $customer = OCFCustomer::where('id', $request->customercode)->first();
                 if($customer == null)
@@ -760,10 +787,36 @@ class OCFAPIController extends Controller
     public function pincode(Request $request)
     {
         $city = DB::table('city')->where('pincode', $request->pincode)->get();
-        $taluka = DB::table('taluka')->where('id', $city[0]->talukaid)->first();
-        $district = DB::table('district')->where('id', $taluka->districtid)->first();
-        $state = DB::table('state')->where('id', $district->stateid)->first();
-        return response()->json(['message' => 'City', 'status' => 0, 'State' => $state, 'District' => $district, 'Taluka' => $taluka, 'City' => $city]);
+       
+        if(count($city) == 0)
+        {
+            return response()->json(['message' => 'Pincode Not Exist', 'status' => 1]);
+        }
+        else
+        {
+            $taluka = DB::table('taluka')->where('id', $city[0]->talukaid)->first();
+            $district = DB::table('district')->where('id', $taluka->districtid)->first();
+            $state = DB::table('state')->where('id', $district->stateid)->first();
+            return response()->json(['message' => 'City', 'status' => 0, 'State' => $state, 'District' => $district, 'Taluka' => $taluka, 'City' => $city]);
+        }
+        
+    }
+
+    public function broadcast_messages(Request $request)
+    {
+        $message = BroadcastMessage::where('MessageTarget', $request->messagetarget)
+                                    ->where('CustomerCode', $request->customercode)
+                                    ->where('RoleCode', $request->rolecode)
+                                    ->where('CompanyCode', $request->companycode)->first();
+                                   
+        if(empty($message))
+        {
+            return response()->json(['message' => 'Invalid Data', 'status' => 1]);
+        }
+        else
+        {
+            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $message]);
+        }   
     }
     
 }

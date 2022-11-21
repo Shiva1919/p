@@ -13,11 +13,24 @@ class BroadcastMessage extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'id', 
-        'MessageType', 
+        'MessageTarget',
+        'PackageType',
+        'PackageSubType',
+        'GstType', 
         'CustomerCode',
         'DateFrom', 
         'ToDate', 
-        'Description', 
-        'Active'
+        'MessageTitle',
+        'MessageDesc', 
+        'Active',
+        'HowManyDaysToDisplay',
+        'AllowToMarkAsRead',
+        'RoleCode',
+        'URLString',
+        'SpecialKeyToClose',
+        'MessageDescMarathi',
+        'MessageDescHindi',
+        'MessageDescKannada',
+        'MessageDescGujarathi'
     ];
 }
