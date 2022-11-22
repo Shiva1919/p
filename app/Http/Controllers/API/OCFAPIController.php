@@ -39,6 +39,7 @@ class OCFAPIController extends Controller
                 'phone' => 'required',
                 'email' => '',
                 'address1' => 'required',
+                'address2' => '',
                 'state' => '',
                 'district' => '',
                 'taluka' => '',
@@ -69,6 +70,7 @@ class OCFAPIController extends Controller
                 $insert_customers->phone = $request->phone;
                 $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
+                $insert_customers->address2 = $request->address2;
                 $insert_customers->state = $request->state;
                 $insert_customers->district = $request->district;
                 $insert_customers->taluka = $request->taluka;

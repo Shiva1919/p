@@ -50,16 +50,6 @@ Route::get('packagedata', [PackagesController::class, 'index'])->middleware('aut
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
     
-Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
-Route::post('company',                                     [OCFAPIController::class, 'company']);
-Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
-Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
-Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
-Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
-Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
-Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
-Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
-Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
 });
 
 
@@ -235,7 +225,7 @@ Route::post('customerdata',                                [OCFAPIController::cl
 Route::post('company',                                     [OCFAPIController::class, 'company'])->middleware('auth:sanctum');
 Route::post('ocfs',                                        [OCFAPIController::class, 'OCF'])->middleware('auth:sanctum');
 Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany'])->middleware('auth:sanctum');
-Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
+Route::get('companyocfs',                                   [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
 Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp'])->middleware('auth:sanctum');
 Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp'])->middleware('auth:sanctum');
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
