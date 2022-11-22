@@ -39,6 +39,7 @@ class OCFAPIController extends Controller
                 'phone' => 'required',
                 'email' => '',
                 'address1' => 'required',
+                'address2' => '',
                 'state' => '',
                 'district' => '',
                 'taluka' => '',
@@ -69,6 +70,7 @@ class OCFAPIController extends Controller
                 $insert_customers->phone = $request->phone;
                 $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
+                $insert_customers->address2 = $request->address2;
                 $insert_customers->state = $request->state;
                 $insert_customers->district = $request->district;
                 $insert_customers->taluka = $request->taluka;
@@ -490,6 +492,7 @@ class OCFAPIController extends Controller
 
     function sr_validity(Request $request)
     {
+        
         $request->validate([ 
             'customercode' => 'required',
             'company_name' => 'required',
@@ -497,6 +500,7 @@ class OCFAPIController extends Controller
             'gst_no' => 'required'
         ]);
         $customer = OCFCustomer::where('id', $request->customercode)->first();
+        
         if($customer == null)   return response()->json(['message' => 'Customer not Exist', 'status' => 1]);
         $companydata = Company::where('id', $request->companycode)->first();
         if($companydata == null) return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
@@ -505,8 +509,9 @@ class OCFAPIController extends Controller
                             ->where('company_name', $request->company_name)
                             ->where('pan_no', $request->pan_no)
                             ->where('gst_no', $request->gst_no)
+                            
                             ->first();
-
+        
         if($company == null)
         {    
             
@@ -588,21 +593,42 @@ class OCFAPIController extends Controller
                                     ->groupBy('ocf_modules.modulecode')
                                     ->get();
 
-                    $companys = Company::where('id', $request->companycode)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+                    $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.customercode','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+                    $customer = OCFCustomer::where('id', $company->customercode)->first();
+                    
+                    if($customer->packagecode == 2)
+                    {
+                        $time = date('Y-m-d ');
+                        $expirytime = date('d-m-Y', strtotime($time . " + 1 month") );
+                        $company->expirydates = $expirytime;
+                        $company->save();
+                    
+                    }
+                    elseif($customer->packagecode == 3) 
+                    {
+                        $time = date('Y-m-d ');
+                        $expirytime = date('d-m-Y', strtotime($time . " + 6 month") );
+                        $company->expirydates = $expirytime;
+                        $company->save();
+                        
+                    }
+                    else{
+                        return response()->json(['message' => 'Invalid Package', 'status' => 1]);
+                    }
                     $serial = md5($module);
                     $time = date('d-m-Y');
                     $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                     $insert_serialno = new Serialno();
                     $insert_serialno->ocfno = $request->companycode;
-                    $insert_serialno->comp_name = $companys->company_name;
-                    $insert_serialno->pan = $companys->pan_no;
-                    $insert_serialno->gst = $companys->gst_no;
+                    $insert_serialno->comp_name = $company->company_name;
+                    $insert_serialno->pan = $company->pan_no;
+                    $insert_serialno->gst = $company->gst_no;
                     $insert_serialno->serialno_issue_date = $time;
                     $insert_serialno->serialno_validity = $expirydate;
                     $insert_serialno->serialno = $serial;
                     $insert_serialno->save();               
                    
-                    return response()->json(['status' => 0, 'message' => 'Company Details Updated', 'Company' => $updatecompany, 'Modules' => $module, 'Serial' => $insert_serialno ]);
+                    return response()->json(['status' => 0, 'message' => 'Company Details Updated', 'Company' => $company, 'Modules' => $module, 'Serial' => $insert_serialno ]);
                 }
                 else
                 {
@@ -613,7 +639,28 @@ class OCFAPIController extends Controller
         else if($request->issuedate)
         {
             $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
-            $company = Company::where('id', $company->id)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+            $company = Company::where('id', $company->id)->first(['company_master.id','company_master.customercode','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+            $customer = OCFCustomer::where('id', $company->customercode)->first();
+            
+            if($customer->packagecode == 2)
+            {
+                $time = date('Y-m-d ');
+                $expirytime = date('d-m-Y', strtotime($time . " + 1 month") );
+                $company->expirydates = $expirytime;
+                $company->save();
+              
+            }
+            elseif($customer->packagecode == 3) 
+            {
+                $time = date('Y-m-d ');
+                $expirytime = date('d-m-Y', strtotime($time . " + 6 month") );
+                $company->expirydates = $expirytime;
+                $company->save();
+                
+            }
+            else{
+                return response()->json(['message' => 'Invalid Package', 'status' => 1]);
+            }
             if($checkserial)
             {  
                 if($company== null)
@@ -712,8 +759,29 @@ class OCFAPIController extends Controller
                         $verifyotp = [
                             'isverified' => 1
                         ]; 
-                        $customer->update($verifyotp);  
                         
+                        $customer->update($verifyotp);  
+                        $customer = OCFCustomer::where('id', $company->customercode)->first();
+            
+                        if($customer->packagecode == 2)
+                        {
+                            $time = date('Y-m-d ');
+                            $expirytime = date('d-m-Y', strtotime($time . " + 1 month") );
+                            $company->expirydates = $expirytime;
+                            $company->save();
+                        
+                        }
+                        elseif($customer->packagecode == 3) 
+                        {
+                            $time = date('Y-m-d ');
+                            $expirytime = date('d-m-Y', strtotime($time . " + 6 month") );
+                            $company->expirydates = $expirytime;
+                            $company->save();
+                            
+                        }
+                        else{
+                            return response()->json(['message' => 'Invalid Package', 'status' => 1]);
+                        }
                         $module = DB::table('ocf_master')
                                     ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                                     ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')

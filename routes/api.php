@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\Customer_Mobile;
+use App\Http\Controllers\API\CustomerContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
@@ -236,7 +237,7 @@ Route::post('customerdata',                                [OCFAPIController::cl
 Route::post('company',                                     [OCFAPIController::class, 'company'])->middleware('auth:sanctum');
 Route::post('ocfs',                                        [OCFAPIController::class, 'OCF'])->middleware('auth:sanctum');
 Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany'])->middleware('auth:sanctum');
-Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
+Route::get('companyocfs',                                   [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
 Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp'])->middleware('auth:sanctum');
 Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp'])->middleware('auth:sanctum');
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
@@ -253,3 +254,5 @@ Route::get('customerjson', [JSONStoreController::class, 'index']);
 // Route::resource('Customer_mobile',                                  Customer_Mobile::class);
 Route::get('Customer_mobile_id/{id}',                            [Customer_Mobile::class, 'getcustomer']);
 Route::post('customer_mobile',                            [Customer_Mobile::class, 'store']);
+// Route::resource('Customer_mobile',                                  Customer_Mobile::class);
+// Route::get('cust_mobile/{custid}', [CustomerContactController::class, 'index']);
