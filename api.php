@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CompanyController;
+use App\Http\Controllers\API\Customer_Mobile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
@@ -49,7 +50,7 @@ Route::post('registerdata', [AuthController::class,'register']);
 Route::get('packagedata', [PackagesController::class, 'index'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-    
+
 Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
 Route::post('company',                                     [OCFAPIController::class, 'company']);
 Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
@@ -104,6 +105,11 @@ Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getoc
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
+
+//ocf multiple list data
+Route::get('get_ocfdata_list_customerwise/{DocNo}', [OCFController::class, 'get_ocfdata_list_customerwise']);
+
+Route::get('getocf_customer_company/{id}',         [CustomersController::class, 'ocflist']);
 //ocf muliple date get by ocf id
 Route::get('getmodaldata/{ocfno}',                 [OCFModuleController::class, 'getocfmodalno']);
 Route::resource('ocfmodule',                        OCFModuleController::class);
@@ -236,6 +242,12 @@ Route::post('serialnootpverify',                           [OCFAPIController::cl
 Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::get('date_time',                                    [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
+Route::post('pincode',                                     [OCFAPIController::class, 'pincode'])->middleware('auth:sanctum');
+Route::post('autologin',                                   [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
+Route::post('broadcast_messages',                          [OCFAPIController::class, 'broadcast_messages'])->middleware('auth:sanctum');
 
 // Json Data
 Route::get('customerjson', [JSONStoreController::class, 'index']);
+
+//customer mobile numer
+oute::resource('Customer_mobile',                                  Customer_Mobile::class);
