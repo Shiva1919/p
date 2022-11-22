@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CompanyController;
+use App\Http\Controllers\API\Customer_Mobile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
@@ -49,7 +50,17 @@ Route::post('registerdata', [AuthController::class,'register']);
 Route::get('packagedata', [PackagesController::class, 'index'])->middleware('auth:sanctum');
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-    
+
+Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
+Route::post('company',                                     [OCFAPIController::class, 'company']);
+Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
+Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
+Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
+Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
+Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
+Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
+Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
+Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
 });
 
 
@@ -237,3 +248,6 @@ Route::post('broadcast_messages',                          [OCFAPIController::cl
 
 // Json Data
 Route::get('customerjson', [JSONStoreController::class, 'index']);
+
+//customer mobile numer
+Route::resource('Customer_mobile',                                  Customer_Mobile::class);
