@@ -19,6 +19,10 @@ class Customer_Mobile extends Controller
         $data =Customer_mobile_Model::all();
         return $data;
     }
+   function getcustomer($id){
+        $data =Customer_mobile_Model::where('Customercode',$id)->get();
+        return response()->json($data);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -38,22 +42,14 @@ class Customer_Mobile extends Controller
      */
     public function store(Request $request)
     {
-        $validater=Validator::make($request->all(),[
-            'url'=>'required'
-        ]);
-        if ($validater->fails()) {
-            return response()->json([
-                'status'=>400,
-                'error'=>$validater->messages()
-            ]);
 
-        }
-        else
-        {
+
+
+
               $Customer_mobile_Model= new Customer_mobile_Model;
-              $Customer_mobile_Model->Mobile_number= $request->Mobile_number;
+              $Customer_mobile_Model->Mobile_number= $request->Mobile;
               $Customer_mobile_Model->Email= $request->Email;
-              $Customer_mobile_Model->User_Name= $request->User_Name;
+              $Customer_mobile_Model->User_Name= $request->Username;
               $Customer_mobile_Model->Customercode= $request->Customercode;
 
 
@@ -63,7 +59,7 @@ class Customer_Mobile extends Controller
                 'status'=>200,
                 'message'=>'Added Successfully'
             ]);
-        }
+
     }
 
     /**

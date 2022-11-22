@@ -33,11 +33,11 @@ class AuthController extends Controller
             'role_id' => $data['role_id'],
             'password' => Hash::make($data['password']),
         ]);
-        
+
           $token = $user->createToken('SerialNoToken')->plainTextToken;
 
         $response = [
-              'token' => $token,              
+              'token' => $token,
         ];
 
         return response($response, 201);
@@ -49,7 +49,7 @@ class AuthController extends Controller
             'email' => 'required',
             'password' => 'required|string',
         ]);
-        
+
         $user = User::where('email', $data['email'])->where('active', 1)->first();
 
         if(!$user || !Hash::check($data['password'], $user->password))
@@ -59,15 +59,15 @@ class AuthController extends Controller
         else
         {
               $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
-           
+
             $response = [
-                 'token' => $token, 
+                 'token' => $token,
             ];
             return response($response, 200);
         }
     }
 
-    public function getlogin(Request $request) 
+    public function getlogin(Request $request)
     {
         $getcustomer = User::where('role_id', 10)->get();
         //  return $getcustomer;
@@ -79,13 +79,13 @@ class AuthController extends Controller
         else
         {
             $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
-            
+
             $response = [
-              
+
                  'token' => $token,
-                 'status' => '0' 
+                 'status' => '0'
         ];
-          
+
             //  return response($response, 200);
             return response()->json($response);
         }
@@ -93,22 +93,22 @@ class AuthController extends Controller
 
     public function getcustomerlogin($login, $token)
     {
-        $user = User::where('id', $login)->where('active', 1)->first();
+        $user = DB::table('customer_master')->where('id', $login)->where('active', 1)->first();
         $checktoken = DB::table('personal_access_tokens')->where('token', $token)->get('token');
         $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
         if($user && $checktoken == null)
         {
             return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
         }
-        
-        return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken]);
-    }  
 
-    public function token(Request $request) 
+        return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken,'userData'=>$user]);
+    }
+
+    public function token(Request $request)
     {
         if (!Auth::attempt($request->only(['id', 'password']))) {
             abort(403);
-        } 
+        }
         $user = new User();
 
         $token = $user->createToken('Our Token');
@@ -131,5 +131,5 @@ class AuthController extends Controller
         });
         return response(['message' => 'Logged Out Successfully']);
     }
-    
+
 }
