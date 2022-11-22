@@ -44,17 +44,11 @@ class Customer_Mobile extends Controller
     public function store(Request $request)
     {
 
-
-
-
               $Customer_mobile_Model= new Customer_mobile_Model;
-              $Customer_mobile_Model->Mobile_number= $request->Mobile;
+              $Customer_mobile_Model->Mobile_number= $request->Mobilenumber;
               $Customer_mobile_Model->Email= $request->Email;
-              $Customer_mobile_Model->User_Name= $request->Username;
+              $Customer_mobile_Model->User_Name= $request->UserName;
               $Customer_mobile_Model->Customercode= $request->Customercode;
-
-
-
               $Customer_mobile_Model->save();
               return response()->json([
                 'status'=>200,
@@ -157,7 +151,7 @@ class Customer_Mobile extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
     $Customer_mobile_Model= Customer_mobile_Model::find($id);
     $Customer_mobile_Model->delete();
