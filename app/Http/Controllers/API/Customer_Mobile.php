@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\Customer_mobile_Model;
+use Illuminate\Support\Facades\DB;
 
 class Customer_Mobile extends Controller
 {
@@ -14,10 +15,10 @@ class Customer_Mobile extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($custid)
     {
-        $data =Customer_mobile_Model::all();
-        return $data;
+        $data =Customer_mobile_Model::where('Customercode', $custid)->get();
+        return response()->json($data);
     }
 
     /**

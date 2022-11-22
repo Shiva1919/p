@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CompanyController;
 use App\Http\Controllers\API\Customer_Mobile;
+use App\Http\Controllers\API\CustomerContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
@@ -251,3 +252,4 @@ Route::get('customerjson', [JSONStoreController::class, 'index']);
 
 //customer mobile numer
 Route::resource('Customer_mobile',                                  Customer_Mobile::class);
+Route::get('cust_mobile/{custid}', [CustomerContactController::class, 'index']);
