@@ -93,16 +93,23 @@ class AuthController extends Controller
 
     public function getcustomerlogin($login, $token)
     {
+
         $user = DB::table('customer_master')->where('id', $login)->where('active', 1)->first();
-        $checktoken = DB::table('personal_access_tokens')->where('token', $token)->get('token');
+
+        $checktoken = DB::table('personal_access_tokens')->where('token', $token)->first();
+
         $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
-        if($user && $checktoken == null)
-        {
+
+        if ($checktoken == null ) {
             return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
         }
+        if($user == null){
+            return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
 
-        return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken,'userData'=>$user]);
+        }
+       return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken,'userData'=>$user]);
     }
+
 
     public function token(Request $request)
     {
