@@ -24,6 +24,26 @@ class Customer_Mobile extends Controller
         $data =Customer_mobile_Model::where('Customercode',$id)->get();
         return response()->json($data);
     }
+    function getcustomer_mobile($id,$mobile){
+        $data =Customer_mobile_Model::where('Customercode',$id)->where('Mobile_number',$mobile)->get();
+        if (count($data) > 0) {
+            return response()->json([
+                'status'=>404,
+                'message'=>"All Ready Saved Data"
+            ]);
+        }
+        else{
+            return response()->json([
+                'status'=>200,
+            ]);
+
+        }
+        return response()->json($data);
+    }
+    function getmobile_edit($id,$custid){
+        $data =Customer_mobile_Model::where('Customercode',$custid)->where('id',$id)->first();
+        return response()->json($data);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -101,18 +121,16 @@ class Customer_Mobile extends Controller
      */
     public function update(Request $request, $id)
     {
+
+
         $Customer_mobile_Model= Customer_mobile_Model::find($id);
-        if ($data) {
-          $validater=Validator::make($request->all(),[
-              'url'=>'required'
-          ]);
-          $Customer_mobile_Model->Mobile_number= $request->Mobile_number;
+         if ($Customer_mobile_Model) {
+           $Customer_mobile_Model->Mobile_number= $request->Mobilenumber;
           $Customer_mobile_Model->Email= $request->Email;
-          $Customer_mobile_Model->User_Name= $request->User_Name;
+          $Customer_mobile_Model->User_Name= $request->UserName;
           $Customer_mobile_Model->update();
           return response()->json([
             'status'=>200,
-            'error'=>$validater->messages(),
             'message'=>'Update Successfully'
         ]);
       }

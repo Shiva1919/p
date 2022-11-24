@@ -256,3 +256,6 @@ Route::get('Customer_mobile_id/{id}',                            [Customer_Mobil
 Route::post('customer_mobile',                            [Customer_Mobile::class, 'store']);
 // Route::resource('Customer_mobile',                                  Customer_Mobile::class);
 Route::get('Customer_mobile_delete/{custid}', [Customer_Mobile::class, 'delete']);
+Route::get('Customer_mobile_edit/{id}/{custid}', [Customer_Mobile::class, 'getmobile_edit']);
+Route::put('Customer_mobile/{id}',            [Customer_Mobile::class, 'update']);
+Route::get('Customer_mobile_check/{customer}/{mobile}',            [Customer_Mobile::class, 'getcustomer_mobile']);
