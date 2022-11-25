@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class JWTController extends Controller
 {
+    
     /**
      * Create a new AuthController instance.
      *

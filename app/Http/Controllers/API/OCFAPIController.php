@@ -4,22 +4,21 @@ namespace App\Http\Controllers\API;
 
 use Validator;
 use Carbon\Carbon;
-use App\Models\API\OCF;
-use function Psy\debug;
-use App\Models\API\Company;
-use App\Models\API\Modules;
-use Illuminate\Support\Str;
-use App\Models\API\Serialno;
 use Illuminate\Http\Request;
-use App\Models\API\OCFModule;
-use App\Models\API\OCFCustomer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use App\Models\API\OCF;
+use App\Models\API\Company;
+use App\Models\API\Modules;
+use App\Models\API\Serialno;
+use App\Models\API\OCFModule;
+use App\Models\API\OCFCustomer;
 use App\Models\API\BroadcastMessage;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
-use Illuminate\Support\Facades\Cache;
 
 class OCFAPIController extends Controller
 {    
@@ -220,8 +219,7 @@ class OCFAPIController extends Controller
                     'isverified' => 1
                 ]; 
                 $customer->update($verifyotp);  
-                $company = DB::table('company_master')
-                                ->select('company_master.*',DB::raw('CONCAT(ocf_master.Series, ocf_master.DocNo) as OCFNo'), 'ocf_master.ocf_date')
+                $company = Company::select('company_master.*',DB::raw('CONCAT(ocf_master.Series, ocf_master.DocNo) as OCFNo'), 'ocf_master.ocf_date')
                                 ->join('ocf_master', 'company_master.customercode', '=', 'ocf_master.customercode')
                                 ->where('company_master.customercode', $customer->id)
                                 ->get();
@@ -374,8 +372,7 @@ class OCFAPIController extends Controller
             $time = date('d-m-Y');
             // DB::raw('max(CASE WHEN acme_module_type.expiry = 1 THEN 0 ELSE 1 END) as Expired')
             // DB::raw('(CASE WHEN acme_module_type.expiry = 1  WHEN ocf_modules.expirydate == $time 1 THEN 0 ELSE 1 END) as expired_modules')
-            $module = DB::table('ocf_master')
-                            ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'), DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'), DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
+            $module = OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'), DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'), DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                             ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
                             ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
                             ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
@@ -409,8 +406,8 @@ class OCFAPIController extends Controller
         $rules = array(
             'messagetarget' => 'required',
             'customercode' => 'required',
-            'datefrom' => 'required|date_format:d-m-Y H:i:s', 
-            'todate' => 'required|date_format:d-m-Y H:i:s',
+            'datefrom' => 'required', 
+            'todate' => 'required',
             'messagetitle' => 'required',
             // 'messagedesc ' => 'required',
             // 'active' => 'required',
@@ -582,8 +579,7 @@ class OCFAPIController extends Controller
                     
                     $updatecompany->update($request->all());
 
-                    $module = DB::table('ocf_master')
-                                    ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
+                    $module = OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                                     ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
                                     ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
                                     ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
@@ -669,8 +665,7 @@ class OCFAPIController extends Controller
                 }
                 else
                 {
-                    $module = DB::table('ocf_master')
-                                    ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
+                    $module = OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                                     ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
                                     ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
                                     ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
@@ -782,8 +777,7 @@ class OCFAPIController extends Controller
                         else{
                             return response()->json(['message' => 'Invalid Package', 'status' => 1]);
                         }
-                        $module = DB::table('ocf_master')
-                                    ->select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
+                        $module =OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
                                     ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
                                     ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
                                     ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')

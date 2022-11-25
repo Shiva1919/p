@@ -4,10 +4,23 @@ namespace App\Models\API;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Modules extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    protected static $logAttributes = [ 'productcode', 'ModuleName', 'description', 'price', 'unit', 'moduletype','producttype','active','moduletypeid'];
+    
+    protected static $recordEvents = ['created', 'updated', 'deleted'];
+
+    protected static $logName = 'Modules';
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "You have {$eventName} Modules";
+    }
+
     public $table="acme_module";
     public $timestamps = false;
     protected $primaryKey = 'id';

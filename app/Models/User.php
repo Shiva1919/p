@@ -7,11 +7,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+
+    protected static $logAttributes = ['name', 'email', 'password'];
+
+    protected static $recordEvents = ['created', 'updated', 'deleted'];
+
+    protected static $logName = 'user';
+
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "You have {$eventName} user";
+    }
 
     /**
      * The attributes that are mass assignable.
