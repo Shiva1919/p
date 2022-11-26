@@ -124,9 +124,9 @@ class OCFCustomerController extends Controller
                         $data=[
                             'customercode'=> $insert_customers->id,
                             'comapnycode'=> $ocfcompanyflastid->id+1,
-                            'company_name'=>  $data['company_name'],
-                            'pan_no'=> $data['pan_no'],
-                            'gst_no'=> $data['gst_no'],
+                            'companyname'=>  $data['companyname'],
+                            'panno'=> $data['panno'],
+                            'gstno'=> $data['gstno'],
                             'InstallationType' => $data['InstallationType'],
                             'InstallationDesc' => $data['InstallationDesc']
                         ];
@@ -191,7 +191,7 @@ class OCFCustomerController extends Controller
             'phone' => '',
             'whatsappno' => '',
             'email' => '',
-            'company_name' => '',
+            'companyname' => '',
             'address1' => '',
             'address2' => '',
             'state' => '',
@@ -234,9 +234,9 @@ class OCFCustomerController extends Controller
             foreach ($request->Cdocument as $data ) {
               $data=[
                   'customercode'=> $input['id'],
-                  'company_name'=>  $data['company'],
-                  'pan_no'=> $data['pan'],
-                  'gst_no'=> $data['gst'],
+                  'companyname'=>  $data['company'],
+                  'panno'=> $data['pan'],
+                  'gstno'=> $data['gst'],
                   'InstallationType' => $data['InstallationType'],
                   'InstallationDesc' => $data['InstallationDesc']
               ];
@@ -402,7 +402,7 @@ class OCFCustomerController extends Controller
     }
      public function companybycustomer($customerid)
     {
-        $company = Company::where('customercode', $customerid)->get('company_name');
+        $company = Company::where('customercode', $customerid)->get('companyname');
         return response()->json($company);
     }
 

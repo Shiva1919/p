@@ -58,7 +58,7 @@ class CustomersController extends Controller
             'entrycode' => '',
             'phone' => '',
             'email' => '',
-            'company_name' => '',
+            'companyname' => '',
             'address1' => '',
             // 'address2' => '',
             'state' => '',
@@ -82,15 +82,15 @@ class CustomersController extends Controller
         $insert_customers->entrycode = $request->entrycode;
         $insert_customers->phone = $request->phone;
         $insert_customers->email = $request->email;
-        $insert_customers->company_name = $request->company_name;
+        $insert_customers->companyname = $request->company_name;
         $insert_customers->address1 = $request->address1;
         // $insert_customers->address2 = $request->address2;
         $insert_customers->state = $request->state;
         $insert_customers->district = $request->district;
         $insert_customers->taluka = $request->taluka;
         $insert_customers->city = $request->city;
-        $insert_customers->panno = $request->panno;
-        $insert_customers->gstno = $request->gstno;
+        $insert_customers->panno = $request->pan_no;
+        $insert_customers->gstno = $request->gst_no;
         $insert_customers->noofbranches = $request->noofbranches;
         $insert_customers->role_id = $request->role_id;
         $insert_customers->active = $request->active;
@@ -128,7 +128,7 @@ class CustomersController extends Controller
         for ($i=0; $i < count($getbyid_customer) ; $i++) {
 $com=[];
             $com=[
-                   'company_name'=>$getbyid_customer[$i]->company_name,
+                   'companyname'=>$getbyid_customer[$i]->companyname,
 
             ];
             array_push($company,$com);
@@ -145,7 +145,7 @@ $com=[];
                  for ($b=0; $b < count($company_ocf); $b++) {
 $ocfdata=[];
                     $ocfdata=[
-                        'company_name'=>$getbyid_customer[$i]->company_name,
+                        'companyname'=>$getbyid_customer[$i]->companyname,
                         'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
 
                  ];
@@ -158,7 +158,7 @@ $ocfdata=[];
                         $data=[];
                         $data=[
                             'id'=>$getbyid_customer[$i]->id,
-                            'company_name'=>$getbyid_customer[$i]->company_name,
+                            'companyname'=>$getbyid_customer[$i]->companyname,
                             'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
                             'module_name'=>$ocf_modules[$c]->modulename,
                             'quantity'=>$ocf_modules[$c]->quantity,
@@ -174,7 +174,7 @@ $ocfdata=[];
             else{
                 $data=[
                     'id'=>$getbyid_customer[$i]->id,
-                    'company_name'=>$getbyid_customer[$i]->company_name,
+                    'companyname'=>$getbyid_customer[$i]->companyname,
                     'ocf_no'=>'',
                     'module_name'=>'',
                     'quantity'=>'',
@@ -216,7 +216,7 @@ $ocfdata=[];
             'mobile' => '',
             'phone' => '',
             'email' => '',
-            'company_name' => '',
+            'companyname' => '',
             'address1' => '',
             // 'address2' => '',
             'state' => '',
@@ -241,7 +241,7 @@ $ocfdata=[];
         $customer->mobile = $input['mobile'];
         $customer->phone = $input['phone'];
         $customer->email = $input['email'];
-        $customer->company_name = $input['company_name'];
+        $customer->companyname = $input['companyname'];
         $customer->address1 = $input['address1'];
         // $customer->address2 = $input['address2'];
         $customer->state = $input['state'];

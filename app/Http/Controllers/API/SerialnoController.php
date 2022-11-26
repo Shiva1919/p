@@ -121,15 +121,15 @@ class SerialnoController extends Controller
       
         $request->validate([
             'ocfno' => 'required',
-            'company_name' => 'required',
+            'companyname' => 'required',
             'panno' => 'required',
             'gstno' => 'required'
         ]);
             $ocfchange = new OCFchange();
             $ocfchange->ocfno = $serialno_ocfno->ocfno;
-            $ocfchange->company_name = $request->company_name;
-            $ocfchange->panno = $request->panno;
-            $ocfchange->gstno = $request->gstno;
+            $ocfchange->companyname = $request->company_name;
+            $ocfchange->panno = $request->pan_no;
+            $ocfchange->gstno = $request->gst_no;
             $ocfchange->save();
            
             if($ocfchange)
@@ -148,13 +148,13 @@ class SerialnoController extends Controller
          // serialno
                         
                         // $company = Company::where('id', $request->companycode)->first();  
-                        // $serialnoparameters = $company->company_name.$company->pan_no.$company->gst_no;
+                        // $serialnoparameters = $company->companyname.$company->panno.$company->gstno;
                         // $expirydate = date('Y-m-d H:i:s', strtotime($request->ocf_date . " +1 year") );
                         // $insert_serialno = new Serialno();
                         // $insert_serialno->ocfno = ('OCF').($ocflastid->id+1).($series->series+1);
-                        // $insert_serialno->comp_name = $company->company_name;
-                        // $insert_serialno->pan = $company->pan_no;
-                        // $insert_serialno->gst = $company->gst_no;
+                        // $insert_serialno->comp_name = $company->companyname;
+                        // $insert_serialno->pan = $company->panno;
+                        // $insert_serialno->gst = $company->gstno;
                         // $insert_serialno->serialno_issue_date = $request->ocf_date;
                         // $insert_serialno->serialno_validity = $expirydate;
                         // $insert_serialno->serialno_parameters = $serialnoparameters;
@@ -186,7 +186,7 @@ class SerialnoController extends Controller
           
            if ($serialcheck->ocfno) {
            
-            // if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
+            // if($parameters['companyname'] == $serialno_customer->companyname && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
             // {
                 $serialno_parameter = $request->comp_name. $request->pan.$request->gst;
 
@@ -228,9 +228,9 @@ class SerialnoController extends Controller
            
            }
         //    else{
-        //     if($parameters['company_name'] == $serialno_customer->company_name && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
+        //     if($parameters['companyname'] == $serialno_customer->companyname && $parameters['panno'] == $serialno_customer->panno && $parameters['gstno'] == $serialno_customer->gstno)
         //     {
-        //         $serialno_parameter = $serialno_customer->company_name. $serialno_customer->panno.$serialno_customer->gstno;
+        //         $serialno_parameter = $serialno_customer->companyname. $serialno_customer->panno.$serialno_customer->gstno;
         //         $serialno = new Serialno();
         //         $serialno->ocfno = $request->ocfno;
         //         $serialno->transaction_datetime = $parameters['transaction_datetime'];

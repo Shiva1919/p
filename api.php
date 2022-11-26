@@ -250,4 +250,4 @@ Route::post('broadcast_messages',                          [OCFAPIController::cl
 Route::get('customerjson', [JSONStoreController::class, 'index']);
 
 //customer mobile numer
-oute::resource('Customer_mobile',                                  Customer_Mobile::class);
+Route::resource('Customer_mobile',                                  Customer_Mobile::class);
