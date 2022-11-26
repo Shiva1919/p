@@ -22,7 +22,7 @@ class VerficationController extends Controller
     {
     $user= DB::table('users')->where('panno',$pan)
                              ->where('gstno',$gst)
-                             ->where('company_name',$company)
+                             ->where('companyname',$company)
                              ->get();
          return $user;
     $InfoUpdate= DB::table('acme_ocf_change')->where('ocfno',$user[0]->ocfno)->get();
@@ -53,7 +53,7 @@ class VerficationController extends Controller
     //     //update information 
     //         $user= DB::table('users')
     //                 ->where('id',$ocfnumber->customercode)
-    //                 ->update(['gstno' => $InfoUpdate[0]->gstno,'panno' => $InfoUpdate[0]->panno,'company_name' => $InfoUpdate[0]->company_name]);
+    //                 ->update(['gstno' => $InfoUpdate[0]->gstno,'panno' => $InfoUpdate[0]->panno,'companyname' => $InfoUpdate[0]->companyname]);
     //     //only admin delelte the recored 
     //          if ($userid=='1') {
     //         DB::table('acme_ocf_change')->where('ocfno',$InfoUpdate->ocfno)->where('id',$id)->delete();
@@ -102,7 +102,7 @@ class VerficationController extends Controller
 //update information 
     $user= DB::table('users')
             ->where('id',$ocfnumber->customercode)
-            ->update(['gstno' => $InfoUpdate[0]->gstno,'panno' => $InfoUpdate[0]->panno,'company_name' => $InfoUpdate[0]->company_name]);
+            ->update(['gstno' => $InfoUpdate[0]->gstno,'panno' => $InfoUpdate[0]->panno,'companyname' => $InfoUpdate[0]->companyname]);
 //only admin delelte the recored 
      
     //  if ($userid=='1') {

@@ -40,9 +40,9 @@ class CompanyController extends Controller
     {
         $request->validate([
             'customercode' => 'required',
-            'company_name' => 'required',
-            'pan_no' => '',
-            'gst_no' => ''
+            'companyname' => 'required',
+            'panno' => '',
+            'gstno' => ''
         ]);
         $insert_package = Company::create($request->all());
 
@@ -92,15 +92,15 @@ class CompanyController extends Controller
     {
         $request->validate([
             'customercode' => 'required',
-                'company_name'=> 'required',
-                'pan_no' => '',
-                'gst_no' => ''
+                'companyname'=> 'required',
+                'panno' => '',
+                'gstno' => ''
             ]);
             $company = Company::find($id);
             $company->customercode = $request->customercode;
-            $company->company_name = $request->company_name;
-            $company->pan_no = $request->pan_no;
-            $company->gst_no = $request->gst_no;
+            $company->companyname = $request->company_name;
+            $company->panno = $request->pan_no;
+            $company->gstno = $request->gst_no;
             $company->save();
         return response()->json([$company]);
     }

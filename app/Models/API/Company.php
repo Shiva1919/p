@@ -5,12 +5,12 @@ namespace App\Models\API;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
-
+use Illuminate\Support\Facades\Crypt;
 class Company extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected static $logAttributes = [ 'customercode', 'company_name', 'pan_no', 'gst_no', 'InstallationType', 'InstallationDesc'];
+    protected static $logAttributes = [ 'customercode', 'companyname', 'panno', 'gstno', 'InstallationType', 'InstallationDesc'];
     
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
@@ -26,10 +26,58 @@ class Company extends Model
     protected $fillable = [
         'id',
         'customercode',
-        'company_name',
-        'pan_no',
-        'gst_no',
+        'companyname',
+        'panno',
+        'gstno',
         'InstallationType',
         'InstallationDesc'
     ];
+
+    public function setcompanynameAttribute($value)
+    {
+        $this->attributes['companyname'] = Crypt::encryptString($value);
+    }
+
+    public function setpannoAttribute($value)
+    {
+        $this->attributes['panno'] = Crypt::encryptString($value);
+    }
+
+    public function setgstnoAttribute($value)
+    {
+        $this->attributes['gstno'] = Crypt::encryptString($value);
+    }
+
+    public function getcompanynameAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
+
+    public function getpannoAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
+
+    public function getgstnoAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
 }

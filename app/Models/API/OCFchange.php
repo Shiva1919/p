@@ -14,7 +14,7 @@ class OCFchange extends Model
     protected $fillable = [
         'id',
         'ocfno',
-        'company_name',
+        'companyname',
         'panno', 
         'gstno',
         'status',

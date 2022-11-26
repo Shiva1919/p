@@ -29,7 +29,7 @@ class Customers extends Model
         'district', 
         'taluka', 
         'city', 
-        'company_name', 
+        'companyname', 
         'panno', 
         'gstno', 
         'noofbranches',

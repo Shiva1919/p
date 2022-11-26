@@ -89,9 +89,9 @@ class OCFAPIController extends Controller
                 //             $data=[
                 //                 'customercode'=> $insert_customers->id,
                 //                 // 'companycode'=> $ocfcompanyflastid->id+1,
-                //                 'company_name'=>  $request['company_name'],
-                //                 'pan_no'=> $request['pan_no'],
-                //                 'gst_no'=> $request['gst_no'],
+                //                 'companyname'=>  $request['companyname'],
+                //                 'panno'=> $request['panno'],
+                //                 'gstno'=> $request['gstno'],
                 //             ];
                 //             array_push($dataaa,$data);
                 //             Company::create($data);   
@@ -115,17 +115,17 @@ class OCFAPIController extends Controller
             {
                 
                 $companydata = Company::where('customercode', $request->customercode)
-                                    ->where('company_name', $request->company_name)
-                                    ->where('pan_no', $request->pan_no)
-                                    ->where('gst_no', $request->gst_no)
+                                    ->where('companyname', $request->company_name)
+                                    ->where('panno', $request->panno)
+                                    ->where('gstno', $request->gstno)
                                     // ->where('InstallationDesc', $request->InstallationDesc)
                                     ->first();
              
                 $company = new Company();
                 $company->customercode     = $request->customercode;
-                $company->company_name     = $request->company_name;
-                $company->pan_no           = $request->pan_no;
-                $company->gst_no           = $request->gst_no;
+                $company->companyname     = $request->company_name;
+                $company->panno           = $request->pan_no;
+                $company->gstno           = $request->gst_no;
                 $company->InstallationType = $request->InstallationType;
                 $company->InstallationDesc = $request->InstallationDesc;
                 if($company->InstallationType == 0  || $company->InstallationType == null) $company->InstallationType = 1;
@@ -361,7 +361,7 @@ class OCFAPIController extends Controller
     
     public function companyocf(Request $request) //Serial no AP
     {
-        $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+        $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.companyname', 'company_master.panno', 'company_master.gstno']);
         
         if($company== null)
         {
@@ -390,9 +390,9 @@ class OCFAPIController extends Controller
             $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
             $insert_serialno = new Serialno();
             $insert_serialno->ocfno = $request->companycode;
-            $insert_serialno->comp_name = $company->company_name;
-            $insert_serialno->pan = $company->pan_no;
-            $insert_serialno->gst = $company->gst_no;
+            $insert_serialno->comp_name = $company->companyname;
+            $insert_serialno->pan = $company->panno;
+            $insert_serialno->gst = $company->gstno;
             $insert_serialno->serialno_issue_date = $time;
             $insert_serialno->serialno_validity = $expirydate;
             $insert_serialno->serialno = $serial;
@@ -492,9 +492,9 @@ class OCFAPIController extends Controller
         
         $request->validate([ 
             'customercode' => 'required',
-            'company_name' => 'required',
-            'pan_no' => 'required',
-            'gst_no' => 'required'
+            'companyname' => 'required',
+            'panno' => 'required',
+            'gstno' => 'required'
         ]);
         $customer = OCFCustomer::where('id', $request->customercode)->first();
         
@@ -503,9 +503,9 @@ class OCFAPIController extends Controller
         if($companydata == null) return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
 
         $company = Company::where('customercode', $request->customercode)
-                            ->where('company_name', $request->company_name)
-                            ->where('pan_no', $request->pan_no)
-                            ->where('gst_no', $request->gst_no)
+                            ->where('companyname', $request->company_name)
+                            ->where('panno', $request->panno)
+                            ->where('gstno', $request->gstno)
                             
                             ->first();
         
@@ -589,7 +589,7 @@ class OCFAPIController extends Controller
                                     ->groupBy('ocf_modules.modulecode')
                                     ->get();
 
-                    $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.customercode','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+                    $company = Company::where('id', $request->companycode)->first(['company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno']);
                     $customer = OCFCustomer::where('id', $company->customercode)->first();
                     
                     if($customer->packagecode == 2)
@@ -616,9 +616,9 @@ class OCFAPIController extends Controller
                     $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                     $insert_serialno = new Serialno();
                     $insert_serialno->ocfno = $request->companycode;
-                    $insert_serialno->comp_name = $company->company_name;
-                    $insert_serialno->pan = $company->pan_no;
-                    $insert_serialno->gst = $company->gst_no;
+                    $insert_serialno->comp_name = $company->companyname;
+                    $insert_serialno->pan = $company->panno;
+                    $insert_serialno->gst = $company->gstno;
                     $insert_serialno->serialno_issue_date = $time;
                     $insert_serialno->serialno_validity = $expirydate;
                     $insert_serialno->serialno = $serial;
@@ -635,7 +635,7 @@ class OCFAPIController extends Controller
         else if($request->issuedate)
         {
             $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
-            $company = Company::where('id', $company->id)->first(['company_master.id','company_master.customercode','company_master.company_name', 'company_master.pan_no', 'company_master.gst_no']);
+            $company = Company::where('id', $company->id)->first(['company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno']);
             $customer = OCFCustomer::where('id', $company->customercode)->first();
             
             if($customer->packagecode == 2)
@@ -684,9 +684,9 @@ class OCFAPIController extends Controller
                     $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                     $insert_serialno = new Serialno();
                     $insert_serialno->ocfno = $request->companycode;
-                    $insert_serialno->comp_name = $company->company_name;
-                    $insert_serialno->pan = $company->pan_no;
-                    $insert_serialno->gst = $company->gst_no;
+                    $insert_serialno->comp_name = $company->companyname;
+                    $insert_serialno->pan = $company->panno;
+                    $insert_serialno->gst = $company->gstno;
                     $insert_serialno->serialno_issue_date = $time;
                     $insert_serialno->serialno_validity = $expirydate;
                     $insert_serialno->serialno = $serial;
@@ -792,9 +792,9 @@ class OCFAPIController extends Controller
                         $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
                         $insert_serialno = new Serialno();
                         $insert_serialno->ocfno = $request->companycode;
-                        $insert_serialno->comp_name = $company->company_name;
-                        $insert_serialno->pan = $company->pan_no;
-                        $insert_serialno->gst = $company->gst_no;
+                        $insert_serialno->comp_name = $company->companyname;
+                        $insert_serialno->pan = $company->panno;
+                        $insert_serialno->gst = $company->gstno;
                         $insert_serialno->serialno_issue_date = $time;
                         $insert_serialno->serialno_validity = $expirydate;
                         $insert_serialno->serialno = $serial;

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
-
+use Illuminate\Support\Facades\Crypt;
 class OCFCustomer extends Model
 {
     use HasApiTokens, HasFactory, Notifiable, LogsActivity;
@@ -50,4 +50,52 @@ class OCFCustomer extends Model
         'subpackagecode',
         'customercode'
     ];
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = Crypt::encryptString($value);
+    }
+
+    public function setphoneAttribute($value)
+    {
+        $this->attributes['phone'] = Crypt::encryptString($value);
+    }
+
+    public function setemailAttribute($value)
+    {
+        $this->attributes['email'] = Crypt::encryptString($value);
+    }
+
+    public function getNameAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
+
+    public function getphoneAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
+
+    public function getemailAttribute($value)
+    {
+        try{
+            return Crypt::decryptString($value);
+        }
+        catch (\Exception $e)
+        {
+            return $value;
+        }
+    }
 }
