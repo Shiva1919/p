@@ -97,7 +97,6 @@ class OCFController extends Controller
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
                         'modulename'=> $data['modulecode'],
-                        // 'modulecode'=> $data['modulecode'],
                         'moduletypes'=> $module_unit[0]->moduletype,
                         'quantity'=> $data['quantity'],
                         'unit'=>  $module_unit[0]->unit,

@@ -89,8 +89,8 @@ class CustomersController extends Controller
         $insert_customers->district = $request->district;
         $insert_customers->taluka = $request->taluka;
         $insert_customers->city = $request->city;
-        $insert_customers->panno = $request->pan_no;
-        $insert_customers->gstno = $request->gst_no;
+        $insert_customers->panno = $request->panno;
+        $insert_customers->gstno = $request->gstno;
         $insert_customers->noofbranches = $request->noofbranches;
         $insert_customers->role_id = $request->role_id;
         $insert_customers->active = $request->active;

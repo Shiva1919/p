@@ -67,6 +67,7 @@ class CompanyController extends Controller
     public function customer_wise_company($id)
     {
         $companys = Company::where('customercode', $id)->get();
+
         return response()->json($companys);
     }
 
@@ -98,9 +99,9 @@ class CompanyController extends Controller
             ]);
             $company = Company::find($id);
             $company->customercode = $request->customercode;
-            $company->companyname = $request->company_name;
-            $company->panno = $request->pan_no;
-            $company->gstno = $request->gst_no;
+            $company->companyname = $request->companyname;
+            $company->panno = $request->panno;
+            $company->gstno = $request->gstno;
             $company->save();
         return response()->json([$company]);
     }

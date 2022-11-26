@@ -69,6 +69,7 @@ class OCFCustomerController extends Controller
      */
     public function store(Request $request)
     {
+
             $rules = array(
                 'name' => 'required',
                 'entrycode' => '',
@@ -124,9 +125,9 @@ class OCFCustomerController extends Controller
                         $data=[
                             'customercode'=> $insert_customers->id,
                             'comapnycode'=> $ocfcompanyflastid->id+1,
-                            'companyname'=>  $data['companyname'],
-                            'panno'=> $data['panno'],
-                            'gstno'=> $data['gstno'],
+                            'companyname'=>  $data['company_name'],
+                            'panno'=> $data['pan_no'],
+                            'gstno'=> $data['gst_no'],
                             'InstallationType' => $data['InstallationType'],
                             'InstallationDesc' => $data['InstallationDesc']
                         ];
@@ -178,6 +179,8 @@ class OCFCustomerController extends Controller
      */
     public function update(Request $request, OCFCustomer $customer)
     {
+
+
         $role_id = 10;
         $password = 'AcmeAcme1994';
         $input = $request->all();
@@ -187,8 +190,7 @@ class OCFCustomerController extends Controller
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
-            // 'mobile' => '',
-            'phone' => '',
+             'phone' => '',
             'whatsappno' => '',
             'email' => '',
             'companyname' => '',
@@ -230,18 +232,32 @@ class OCFCustomerController extends Controller
         $customer->save();
 
         if(!empty($input['id'])) {
-            Company::where('customercode',$input['id'])->delete();
-            foreach ($request->Cdocument as $data ) {
-              $data=[
-                  'customercode'=> $input['id'],
-                  'companyname'=>  $data['company'],
-                  'panno'=> $data['pan'],
-                  'gstno'=> $data['gst'],
-                  'InstallationType' => $data['InstallationType'],
-                  'InstallationDesc' => $data['InstallationDesc']
-              ];
 
-            Company::create($data);
+            foreach ($request->Cdocument as $data ) {
+
+                if ($data['id']==0) {
+
+                    $dataa=[
+                        'customercode'=> $input['id'],
+                        'companyname'=>  $data['company'],
+                        'panno'=> $data['pan'],
+                        'gstno'=> $data['gst'],
+                        'InstallationType' => $data['InstallationType'],
+                        'InstallationDesc' => $data['InstallationDesc']
+                    ];
+
+                  Company::create($dataa);
+                }
+                else{
+
+                  $update_data= Company::find($data['id']);
+                  $update_data->companyname=$data['company'];
+                  $update_data->panno=$data['pan'];
+                  $update_data->gstno=$data['gst'];
+                  $update_data->InstallationType=$data['InstallationType'];
+                  $update_data->InstallationDesc=$data['InstallationDesc'];
+                  $update_data->save();
+                }
           }
 
       }
