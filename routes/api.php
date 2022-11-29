@@ -259,3 +259,7 @@ Route::get('Customer_mobile_delete/{custid}', [Customer_Mobile::class, 'delete']
 Route::get('Customer_mobile_edit/{id}/{custid}', [Customer_Mobile::class, 'getmobile_edit']);
 Route::put('Customer_mobile/{id}',            [Customer_Mobile::class, 'update']);
 Route::get('Customer_mobile_check/{customer}/{mobile}',            [Customer_Mobile::class, 'getcustomer_mobile']);
+
+//admin panel user permition
+Route::get('user_permissions/{id}',[PermissionController::class,'user_permition']);
+Route::get('role_permissions/{id}',[PermissionController::class,'role_permition']);
