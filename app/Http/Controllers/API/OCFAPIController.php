@@ -827,6 +827,7 @@ class OCFAPIController extends Controller
 
         $user = OCFCustomer::where('id', $request->customercode)->where('active', 1)->first();
 
+
         if(!$user || $request->password !=$user->password)
         {
             return response(['message' => 'Invalid Credentials', 'status' => '1']);
@@ -840,6 +841,7 @@ class OCFAPIController extends Controller
                  'token' => $token,
                  'status' => '0'
         ];
+
           $autologin = 'https://crm.acmeinfovision.com/customer/customerlogin/'.$request->customercode.'/'.$token ;
             //  return response($response, 200);
             return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);

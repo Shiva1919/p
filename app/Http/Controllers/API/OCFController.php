@@ -184,6 +184,40 @@ class OCFController extends Controller
           {
 
               foreach ($request->Dcoument as $data ){
+
+                $module_unit=[];
+                $module_unit = DB::table('acme_module')
+                ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
+                ->where('acme_module.ModuleName',$data['modulecode'])
+                ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+                if ($data['id']==0) {
+                         $data=[
+                            'ocfcode'=> $insert_ocf->id,
+                            'modulename'=> $data['modulecode'],
+                            'modulecode'=> $data['modulecode'],
+                            'moduletypes'=> $module_unit[0]->moduletype,
+                            'quantity'=> $data['quantity'],
+                            'unit'=>  $module_unit[0]->unit,
+                            'expirydate'=> $data['expirydate'],
+                            'amount'=> $data['amount'],
+                            'activation'=> $data['activation']
+
+                        ];
+                     OCFModule::create($data);
+                }
+            else{
+                $update_data= OCFModule::find($data['id']);
+                $update_data->ocfcode= $insert_ocf->id;
+                $update_data->modulename=$data['modulecode'];
+                $update_data->modulecode=$data['modulecode'];
+                $update_data->moduletypes=$module_unit[0]->moduletype;
+                $update_data->quantity=$data['quantity'];
+                $update_data->unit=$module_unit[0]->unit;
+                $update_data->expirydate=$data['expirydate'];
+                $update_data->amount=$data['amount'];
+                $update_data->activation=$data['activation'];
+                $update_data->save();
+                }
               $module_unit=[];
               $module_unit = DB::table('acme_module')
               ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')

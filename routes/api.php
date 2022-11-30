@@ -25,6 +25,7 @@ use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
+use App\Http\Controllers\IApi;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +107,12 @@ Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getoc
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
+
+//E-invoice
+
+Route::resource('E-invoice',IApi::class);
+   Route::get('activation/{Owncode}/{activation}',[IApi::class,'activation']);
+   Route::get('payment/{Owncode}/{payment}',[IApi::class,'Payment']);
 
 //ocf multiple list data
 Route::get('get_ocfdata_list_customerwise/{DocNo}', [OCFController::class, 'get_ocfdata_list_customerwise']);

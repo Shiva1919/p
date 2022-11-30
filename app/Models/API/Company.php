@@ -33,51 +33,51 @@ class Company extends Model
         'InstallationDesc'
     ];
 
-    public function setcompanynameAttribute($value)
-    {
-        $this->attributes['companyname'] = Crypt::encryptString($value);
-    }
+    // public function setcompanynameAttribute($value)
+    // {
+    //     $this->attributes['companyname'] = Crypt::encryptString($value);
+    // }
 
-    public function setpannoAttribute($value)
-    {
-        $this->attributes['panno'] = Crypt::encryptString($value);
-    }
+    // public function setpannoAttribute($value)
+    // {
+    //     $this->attributes['panno'] = Crypt::encryptString($value);
+    // }
 
-    public function setgstnoAttribute($value)
-    {
-        $this->attributes['gstno'] = Crypt::encryptString($value);
-    }
+    // public function setgstnoAttribute($value)
+    // {
+    //     $this->attributes['gstno'] = Crypt::encryptString($value);
+    // }
 
-    public function getcompanynameAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getcompanynameAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 
-    public function getpannoAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getpannoAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 
-    public function getgstnoAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getgstnoAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 }
