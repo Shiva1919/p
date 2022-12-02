@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\API\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class PermissionController extends Controller
 {
@@ -51,7 +52,7 @@ class PermissionController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return $this->sendError('Validation Error.', $validator->errors());
         }
         $permission = Permission::create($input);
         return response()->json($permission);
@@ -66,7 +67,7 @@ class PermissionController extends Controller
     public function show($id)
     {
         $permission = Permission::find($id);
-        if (is_null($permission)) 
+        if (is_null($permission))
         {
             return $this->sendError('Permission not found.');
         }
@@ -100,7 +101,7 @@ class PermissionController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->sendError('Validation Error.', $validator->errors());       
+            return $this->sendError('Validation Error.', $validator->errors());
         }
         $permission->name = $input['name'];
         $permission->active = $input['active'];
@@ -122,24 +123,34 @@ class PermissionController extends Controller
 
     public function permissionstatus($id, $active)
     {
-        try 
+        try
         {
             $update_permission = Permission::where('id', $id)->update([
                 'active' => $active
-            ]);   
+            ]);
             if($update_permission)
             {
-                return response()->json(['message'=>'Permission Updated Successfully'], 200); 
-            } 
+                return response()->json(['message'=>'Permission Updated Successfully'], 200);
+            }
             else
             {
-                return response()->json(['message'=>'Permission Updated Unsuccessfully'], 404); 
+                return response()->json(['message'=>'Permission Updated Unsuccessfully'], 404);
             }
-        } 
-        catch (\Throwable $th) 
+        }
+        catch (\Throwable $th)
         {
             throw $th;
         }
+    }
+
+    public function user_permition($userid){
+        $user_permissions=DB::table('users')->where('id',$userid)->first();
+        return $user_permissions;
+    }
+
+    public function role_permition($roleid){
+        $user_permissions=DB::table('roles')->where('id',$roleid)->first();
+        return $user_permissions;
     }
 
     public function activepermission()

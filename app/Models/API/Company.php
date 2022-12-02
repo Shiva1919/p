@@ -11,7 +11,7 @@ class Company extends Model
     use HasFactory, LogsActivity;
 
     protected static $logAttributes = [ 'customercode', 'companyname', 'panno', 'gstno', 'InstallationType', 'InstallationDesc'];
-    
+
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
     protected static $logName = 'Company';
