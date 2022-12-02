@@ -31,6 +31,7 @@ class Serialno extends Model
         'serialno_issue_date', 
         'serialno_validity', 
         'serialno_parameters', 
-        'serialno'
+        'serialno',
+        'otp_flag'
     ];
 }

@@ -25,7 +25,7 @@ class SerialnoController extends Controller
         $Mobile = $request->input('phone');
         $checkmobile =  OCFCustomer::where('phone', $request->input('phone'))->first();
         $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();
-        // $checkmobile1 =  Customers::where('phone', $Mobile)->first('phone');
+        // $checkmobile1 =  OCFCustomer::where('phone', $Mobile)->first('phone');
         if($serialno_ocfno == null && $checkmobile == null)
         {
             return response()->json(['Message' => 'Invalid OCF or Mobile No', 'status' => '1']);
@@ -41,7 +41,7 @@ class SerialnoController extends Controller
        
         $otp =   Str::random(4);
         // return $otp;
-        // $verify = Customers::where('phone', $Mobile)->first();
+        // $verify = OCFCustomerwhere('phone', $Mobile)->first();
         $phone =  OCFCustomer::where('id', $serialno_ocfno->customercode)->first();
       
         $verifyotp = [
@@ -53,7 +53,7 @@ class SerialnoController extends Controller
         Log::info("otp = ".$otp);
         Log::info("otp_expires_time = ".$otp_expires_time);
         Cache::put('otp_expires_time', $otp_expires_time);
-        // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
+        // $user = OCFCustomerwhere('phone','=',$request->phone)->update(['otp' => $otp]);
         $users = OCFCustomer::where('phone','=',$request->phone)->update(['otp_expires_time' => $otp_expires_time]);
         
         // return $update_verifyotp;
@@ -85,7 +85,7 @@ class SerialnoController extends Controller
         $serialno_ocfno =  OCF::where('ocfno', $request->ocfno)->first();
         $phone =  OCFCustomer::where('id', $serialno_ocfno->customercode)->first();
         //  $phone->otp_expires_time;
-        // $verify = Customers::where('phone', $request->phone)->first();
+        // $verify = OCFCustomerwhere('phone', $request->phone)->first();
         if($phone == null)
         {
             return response()->json(['Message' => 'Invalid Mobile No ', 'status' => '1']);
@@ -117,7 +117,7 @@ class SerialnoController extends Controller
          {
              return response()->json(['Message' => 'Invalid OCF', 'status' => '1']);
          }
-        // $serialno_customer = Customers::where('id', $serialno_ocfno->customercode)->first();
+        // $serialno_customer = OCFCustomerwhere('id', $serialno_ocfno->customercode)->first();
       
         $request->validate([
             'ocfno' => 'required',
@@ -171,7 +171,7 @@ class SerialnoController extends Controller
         $expirydate = date('Y-m-d H:i:s', strtotime($time . " +1 year") );
         if( $serialno_customers->isverified ==1)
         {
-            $serialno_customer = Customers::where('id', $serialno_ocfno->customercode)->first();
+            $serialno_customer = OCFCustomer::where('id', $serialno_ocfno->customercode)->first();
 
             // $ocf = new Serialno();
             // $ocf->comp_name = $request->comp_name;

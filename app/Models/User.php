@@ -18,11 +18,11 @@ class User extends Authenticatable implements JWTSubject
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
-    protected static $logName = 'user';
+    protected static $logName = 'User';
 
     public function getDescriptionForEvent(string $eventName): string
     {
-        return "You have {$eventName} user";
+        return "You have {$eventName} User";
     }
 
     /**

@@ -28,12 +28,13 @@ class OCFCustomer extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'id',
-        'tenantcode',
+        // 'tenantcode',
         'name',
         'entrycode',
         'address1',
         'address2', 
         'otp',
+        'serialotp',
         'isverified',
         'phone',
         'whatsappno',
@@ -43,7 +44,7 @@ class OCFCustomer extends Model
         'taluka', 
         'city', 
         'role_id',
-        'noofbranch',
+        // 'noofbranch',
         'password',
         'concernperson',
         'packagename',
@@ -51,51 +52,55 @@ class OCFCustomer extends Model
         'customercode'
     ];
 
-    public function setNameAttribute($value)
+    public function decryptname()
     {
-        $this->attributes['name'] = Crypt::encryptString($value);
+        return decrypt($this->attributes['name']);
     }
+    // public function setNameAttribute($value)
+    // {
+    //     $this->attributes['name'] = Crypt::encryptString($value);
+    // }
 
-    public function setphoneAttribute($value)
-    {
-        $this->attributes['phone'] = Crypt::encryptString($value);
-    }
+    // public function setphoneAttribute($value)
+    // {
+    //     $this->attributes['phone'] = Crypt::encryptString($value);
+    // }
 
-    public function setemailAttribute($value)
-    {
-        $this->attributes['email'] = Crypt::encryptString($value);
-    }
+    // public function setemailAttribute($value)
+    // {
+    //     $this->attributes['email'] = Crypt::encryptString($value);
+    // }
 
-    public function getNameAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getNameAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 
-    public function getphoneAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getphoneAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 
-    public function getemailAttribute($value)
-    {
-        try{
-            return Crypt::decryptString($value);
-        }
-        catch (\Exception $e)
-        {
-            return $value;
-        }
-    }
+    // public function getemailAttribute($value)
+    // {
+    //     try{
+    //         return Crypt::decryptString($value);
+    //     }
+    //     catch (\Exception $e)
+    //     {
+    //         return $value;
+    //     }
+    // }
 }

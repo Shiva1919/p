@@ -246,8 +246,5 @@ Route::post('pincode',                                     [OCFAPIController::cl
 Route::post('autologin',                                   [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
 Route::post('broadcast_messages',                          [OCFAPIController::class, 'broadcast_messages'])->middleware('auth:sanctum');
 
-// Json Data
-Route::get('customerjson', [JSONStoreController::class, 'index']);
-
 //customer mobile numer
 Route::resource('Customer_mobile',                                  Customer_Mobile::class);

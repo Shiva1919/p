@@ -10,6 +10,7 @@ use App\Models\API\Modules;
 use App\Models\API\OCFCustomer;
 use App\Models\Module;
 use Illuminate\Auth\Events\Validated;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Validator;
@@ -24,9 +25,7 @@ class OCFCustomerController extends Controller
     {
         $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
         ->get( ['city.cityname','customer_master.*' ]);
-        //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
-
-        // $customer = Customers::limit(100)->get();
+    
         return response()->json($customer);
     }
 
@@ -61,12 +60,6 @@ class OCFCustomerController extends Controller
 
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
             $rules = array(
@@ -96,7 +89,7 @@ class OCFCustomerController extends Controller
             }
             else
             {
-                $role_id = 10;
+                $role_id = 10; 
                 $password = 'AcmeAcme1994';
                 $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
                 $insert_customers = new OCFCustomer();
@@ -135,10 +128,6 @@ class OCFCustomerController extends Controller
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
-
-            // $request->name.$request->phone.$request->packagename;
-
-
     }
 
     /**
@@ -187,7 +176,6 @@ class OCFCustomerController extends Controller
             'tenantcode' => '',
             'name' => '',
             'entrycode' => '',
-            // 'mobile' => '',
             'phone' => '',
             'whatsappno' => '',
             'email' => '',
@@ -198,9 +186,6 @@ class OCFCustomerController extends Controller
             'district' => '',
             'taluka' => '',
             'city' => '',
-            // 'panno' => '',
-            // 'gstno' => '',
-
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',

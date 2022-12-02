@@ -33,10 +33,9 @@ class JWTController extends Controller
             'role_id' => '',
             'email' => 'required|string|email|max:100|unique:users',
             'phone' => '',
-            'gender' => '',
+             'gender' => '',
             'password' => 'required|string|min:6',
         ]);
-
         if($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
