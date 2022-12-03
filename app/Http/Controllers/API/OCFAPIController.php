@@ -1134,5 +1134,77 @@ class OCFAPIController extends Controller
         $customer = OCFCustomer::where('id', $request->customercode)->first();
         return response()->json($customer);
     }
+<<<<<<< HEAD
     
+=======
+
+    public function date_time()
+    {
+        $time = date('d-m-Y H:i:s');
+        return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
+    }
+
+    public function autologin(Request $request)
+    {
+        //  $getcustomer = OCFCustomer::where('role_id', 10)->get();
+
+        $user = OCFCustomer::where('id', $request->customercode)->where('active', 1)->first();
+
+
+        if(!$user || $request->password !=$user->password)
+        {
+            return response(['message' => 'Invalid Credentials', 'status' => '1']);
+        }
+        else
+        {
+            $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
+
+            $response = [
+
+                 'token' => $token,
+                 'status' => '0'
+        ];
+
+          $autologin = 'http://localhost:4200//customer/customerlogin/'.$request->customercode.'/'.$token ;
+            //  return response($response, 200);
+            return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
+        }
+    }
+
+    public function pincode(Request $request)
+    {
+        $city = DB::table('city')->where('pincode', $request->pincode)->get();
+
+        if(count($city) == 0)
+        {
+            return response()->json(['message' => 'Pincode Not Exist', 'status' => 1]);
+        }
+        else
+        {
+            $taluka = DB::table('taluka')->where('id', $city[0]->talukaid)->first();
+            $district = DB::table('district')->where('id', $taluka->districtid)->first();
+            $state = DB::table('state')->where('id', $district->stateid)->first();
+            return response()->json(['message' => 'City', 'status' => 0, 'State' => $state, 'District' => $district, 'Taluka' => $taluka, 'City' => $city]);
+        }
+
+    }
+
+    public function broadcast_messages(Request $request)
+    {
+        $message = BroadcastMessage::where('MessageTarget', $request->messagetarget)
+                                    ->where('CustomerCode', $request->customercode)
+                                    ->where('RoleCode', $request->rolecode)
+                                    ->where('CompanyCode', $request->companycode)->first();
+
+        if(empty($message))
+        {
+            return response()->json(['message' => 'Invalid Data', 'status' => 1]);
+        }
+        else
+        {
+            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $message]);
+        }
+    }
+
+>>>>>>> 8c62e0f21e3c7771d0dd0dfadd211ad8537442e7
 }
