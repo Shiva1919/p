@@ -270,3 +270,6 @@ Route::get('Customer_mobile_check/{customer}/{mobile}',            [Customer_Mob
 //admin panel user permition
 Route::get('user_permissions/{id}',[PermissionController::class,'user_permition']);
 Route::get('role_permissions/{id}',[PermissionController::class,'role_permition']);
+
+//ocf module date wise
+Route::get('model_expire_date/{id}',[OCFModuleController::class,'model_expire_date']);

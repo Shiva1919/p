@@ -108,23 +108,20 @@ class OCFController extends Controller
 
                    $ocfmoduledata = OCFModule::create($data);
                    $customer = OCFCustomer::where('id', $request->customercode)->first();
+
+
                    if($ocfmoduledata == null)
                    {
                      return response()->json(['message' => 'OCF not Saved']);
                    }
                    else
                    {
-                        $checkmobile =  OCFCustomer::where('phone', $customer->phone)->first();
+                        $checkmobile =  OCFCustomer::where('phone',$customer->phone)->first();
 
                         if($checkmobile == null)
                         {
-                            return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
+                            return response()->json(['message' => 'Invalid Mobile No', 'status' => 1]);
                         }
-                        if($checkmobile == null )
-                        {
-                            return response()->json(['Message' => 'Mobile No invalid', 'status' => 1]);
-                        }
-
                         $otp =  rand(100000, 999999);
 
                         $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();

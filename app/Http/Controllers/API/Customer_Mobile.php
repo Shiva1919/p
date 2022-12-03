@@ -17,19 +17,19 @@ class Customer_Mobile extends Controller
      */
     public function index($custid)
     {
-        $data =Customer_mobile_Model::where('Customercode', $custid)->get();
+        $data =Customer_mobile_Model::where('Customercode', $custid)->where('active_flag',1)->get();
         return response()->json($data);
     }
    function getcustomer($id){
-        $data =Customer_mobile_Model::where('Customercode',$id)->get();
-        return response()->json($data);
+    return  $data =Customer_mobile_Model::where('Customercode',$id)->where('active_flag',1)->get();
+        // return response()->json($data);
     }
     function getcustomer_mobile($id,$mobile){
-        $data =Customer_mobile_Model::where('Customercode',$id)->where('Mobile_number',$mobile)->get();
+        $data =Customer_mobile_Model::where('Customercode',$id)->where('Mobile_number',$mobile)->where('active_flag',1)->get();
         if (count($data) > 0) {
             return response()->json([
                 'status'=>404,
-                'message'=>"All Ready Saved Data"
+                'message'=>"Allready Saved Data"
             ]);
         }
         else{
@@ -63,7 +63,16 @@ class Customer_Mobile extends Controller
      */
     public function store(Request $request)
     {
-
+        $data = Customer_mobile_Model::where('Mobile_number',$request->Mobilenumber)->first();
+        if ($data) {
+            $data->active_flag=1;
+            $data->update();
+            return response()->json([
+                'status'=>200,
+                'message'=>'Added Successfully'
+            ]);
+        }
+        else{
               $Customer_mobile_Model= new Customer_mobile_Model;
               $Customer_mobile_Model->Mobile_number= $request->Mobilenumber;
               $Customer_mobile_Model->Email= $request->Email;
@@ -74,6 +83,7 @@ class Customer_Mobile extends Controller
                 'status'=>200,
                 'message'=>'Added Successfully'
             ]);
+        }
 
     }
 
@@ -145,7 +155,7 @@ class Customer_Mobile extends Controller
     }
     function allerdy_mobile($mobile){
 
-        $data = DB::table('Customer_mobilenumbers')->where('Mobile_number',$mobile)->get();
+        $data = DB::table('Customer_mobilenumbers')->where('Mobile_number',$mobile)->where('active_flag',1)->get();
         if (count($data) > 0 ) {
             return response()->json([
                 'status'=>1,
@@ -172,7 +182,8 @@ class Customer_Mobile extends Controller
     public function delete($id)
     {
     $Customer_mobile_Model= Customer_mobile_Model::find($id);
-    $Customer_mobile_Model->delete();
+    $Customer_mobile_Model->active_flag=0;
+    $Customer_mobile_Model->update();
     return response()->json([
         'status'=>200,
         'message'=>'Delete Successfully'

@@ -842,7 +842,7 @@ class OCFAPIController extends Controller
                  'status' => '0'
         ];
 
-          $autologin = 'https://crm.acmeinfovision.com/customer/customerlogin/'.$request->customercode.'/'.$token ;
+          $autologin = 'http://localhost:4200//customer/customerlogin/'.$request->customercode.'/'.$token ;
             //  return response($response, 200);
             return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
         }

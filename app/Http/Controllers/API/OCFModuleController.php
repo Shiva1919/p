@@ -7,6 +7,7 @@ use App\Models\API\OCF;
 use App\Models\API\OCFCustomer;
 use App\Models\API\OCFModule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OCFModuleController extends Controller
 {
@@ -31,6 +32,15 @@ class OCFModuleController extends Controller
     public function create()
     {
         //
+    }
+
+    function model_expire_date($id){
+
+        $module=DB::table('acme_module_type')
+        ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid' )
+        ->where('acme_module.ModuleName',$id)->first();
+        return $module;
+
     }
 
     /**
