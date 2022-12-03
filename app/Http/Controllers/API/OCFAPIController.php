@@ -56,7 +56,7 @@ class OCFAPIController extends Controller
                 'district' => '',
                 'taluka' => '',
                 'city' => '',
-                'whatsappno' => 'required',
+                'whatsappno' => 'required|digits:10',
                 'concernperson' => 'required',
                 'packagecode' => 'required',
                 'subpackagecode' => 'required',  
@@ -313,12 +313,12 @@ class OCFAPIController extends Controller
                             Log::info("otp_expires_time = ".$otp_expires_time);
                             Cache::put('otp_expires_time', $otp_expires_time);
                                 
-                            $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
+                            $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                                         
-                            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->phone&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
+                            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
                             $params = 
                                     [   
-                                        "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                                        "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                                         "from" => ["type" => "whatsapp", "number" => "9422031763"],
                                         "message" => 
                                             [
@@ -366,13 +366,18 @@ class OCFAPIController extends Controller
             //Check Customer
             if($customer == null)   return response()->json(['message' => 'Customer not Exist', 'status' => 1]);
             $companydata = Company::where('id', $request->companycode)->first();
-        
+            $checkcompanydata = Company::where('customercode', $request->customercode)->where('id', $request->companycode)->first();
+            if($checkcompanydata == null)
+            {
+                return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
+            }
             // Check Company
             if($companydata == null) return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
         
             $company =  DB::table('company_master')
                         ->select('company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno', 'company_master.InstallationType', 'company_master.InstallationDesc')
                         ->where('customercode', '=', $request->customercode)
+                        ->where('id', '=', $request->companycode)
                         ->where('companyname', '=', DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
                         ->where('panno', '=', DB::raw("AES_ENCRYPT('$request->pan_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
                         ->where('gstno', '=', DB::raw("AES_ENCRYPT('$request->gst_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
@@ -429,11 +434,11 @@ class OCFAPIController extends Controller
                     
                     $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                     
-                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->phone&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
                 
                     $params = 
                     [   
-                        "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                        "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                         "from" => ["type" => "whatsapp", "number" => "9422031763"],
                         "message" => 
                         [
@@ -562,11 +567,11 @@ class OCFAPIController extends Controller
                                 
                                     $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
 
-                                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->phone&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+                                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
                         
                                     $params = 
                                         [   
-                                            "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                                            "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                                             "from" => ["type" => "whatsapp", "number" => "9422031763"],
                                             "message" => 
                                             [
@@ -770,11 +775,11 @@ class OCFAPIController extends Controller
                         $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                                         
 
-                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->phone&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
             
                         $params = 
                                 [   
-                                    "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                                    "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                                     "from" => ["type" => "whatsapp", "number" => "9422031763"],
                                     "message" => 
                                             [
@@ -1020,12 +1025,12 @@ class OCFAPIController extends Controller
                 Log::info("otp_expires_time = ".$otp_expires_time);
                 Cache::put('otp_expires_time', $otp_expires_time);
                 // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
-                $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
+                $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                 
-                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
+                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
                 $params = 
                 [   
-                    "to" => ["type" => "whatsapp", "number" => $customer->phone],
+                    "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                     "from" => ["type" => "whatsapp", "number" => "9422031763"],
                     "message" => 
                     [
