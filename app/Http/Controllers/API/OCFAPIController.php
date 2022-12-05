@@ -26,14 +26,16 @@ class OCFAPIController extends Controller
     {
         $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
         //Filter Customer data id wise
+
+
         $customerdata = DB::table('customer_master')
-                            ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                            DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                            DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                            'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                            'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                            ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),  
+                           'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
                             'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                            'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                            'customer_master.packagecode', 'customer_master.subpackagecode')
                             ->where('id','=',$request->customercode)
                             ->first();
         
@@ -77,21 +79,25 @@ class OCFAPIController extends Controller
                 $role_id = 10;
                 $password = 'AcmeAcme1994';
                 $ocfcustomerflastid = OCFCustomer::orderBy('id', 'desc')->first();
-
-                $insert_customers = DB::table('customer_master')
+                
+                if($ocfcustomerflastid == null)
+                {
+                   $id = 1;
+                  
+                   $insert_customers = DB::table('customer_master')
                     ->insert( array(
                                     'id' => $request->customercode,
-                                    'entrycode' => $ocfcustomerflastid->id+1,
-                                    'name' => DB::raw("AES_ENCRYPT('$request->name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                    'phone' => DB::raw("AES_ENCRYPT('$request->phone', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                    'email' => DB::raw("AES_ENCRYPT('$request->email', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                    'entrycode' =>$id,
+                                    'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"), 
+                                    'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
+                                    'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
                                     'address1' => $request->address1,
                                     'address2' => $request->address2 == null ? "" : $request->address2,
                                     'state' => $request->state  == null ? "" : $request->state,
                                     'district' => $request->district == null ? "" : $request->district,
                                     'taluka' => $request->taluka == null ? "" : $request->taluka,
                                     'city' => $request->city  == null ? "" : $request->city,
-                                    'whatsappno' => $request->whatsappno,   
+                                    'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),   
                                     'concernperson' => $request->concernperson,
                                     'packagecode' => $request->packagecode,
                                     'subpackagecode' => $request->subpackagecode,
@@ -99,33 +105,95 @@ class OCFAPIController extends Controller
                                     'role_id' => $role_id,
                                    )
                             );
-                //Get Customer Data with customercode = 0   
-                if($request->customercode == 0)
-                {
-                    $cust = DB::table('customer_master')
-                                ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                                DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                                DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                                'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                ->where('id','=',$ocfcustomerflastid->id+1)
-                                ->first();
+                
+                   $cust = DB::table('customer_master')
+                   ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                   DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                   DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                   DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                   'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                   'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+                   'customer_master.packagecode', 'customer_master.subpackagecode')
+                   ->where('id','=',1)
+                   ->first();     
                 }
-                //Get Customer Data with requested customercode  
                 else
                 {
-                    $cust = DB::table('customer_master')
-                                ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                                DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                                DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                                'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                ->where('id','=',$request->customercode)
-                                ->first();
+                                             
+                    //Get Customer Data with customercode = 0                  
+                    if($request->customercode == 0 || empty($request->customercode))
+                    {
+                        $insert_customers = DB::table('customer_master')
+                        ->insert( array(
+                                        // 'id' => $request->customercode,
+                                        'entrycode' =>$ocfcustomerflastid->id+1,
+                                        'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"), 
+                                        'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
+                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                        'address1' => $request->address1,
+                                        'address2' => $request->address2 == null ? "" : $request->address2,
+                                        'state' => $request->state  == null ? "" : $request->state,
+                                        'district' => $request->district == null ? "" : $request->district,
+                                        'taluka' => $request->taluka == null ? "" : $request->taluka,
+                                        'city' => $request->city  == null ? "" : $request->city,
+                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),   
+                                        'concernperson' => $request->concernperson,
+                                        'packagecode' => $request->packagecode,
+                                        'subpackagecode' => $request->subpackagecode,
+                                        'password' => $password,
+                                        'role_id' => $role_id,
+                                       )
+                                );
+                        $cust = DB::table('customer_master')
+                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                                    'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+                                    'customer_master.packagecode', 'customer_master.subpackagecode')
+                                    ->where('id','=',$ocfcustomerflastid->id+1)
+                                    ->first();
+                    }
+                    //Get Customer Data with requested customercode  
+                    else if($request->customercode)
+                    {
+                        $insert_customers = DB::table('customer_master')
+                        ->insert( array(
+                                        'id' => $request->customercode,
+                                        'entrycode' =>$request->customercode,
+                                        'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"), 
+                                        'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
+                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                        'address1' => $request->address1,
+                                        'address2' => $request->address2 == null ? "" : $request->address2,
+                                        'state' => $request->state  == null ? "" : $request->state,
+                                        'district' => $request->district == null ? "" : $request->district,
+                                        'taluka' => $request->taluka == null ? "" : $request->taluka,
+                                        'city' => $request->city  == null ? "" : $request->city,
+                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),   
+                                        'concernperson' => $request->concernperson,
+                                        'packagecode' => $request->packagecode,
+                                        'subpackagecode' => $request->subpackagecode,
+                                        'password' => $password,
+                                        'role_id' => $role_id,
+                                       )
+                                );
+                        $cust = DB::table('customer_master')
+                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+                                    'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+                                    'customer_master.packagecode', 'customer_master.subpackagecode' )
+                                    ->where('id','=',$request->customercode)
+                                    ->first();   
+                    }
+                    else
+                    {
+                        return response()->json(['message' => 'Customer Not Saved', 'status' =>1]);
+                    }
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => 0,'Customer' => $cust]);
             }
@@ -135,6 +203,7 @@ class OCFAPIController extends Controller
 
     public function company(Request $request)   // add New Company against Customer
         {
+            $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
             //Filter Customer
             $customer = OCFCustomer::where('id', $request->customercode)->first();
             //If Customer Exist
@@ -148,9 +217,9 @@ class OCFAPIController extends Controller
                 $compquery = DB::table('company_master')
                                 ->select('company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno', 'company_master.InstallationType', 'company_master.InstallationDesc')
                                 ->where('customercode', '=', $request->customercode)
-                                ->where('companyname', '=', DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                                ->where('panno', '=', DB::raw("AES_ENCRYPT('$request->pan_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                                ->where('gstno', '=', DB::raw("AES_ENCRYPT('$request->gst_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
+                                ->where('companyname', '=', DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"))
+                                ->where('panno', '=', DB::raw("HEX(AES_ENCRYPT('$request->pan_no' , '$key'))"))
+                                ->where('gstno', '=', DB::raw("HEX(AES_ENCRYPT('$request->gst_no' , '$key'))"))
                                 ->first();
                 
                 //If Company Not Exist
@@ -176,9 +245,9 @@ class OCFAPIController extends Controller
                         $company = DB::table('company_master')
                                         ->insert( array( 
                                         'customercode' => $request->customercode,
-                                        'companyname' => DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                        'panno' => DB::raw("AES_ENCRYPT('$request->pan_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                        'gstno' => DB::raw("AES_ENCRYPT('$request->gst_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                        'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
+                                        'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
+                                        'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
                                         'InstallationType' => DB::raw("IF('$request->InstallationType' = 0, 1, 1)"),
                                         'InstallationDesc'=>DB::raw("IF('$request->InstallationDesc' = '','Main', 'Main')")
                                             ) );
@@ -186,16 +255,16 @@ class OCFAPIController extends Controller
                         $comp = DB::table('company_master')
                                     ->select('company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno', 'company_master.InstallationType', 'company_master.InstallationDesc')
                                     ->where('customercode', '=', $request->customercode)
-                                    ->where('companyname', '=', DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                                    ->where('panno', '=', DB::raw("AES_ENCRYPT('$request->pan_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                                    ->where('gstno', '=', DB::raw("AES_ENCRYPT('$request->gst_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
+                                    ->where('companyname', '=', DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"))
+                                    ->where('panno', '=', DB::raw("HEX(AES_ENCRYPT('$request->pan_no' , '$key'))"))
+                                    ->where('gstno', '=', DB::raw("HEX(AES_ENCRYPT('$request->gst_no' , '$key'))"))
                                     ->first();
 
                         //Decrypt Saved Company Data
                         $getcomp =  DB::table('company_master')
-                                    ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                                    DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                                    DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'), 
+                                    ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
                                     'company_master.InstallationType', 'company_master.InstallationDesc')
                                     ->where('id','=', $comp->id)
                                     ->first();
@@ -207,9 +276,9 @@ class OCFAPIController extends Controller
                 {
                     //If Company Already Exist
                     $existcomp = DB::table('company_master')
-                    ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                    DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                    DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'), 
+                    ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
                     'company_master.InstallationType', 'company_master.InstallationDesc')
                     ->where('id','=', $compquery->id)
                     ->first();
@@ -221,13 +290,14 @@ class OCFAPIController extends Controller
 
     public function OCF(Request $request)             // create new ocf
     {
+        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
         $data1=[];
         //Set series
         $series = OCF::orderBy('series', 'desc')->first('series');
         if ($request->series==null) $series="OCF";
         //Get DOC No
         $ocflastid = OCF::where('series', $series)->orderBy('DocNo', 'desc')->first();
-        
+       
         $rules = array(
             'customercode' => 'required',
             'companycode' => 'required',
@@ -242,18 +312,34 @@ class OCFAPIController extends Controller
                     ], 422);
         }
         else
-        {     
-            $time = date('d-m-Y');               
-            $insert_ocf = new OCF();
-            $insert_ocf->customercode = $request->customercode;
-            $insert_ocf->companycode = $request->companycode;
-            $insert_ocf->DocNo = ($ocflastid->DocNo+1);
-            $insert_ocf->series =($series);
-            $insert_ocf->ocf_date = $time;
-            $insert_ocf->save();
+        {   
+            if($ocflastid == null)
+            {
+                $id =0;
+                $time = date('d-m-Y');               
+                $insert_ocf = new OCF();
+                $insert_ocf->customercode = $request->customercode;
+                $insert_ocf->companycode = $request->companycode;
+                $insert_ocf->DocNo = ($id+1);
+                $insert_ocf->series =($series);
+                $insert_ocf->ocf_date = $time;
+                $insert_ocf->save();
+            }
+            else
+            {
+                $time = date('d-m-Y');               
+                $insert_ocf = new OCF();
+                $insert_ocf->customercode = $request->customercode;
+                $insert_ocf->companycode = $request->companycode;
+                $insert_ocf->DocNo = ($ocflastid->DocNo+1);
+                $insert_ocf->series =($series);
+                $insert_ocf->ocf_date = $time;
+                $insert_ocf->save();
+            }
+            
             
             if(!empty($insert_ocf->id))
-            {                    
+            {                 
                 foreach ($request->Data as $data ) 
                 {
                     $getmoduledata = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
@@ -279,48 +365,49 @@ class OCFAPIController extends Controller
                                 'modulecode' => $getmoduledata[0]['moduleid'],
                             ];
                         array_push($data1,$data);
-                        $ocfmoduledata = OCFModule::create($data);
-                        
-                        $customer = OCFCustomer::where('id', $request->customercode)->first();
-                        if($ocfmoduledata == null)
-                        {
-                            return response()->json(['message' => 'OCF not Saved']);
-                        }
-                        else
-                        {
-                            $checkcustomer =  DB::table('customer_master')
-                                                ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                                                DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                                                DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                                                'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                                'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                                'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                                'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                                ->where('id','=',$request->customercode)
-                                                ->first();
+                        $ocfmoduledata = OCFModule::create($data);                       
+                    }
+                }  
+                $customer = OCFCustomer::where('id', $request->customercode)->first();
+                if($ocfmoduledata == null)
+                {
+                    return response()->json(['message' => 'OCF not Saved']);
+                }
+                else
+                {
+                    $checkcustomer =  DB::table('customer_master')
+                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+                                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                                        ->where('id','=',$request->customercode)
+                                        ->first();
                                        
-                            if($checkcustomer == null)
-                            {
-                                return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
-                            }
+                    if($checkcustomer == null)
+                    {
+                        return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
+                    }
                              
-                            $otp =  rand(100000, 999999);
+                    $otp =  rand(100000, 999999);
 
-                            $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-                            $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
+                    $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
+                    $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
                                         
-                            Log::info("otp = ".$otp);
-                            Log::info("otp_expires_time = ".$otp_expires_time);
-                            Cache::put('otp_expires_time', $otp_expires_time);
+                    Log::info("otp = ".$otp);
+                    Log::info("otp_expires_time = ".$otp_expires_time);
+                    Cache::put('otp_expires_time', $otp_expires_time);
                                 
-                            $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
+                    $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                                         
-                            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
-                            $params = 
-                                    [   
-                                        "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                                        "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                                        "message" => 
+                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
+                    $params = 
+                            [   
+                                "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
+                                "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                                "message" => 
                                             [
                                                 "content" => 
                                                 [
@@ -328,23 +415,22 @@ class OCFAPIController extends Controller
                                                     "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
                                                 ]
                                             ]
-                                    ];
-                            $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                            $client = new \GuzzleHttp\Client();
-                            $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                            $data = $response->getBody();
-                            Log::Info($data);
-                            return response()->json(['message' => 'OCF Created Successfully OTP Generated Update','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1]);
-                        }
-                    }
-                }    
+                            ];
+                    $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                    $client = new \GuzzleHttp\Client();
+                    $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                    $data = $response->getBody();
+                    Log::Info($data);
+                          
+                }
+                return response()->json(['message' => 'OCF Created Successfully OTP Generated Update','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1]);  
             }
-        }
-        
+        }    
     }
 
     public function  srno_validity(Request $request)
     {
+        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
         $rules = array(
             'customercode' => 'required',
             'company_name' => 'required',
@@ -378,25 +464,25 @@ class OCFAPIController extends Controller
                         ->select('company_master.id','company_master.customercode','company_master.companyname', 'company_master.panno', 'company_master.gstno', 'company_master.InstallationType', 'company_master.InstallationDesc')
                         ->where('customercode', '=', $request->customercode)
                         ->where('id', '=', $request->companycode)
-                        ->where('companyname', '=', DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                        ->where('panno', '=', DB::raw("AES_ENCRYPT('$request->pan_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
-                        ->where('gstno', '=', DB::raw("AES_ENCRYPT('$request->gst_no' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
+                        ->where('companyname', '=', DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"))
+                        ->where('panno', '=', DB::raw("HEX(AES_ENCRYPT('$request->pan_no' , '$key'))"))
+                        ->where('gstno', '=', DB::raw("HEX(AES_ENCRYPT('$request->gst_no' , '$key'))"))
                         ->first();
 
             //Company Decrypt Data
             $compupdate = DB::table('company_master')
-                        ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                        DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                        DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'), 
+                        ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
                         'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                         ->where('id','=', $request->companycode)
                         ->first();
             //Customer Decrypt Data
             $checkcustomer =  DB::table('customer_master')
-                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                        DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                        DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                        'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
                         'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
                         'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
@@ -412,10 +498,10 @@ class OCFAPIController extends Controller
                 if($request->otp == "")
                 {
                     $checkcustomer =  DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                                        DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                                        DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                                        'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
                                         'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
                                         'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
                                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
@@ -471,7 +557,7 @@ class OCFAPIController extends Controller
                                             ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
                                             ->where('ocfno', '=', $request->companycode)
                                             ->where('serialno_issue_date', '=', $request->issuedate)
-                                            ->where('serialno', '=', DB::raw("AES_ENCRYPT('$request->serialno' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
+                                            ->where('serialno', '=', DB::raw("HEX(AES_ENCRYPT('$request->serialno' , '$key'))"))
                                             ->first();
                         //Check Packagecode if 2 then expirytime is 1 Month  
                         if($customer->packagecode == 2)
@@ -500,14 +586,14 @@ class OCFAPIController extends Controller
                                 // Update Company
                                 $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
                                 ->update(array(
-                                    'companyname' => DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                    'panno' => DB::raw("AES_ENCRYPT('$request->pan_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                    'gstno' => DB::raw("AES_ENCRYPT('$request->gst_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                    'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
+                                    'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
+                                    'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
                                 ));
                                 $updatecompany = DB::table('company_master')
-                                                ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                                                DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                                                DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'), 
+                                                ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                                                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                                                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
                                                 'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                                                 ->where('id','=', $request->companycode)
                                                 ->first();
@@ -530,23 +616,23 @@ class OCFAPIController extends Controller
                                 $insert_serialno = DB::table('serialno')
                                         ->insert( array( 
                                         'ocfno' => $request->companycode,
-                                        'comp_name' => DB::raw("AES_ENCRYPT('$updatecompany->companyname' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                        'pan' => DB::raw("AES_ENCRYPT('$updatecompany->panno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                        'gst' => DB::raw("AES_ENCRYPT('$updatecompany->gstno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                        'comp_name' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->companyname' , '$key'))"), 
+                                        'pan' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->panno', '$key'))"),
+                                        'gst' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->gstno', '$key'))"),
                                         'serialno_issue_date' => $time,
                                         'serialno_validity'=>$expirydate,
-                                        'serialno' => DB::raw("AES_ENCRYPT('$serial' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
+                                        'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
                                             ) );
                                 $sr = Serialno::orderBy('id', 'desc')->first();
                                 $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
                                             
                                 //Decrypt Saved Serial Data
                                 $getserial =  DB::table('serialno')
-                                            ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(comp_name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS comp_name'), 
-                                            DB::raw('CAST(AES_DECRYPT(pan, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS pan'), 
-                                            DB::raw('CAST(AES_DECRYPT(gst, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gst'), 
+                                            ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
+                                            DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
+                                            DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
                                             'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                            DB::raw('CAST(AES_DECRYPT(serialno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS serialno'), 'serialno.otp_flag')
+                                            DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
                                             ->where('id','=', $srid->id)
                                             ->first();
                                 return response()->json(['message' => 'Company Updated', 'status' => 0, 'Company' => $updatecompany,'Modules' => $module, 'Serial' => $getserial]);
@@ -597,9 +683,9 @@ class OCFAPIController extends Controller
                                         
                                         $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
                                                         ->update(array(
-                                                            'companyname' => DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                                            'panno' => DB::raw("AES_ENCRYPT('$request->pan_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                                            'gstno' => DB::raw("AES_ENCRYPT('$request->gst_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                                            'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
+                                                            'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
+                                                            'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
                                                         ));
                                         
                                         if($customer->packagecode == 2)
@@ -622,14 +708,14 @@ class OCFAPIController extends Controller
                                         }
                                         $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
                                                             ->update(array(
-                                                                'companyname' => DB::raw("AES_ENCRYPT('$request->company_name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                                                'panno' => DB::raw("AES_ENCRYPT('$request->pan_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                                                'gstno' => DB::raw("AES_ENCRYPT('$request->gst_no', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                                                'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
+                                                                'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
+                                                                'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
                                                             ));
                                         $updatecompany1 = DB::table('company_master')
-                                                            ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                                                            DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                                                            DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'), 
+                                                            ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                                                            DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                                                            DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
                                                             'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                                                             ->where('id','=', $request->companycode)
                                                             ->first();
@@ -650,12 +736,12 @@ class OCFAPIController extends Controller
                                         $insert_serialno = DB::table('serialno')
                                                                 ->insert( array( 
                                                                 'ocfno' => $request->companycode,
-                                                                'comp_name' => DB::raw("AES_ENCRYPT('$updatecompany1->companyname' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                                                'pan' => DB::raw("AES_ENCRYPT('$updatecompany1->panno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                                                'gst' => DB::raw("AES_ENCRYPT('$updatecompany1->gstno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                                                'comp_name' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->companyname' , '$key'))"), 
+                                                                'pan' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->panno', '$key'))"),
+                                                                'gst' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->gstno', '$key'))"),
                                                                 'serialno_issue_date' => $time,
                                                                 'serialno_validity'=>$expirydate,
-                                                                'serialno' => DB::raw("AES_ENCRYPT('$serial' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
+                                                                'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
                                                                 'otp_flag' =>1) );
 
                                         $sr = Serialno::orderBy('id', 'desc')->first();
@@ -663,11 +749,11 @@ class OCFAPIController extends Controller
                                                     
                                         //Decrypt Saved Serial Data
                                         $getserial =  DB::table('serialno')
-                                                    ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(comp_name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS comp_name'), 
-                                                    DB::raw('CAST(AES_DECRYPT(pan, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS pan'), 
-                                                    DB::raw('CAST(AES_DECRYPT(gst, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gst'), 
+                                                    ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
+                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
+                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
                                                     'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                                    DB::raw('CAST(AES_DECRYPT(serialno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS serialno'), 'serialno.otp_flag')
+                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
                                                     ->where('id','=', $srid->id)
                                                     ->first();
                                             
@@ -696,7 +782,7 @@ class OCFAPIController extends Controller
                                     ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
                                     ->where('ocfno', '=', $request->companycode)
                                     ->where('serialno_issue_date', '=', $request->issuedate)
-                                    ->where('serialno', '=', DB::raw("AES_ENCRYPT('$request->serialno' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))
+                                    ->where('serialno', '=', DB::raw("HEX(AES_ENCRYPT('$request->serialno' , '$key'))"))
                                     ->first();
                
                 if($customer->packagecode == 2)
@@ -738,23 +824,23 @@ class OCFAPIController extends Controller
                         $insert_serialno = DB::table('serialno')
                                         ->insert( array( 
                                         'ocfno' => $request->companycode,
-                                        'comp_name' => DB::raw("AES_ENCRYPT('$compupdate->companyname' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                        'pan' => DB::raw("AES_ENCRYPT('$compupdate->panno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                        'gst' => DB::raw("AES_ENCRYPT('$compupdate->gstno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                        'comp_name' => DB::raw("HEX(AES_ENCRYPT('$compupdate->companyname' , '$key'))"), 
+                                        'pan' => DB::raw("HEX(AES_ENCRYPT('$compupdate->panno', '$key'))"),
+                                        'gst' => DB::raw("HEX(AES_ENCRYPT('$compupdate->gstno', '$key'))"),
                                         'serialno_issue_date' => $time,
                                         'serialno_validity'=>$expirydate,
-                                        'serialno' => DB::raw("AES_ENCRYPT('$serial' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
+                                        'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
                                             ) );
                             $sr = Serialno::orderBy('id', 'desc')->first();
                             $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
                                           
                             //Decrypt Saved Serial Data
                             $getserial =  DB::table('serialno')
-                                        ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(comp_name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS comp_name'), 
-                                        DB::raw('CAST(AES_DECRYPT(pan, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS pan'), 
-                                        DB::raw('CAST(AES_DECRYPT(gst, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gst'), 
+                                        ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
                                         'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                        DB::raw('CAST(AES_DECRYPT(serialno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS serialno'))
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'))
                                         ->where('id','=', $srid->id)
                                         ->first();
                         return response()->json(['message' => 'Serialno Updated', 'status' => 0, 'Company' => $compupdate,'Modules' => $module, 'Serial' => $getserial]);    
@@ -842,12 +928,12 @@ class OCFAPIController extends Controller
                             $insert_serialno = DB::table('serialno')
                                         ->insert( array( 
                                         'ocfno' => $request->companycode,
-                                        'comp_name' => DB::raw("AES_ENCRYPT('$compupdate->companyname' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
-                                        'pan' => DB::raw("AES_ENCRYPT('$compupdate->panno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
-                                        'gst' => DB::raw("AES_ENCRYPT('$compupdate->gstno', 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"),
+                                        'comp_name' => DB::raw("HEX(AES_ENCRYPT('$compupdate->companyname' , '$key'))"), 
+                                        'pan' => DB::raw("HEX(AES_ENCRYPT('$compupdate->panno', '$key'))"),
+                                        'gst' => DB::raw("HEX(AES_ENCRYPT('$compupdate->gstno', '$key'))"),
                                         'serialno_issue_date' => $time,
                                         'serialno_validity'=>$expirydate,
-                                        'serialno' => DB::raw("AES_ENCRYPT('$serial' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"), 
+                                        'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
                                         'otp_flag' => 1));
 
                             $sr = Serialno::orderBy('id', 'desc')->first();
@@ -855,11 +941,11 @@ class OCFAPIController extends Controller
                                           
                             //Decrypt Saved Serial Data
                             $getserial =  DB::table('serialno')
-                                        ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(comp_name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS comp_name'), 
-                                        DB::raw('CAST(AES_DECRYPT(pan, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS pan'), 
-                                        DB::raw('CAST(AES_DECRYPT(gst, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gst'), 
+                                        ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
                                         'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                        DB::raw('CAST(AES_DECRYPT(serialno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS serialno'), 'serialno.otp_flag')
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
                                         ->where('id','=', $srid->id)
                                         ->first();
                                             
@@ -877,18 +963,20 @@ class OCFAPIController extends Controller
 
     public function serialnoverifyotp(Request $request)  //Verify Otp
     {
+        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
         //Customer Data 
         $customer =  DB::table('customer_master')
-                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                    DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                    DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                    'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
                     'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
                     'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
                     'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('otp','=',$request->otp)
                     ->first();
-
+        // $customer = OCFCustomer::where('otp', $request->otp)->first();
+      
         if($customer == null)
         {
             return response()->json(['Message' => 'Invalid OTP', 'status' => 1]);
@@ -908,14 +996,15 @@ class OCFAPIController extends Controller
 
             //Company Data
             $company = DB::table('company_master')
-                        ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'), 
-                        DB::raw('CAST(AES_DECRYPT(panno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'), 
-                        DB::raw('CAST(AES_DECRYPT(gstno, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno'),
+                        ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'),
                         'company_master.InstallationType', 'company_master.InstallationDesc',
                         DB::raw('CONCAT(ocf_master.Series, ocf_master.DocNo) as OCFNo'), 'ocf_master.ocf_date')
                         ->join('ocf_master', 'company_master.id', '=', 'ocf_master.companycode')
                         ->where('company_master.customercode','=', $customer->id)
                         ->get();
+            // $company = Company::where('customercode', $customer->id)->get();
             
             return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $customer, 'Company' => $company ] );
         }
@@ -1000,10 +1089,10 @@ class OCFAPIController extends Controller
     {
             $customer = OCFCustomer::where('id', $request->customercode)->first();
             $checkcustomer =  DB::table('customer_master')
-                            ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'), 'customer_master.entrycode', 
-                            DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'), 
-                            DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'), 
-                            'customer_master.whatsappno', 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                            ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
                             'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
                             'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
                             'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
@@ -1134,77 +1223,5 @@ class OCFAPIController extends Controller
         $customer = OCFCustomer::where('id', $request->customercode)->first();
         return response()->json($customer);
     }
-<<<<<<< HEAD
     
-=======
-
-    public function date_time()
-    {
-        $time = date('d-m-Y H:i:s');
-        return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
-    }
-
-    public function autologin(Request $request)
-    {
-        //  $getcustomer = OCFCustomer::where('role_id', 10)->get();
-
-        $user = OCFCustomer::where('id', $request->customercode)->where('active', 1)->first();
-
-
-        if(!$user || $request->password !=$user->password)
-        {
-            return response(['message' => 'Invalid Credentials', 'status' => '1']);
-        }
-        else
-        {
-            $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
-
-            $response = [
-
-                 'token' => $token,
-                 'status' => '0'
-        ];
-
-          $autologin = 'http://localhost:4200//customer/customerlogin/'.$request->customercode.'/'.$token ;
-            //  return response($response, 200);
-            return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
-        }
-    }
-
-    public function pincode(Request $request)
-    {
-        $city = DB::table('city')->where('pincode', $request->pincode)->get();
-
-        if(count($city) == 0)
-        {
-            return response()->json(['message' => 'Pincode Not Exist', 'status' => 1]);
-        }
-        else
-        {
-            $taluka = DB::table('taluka')->where('id', $city[0]->talukaid)->first();
-            $district = DB::table('district')->where('id', $taluka->districtid)->first();
-            $state = DB::table('state')->where('id', $district->stateid)->first();
-            return response()->json(['message' => 'City', 'status' => 0, 'State' => $state, 'District' => $district, 'Taluka' => $taluka, 'City' => $city]);
-        }
-
-    }
-
-    public function broadcast_messages(Request $request)
-    {
-        $message = BroadcastMessage::where('MessageTarget', $request->messagetarget)
-                                    ->where('CustomerCode', $request->customercode)
-                                    ->where('RoleCode', $request->rolecode)
-                                    ->where('CompanyCode', $request->companycode)->first();
-
-        if(empty($message))
-        {
-            return response()->json(['message' => 'Invalid Data', 'status' => 1]);
-        }
-        else
-        {
-            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $message]);
-        }
-    }
-
->>>>>>> 8c62e0f21e3c7771d0dd0dfadd211ad8537442e7
 }
