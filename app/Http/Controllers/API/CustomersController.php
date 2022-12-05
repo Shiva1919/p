@@ -19,8 +19,16 @@ class CustomersController extends Controller
      */
     public function index()
     {
-        $customer = Customers::leftjoin('city', 'users.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
-        ->get( ['city.cityname','users.*' ]);
+        $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone',
+                'entrycode','whatsappno','otp','serialotp','isverified','otp_expires_time','role_id','address1','address2',
+                'state','district','taluka','city','noofbranch','concernperson','packagecode','subpackagecode',`password`,'active','callcenterid'
+                ,'created_at','updated_at')]);
+
+        // $customer = Customers::leftjoin('city', 'users.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
+        // ->get( ['city.cityname','users.*' ]);
         //  $customer = Customers::where('role_id', 10)->where('active', 1)->orderBy('name','asc')->get();
 
         // $customer = Customers::limit(100)->get();
@@ -29,8 +37,11 @@ class CustomersController extends Controller
 
     public function deactivecustomerslist()
     {
-        $package = Customers::where('active', 0)->orderBy('name', 'asc')->get();
-        return response()->json($package);
+        $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 0)->orderBy('name','asc')
+        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'),'city']);
+
+        // $package = Customers::where('active', 0)->orderBy('name', 'asc')->get();
+        return response()->json($customer);
     }
 
     /**

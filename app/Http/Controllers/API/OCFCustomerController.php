@@ -22,11 +22,13 @@ class OCFCustomerController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $customer = OCFCustomer::leftjoin('city', 'customer_master.city', '=', 'city.id')->where('role_id', 10)->where('active', 1)->orderBy('name','asc')
-        ->get( ['city.cityname','customer_master.*' ]);
-    
-        return response()->json($customer);
+    {           //vikram changes
+        $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+        // ->get();
+       ->get(['id','entrycode','whatsappno','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone')]);
+          return response()->json($customer);
     }
 
     public function getmoduledata($customerid)
@@ -59,7 +61,7 @@ class OCFCustomerController extends Controller
     {
 
     }
-
+    //vikram changes
     public function store(Request $request)
     {
 
@@ -90,15 +92,15 @@ class OCFCustomerController extends Controller
             }
             else
             {
-                $role_id = 10; 
+                $role_id = 10;
                 $password = 'AcmeAcme1994';
                 $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
                 $insert_customers = new OCFCustomer();
-                $insert_customers->name = $request->name;
+                $insert_customers->name = DB::raw("HEX(AES_ENCRYPT('$request->name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+                $insert_customers->phone = DB::raw("HEX(AES_ENCRYPT('$request->phone' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+                $insert_customers->email =DB::raw("HEX(AES_ENCRYPT('$request->email' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
                 $insert_customers->entrycode = $request->entrycode;
-                $insert_customers->phone = $request->phone;
                 $insert_customers->whatsappno = $request->whatsappno;
-                $insert_customers->email = $request->email;
                 $insert_customers->address1 = $request->address1;
                 $insert_customers->address2 = $request->address2;
                 $insert_customers->state = $request->state;
@@ -114,18 +116,25 @@ class OCFCustomerController extends Controller
                 $insert_customers->save();
                 if(!empty($insert_customers->id))
                 {
-                    foreach ($request->Cdocument as $data ) {
-                        $data=[
-                            'customercode'=> $insert_customers->id,
-                            'comapnycode'=> $ocfcompanyflastid->id+1,
-                            'companyname'=>  $data['company_name'],
-                            'panno'=> $data['pan_no'],
-                            'gstno'=> $data['gst_no'],
-                            'InstallationType' => $data['InstallationType'],
-                            'InstallationDesc' => $data['InstallationDesc']
-                        ];
-                    Company::create($data);
+                  $document=$request->Cdocument;
+                    for ($i=0; $i < count($request->Cdocument); $i++)
+                    {
+                        $data=(object) $document[$i];
+                    DB::table('company_master')
+                       ->insert(
+                           array(
+                               'customercode'=> $insert_customers->id,
+                            //    'comapnycode'=> $ocfcompanyflastid->id+1,
+                               'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))"),
+                               'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))"),
+                               'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))") ,
+                               'InstallationType' => $data->InstallationType,
+                               'InstallationDesc' => $data->InstallationDesc
+
+                           )
+                           );
                     }
+
                 }
                 return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
@@ -137,9 +146,12 @@ class OCFCustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+         //vikram changes
     public function show($id)
     {
-        $getbyid_customer = OCFCustomer::find($id);
+        $getbyid_customer = DB::Table('customer_master')->where('id',$id)
+        ->first(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(name), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(UNHEX(email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(UNHEX(phone), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'),DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS whatsappno'),'state','district','taluka','address1','address2','role_id','concernperson','packagecode','password','city','subpackagecode','active']);
 
         if (is_null($getbyid_customer))
         {
@@ -166,8 +178,11 @@ class OCFCustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+         //vikram changes
     public function update(Request $request, OCFCustomer $customer)
     {
+
 
 
         $role_id = 10;
@@ -198,52 +213,65 @@ class OCFCustomerController extends Controller
         {
             return $this->sendError('Validation Error.', $validator->errors());
         }
-        $customer->name = $input['name'];
-        $customer->entrycode = $input['entrycode'];
-        $customer->phone = $input['phone'];
-        $customer->whatsappno = $input['whatsappno'];
-        $customer->email = $input['email'];
-        $customer->address1 = $input['address1'];
-        $customer->address2 = $input['address2'];
-        $customer->state = $input['state'];
-        $customer->district = $input['district'];
-        $customer->taluka = $input['taluka'];
-        $customer->city = $input['city'];
-        $customer->active = $input['active'];
-        $customer->concernperson = $input['concernperson'];
-        $customer->packagecode = $input['packagecode'];
-        $customer->subpackagecode = $input['subpackagecode'];
+        // $customer->entrycode = $input['entrycode'];
+
+        $customer->name = DB::raw("HEX(AES_ENCRYPT('$request->name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+        $customer->phone =DB::raw("HEX(AES_ENCRYPT('$request->phone' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+        $customer->email =DB::raw("HEX(AES_ENCRYPT('$request->email' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+        $customer->whatsappno =DB::raw("HEX(AES_ENCRYPT('$request->whatsappno','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+        $customer->address1 = $request->address1;
+        $customer->address2 = $request->address2;
+        $customer->state = $request->state;
+        $customer->district = $request->district;
+        $customer->taluka = $request->taluka;
+        $customer->city = $request->city;
+        $customer->active = $request->active;
+        $customer->concernperson = $request->concernperson;
+        $customer->packagecode = $request->packagecode;
+        $customer->subpackagecode = $request->subpackagecode;
         $customer->role_id = $role_id;
         $customer->password = $password;
         $customer->save();
 
-        if(!empty($input['id'])) {
+        if(!empty($request->id)) {
+            $document=$request->Cdocument;
 
-            foreach ($request->Cdocument as $data ) {
+            for ($i=0; $i < count($request->Cdocument); $i++)
+            {
+                $data=(object) $document[$i];
 
-                if ($data['id']==0) {
+                if ($data->id==0) {
 
-                    $dataa=[
-                        'customercode'=> $input['id'],
-                        'companyname'=>  $data['company'],
-                        'panno'=> $data['pan'],
-                        'gstno'=> $data['gst'],
-                        'InstallationType' => $data['InstallationType'],
-                        'InstallationDesc' => $data['InstallationDesc']
-                    ];
+                    DB::table('company_master')
+                       ->insert(
+                           array(
+                               'customercode'=> $insert_customers->id,
+                            //    'comapnycode'=> $ocfcompanyflastid->id+1,
+                               'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))"),
+                               'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))"),
+                               'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))") ,
+                               'InstallationType' => $data->InstallationType,
+                               'InstallationDesc' => $data->InstallationDesc
 
-                  Company::create($dataa);
+                           )
+
+                           );
+
+
+
                 }
                 else{
 
-                  $update_data= Company::find($data['id']);
-                  $update_data->companyname=$data['company'];
-                  $update_data->panno=$data['pan'];
-                  $update_data->gstno=$data['gst'];
-                  $update_data->InstallationType=$data['InstallationType'];
-                  $update_data->InstallationDesc=$data['InstallationDesc'];
+
+                     $update_data= Company::find($data->id);
+                  $update_data->companyname=DB::raw("HEX(AES_ENCRYPT('$data->company','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+                  $update_data->panno=DB::raw("HEX(AES_ENCRYPT('$data->pan','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+                  $update_data->gstno=DB::raw("HEX(AES_ENCRYPT('$data->gst','YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
+                  $update_data->InstallationType=$data->InstallationType;
+                  $update_data->InstallationDesc=$data->InstallationDesc;
                   $update_data->save();
                 }
+
           }
 
       }
@@ -404,7 +432,9 @@ class OCFCustomerController extends Controller
     }
      public function companybycustomer($customerid)
     {
-        $company = Company::where('customercode', $customerid)->get('companyname');
+
+        //vikram changes
+        $company = Company::where('customercode', $customerid)->get([DB::raw('CAST(AES_DECRYPT(companyname, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname')]);
         return response()->json($company);
     }
 

@@ -26,7 +26,7 @@ class SendurlController extends Controller
 
     }
     public function send_msg(Request $request){
-   
+
 
          $contact=Sendmsg::select('*')->where('contact_number','=',$request->contact)->get();
 
@@ -41,9 +41,9 @@ class SendurlController extends Controller
          $urla=$url[0]->url;
          $finelurl= str_replace ('$mobile',$request->contact,$urla);
         //  Http::get($finelurl);
-        
+
         if ($contact->isEmpty()){
-         
+
             $Sendmsg= new Sendmsg;
             $Sendmsg->contact_number = $request->contact;
             $Sendmsg->cust_name = $request->cust_name;
@@ -74,7 +74,7 @@ class SendurlController extends Controller
 
         }
         else{
-           
+
             $id=$contact[0]->id;
             $Sendmsg = Sendmsg::find($id);
             $Sendmsg->cust_name = $request->cust_name;
@@ -109,20 +109,24 @@ class SendurlController extends Controller
     }
     public function getDistrict($request)
     {
-        $data =DB::table('district')->where("stateid",$request)->orderBy('districtname','asc')->get();
+        $state =DB::table('state')->where("statename",$request)->first();
+        $data =DB::table('district')->where("stateid",$state->id)->orderBy('districtname','asc')->get();
         return response()->json($data);
     }
 
     public function getTaluka($request)
     {
-        
-        $data =DB::table('taluka')->where("districtid",$request)->orderBy('talukaname','asc')->get();
+        $district =DB::table('district')->where("districtname",$request)->first();
+        $data =DB::table('taluka')->where("districtid",$district->id)->orderBy('talukaname','asc')->get();
         return response()->json($data);
     }
 
     public function getCity($request)
     {
-        $data =DB::table('city')->where("talukaid",$request)->orderBy('cityname','asc')->get();
+
+        $taluka =DB::table('taluka')->where("talukaname",$request)->first();
+        $data =DB::table('city')->where("talukaid",$taluka->id)->orderBy('cityname','asc')->get();
+       return $data;
         return response()->json($data);
     }
     public function customername($num){

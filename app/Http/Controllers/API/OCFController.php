@@ -116,7 +116,10 @@ class OCFController extends Controller
                    }
                    else
                    {
-                        $checkmobile =  OCFCustomer::where('phone',$customer->phone)->first();
+
+
+                        $checkmobile = DB::table('customer_master')->where('phone',$customer->phone)->first();
+
 
                         if($checkmobile == null)
                         {
@@ -136,7 +139,7 @@ class OCFController extends Controller
                         Log::info("otp_expires_time = ".$otp_expires_time);
                         Cache::put('otp_expires_time', $otp_expires_time);
                         // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
-                        $users = OCFCustomer::where('phone','=',$customer->phone)->update(['otp_expires_time' => $otp_expires_time]);
+                        $users = OCFCustomer::where('phone','=',DB::raw("AES_ENCRYPT('$customer->phone' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=')"))->update(['otp_expires_time' => $otp_expires_time]);
 
                         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
 

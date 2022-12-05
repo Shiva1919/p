@@ -32,17 +32,17 @@ class OCFCustomer extends Model
         'name',
         'entrycode',
         'address1',
-        'address2', 
+        'address2',
         'otp',
         'serialotp',
         'isverified',
         'phone',
         'whatsappno',
-        'email', 
-        'state', 
-        'district', 
-        'taluka', 
-        'city', 
+        'email',
+        'state',
+        'district',
+        'taluka',
+        'city',
         'role_id',
         // 'noofbranch',
         'password',
@@ -52,10 +52,10 @@ class OCFCustomer extends Model
         'customercode'
     ];
 
-    public function decryptname()
-    {
-        return decrypt($this->attributes['name']);
-    }
+    // public function decryptname()
+    // {
+    //     return decrypt($this->attributes['name']);
+    // }
     // public function setNameAttribute($value)
     // {
     //     $this->attributes['name'] = Crypt::encryptString($value);

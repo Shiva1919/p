@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\API\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class CompanyController extends Controller
 {
@@ -63,10 +64,13 @@ class CompanyController extends Controller
 
         return response()->json($company);
     }
-
+//vikram
     public function customer_wise_company($id)
     {
-        $companys = Company::where('customercode', $id)->get();
+        $companys = DB::table('company_master')->where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
+        // ->get();
         return response()->json($companys);
     }
 
