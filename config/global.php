@@ -4,7 +4,7 @@ return [
   
     'pagination_records' => 10,
   
-    'decryptdata' => ['YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='],
+    'key' => "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=",
 ]
   
 ?>

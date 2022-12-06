@@ -252,6 +252,7 @@ Route::post('date_time',                                   [OCFAPIController::cl
 
 Route::get('companyocfs',                                  [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
+Route::post('companyotp',                                 [OCFAPIController::class, 'companyotp'])->middleware('auth:sanctum');
 Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp'])->middleware('auth:sanctum');
 Route::post('getcallcenterid',                             [OCFAPIController::class, 'callcenterid'])->middleware('auth:sanctum');
 

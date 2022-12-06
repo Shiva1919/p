@@ -24,10 +24,9 @@ class OCFAPIController extends Controller
 {    
     public function customercreate(Request $request)
     {
-        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
+        $key = config('global.key');
+       
         //Filter Customer data id wise
-
-
         $customerdata = DB::table('customer_master')
                             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
                             DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
@@ -203,7 +202,7 @@ class OCFAPIController extends Controller
 
     public function company(Request $request)   // add New Company against Customer
         {
-            $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
+            $key = config('global.key');
             //Filter Customer
             $customer = OCFCustomer::where('id', $request->customercode)->first();
             //If Customer Exist
@@ -290,7 +289,7 @@ class OCFAPIController extends Controller
 
     public function OCF(Request $request)             // create new ocf
     {
-        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
+        $key = config('global.key');
         $data1=[];
         //Set series
         $series = OCF::orderBy('series', 'desc')->first('series');
@@ -375,53 +374,7 @@ class OCFAPIController extends Controller
                 }
                 else
                 {
-                    $checkcustomer =  DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                        ->where('id','=',$request->customercode)
-                                        ->first();
-                                       
-                    if($checkcustomer == null)
-                    {
-                        return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
-                    }
-                             
-                    $otp =  rand(100000, 999999);
-
-                    $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-                    $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
-                                        
-                    Log::info("otp = ".$otp);
-                    Log::info("otp_expires_time = ".$otp_expires_time);
-                    Cache::put('otp_expires_time', $otp_expires_time);
-                                
-                    $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-                                        
-                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
-                    $params = 
-                            [   
-                                "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                                "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                                "message" => 
-                                            [
-                                                "content" => 
-                                                [
-                                                    "type" => "text",
-                                                    "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                                                ]
-                                            ]
-                            ];
-                    $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                    $data = $response->getBody();
-                    Log::Info($data);
-                          
+                    $this->companyotp($request);                          
                 }
                 return response()->json(['message' => 'OCF Created Successfully OTP Generated Update','status' => 0,'OCF' => $insert_ocf, 'Module' => $data1]);  
             }
@@ -430,7 +383,7 @@ class OCFAPIController extends Controller
 
     public function  srno_validity(Request $request)
     {
-        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
+        $key = config('global.key');
         $rules = array(
             'customercode' => 'required',
             'company_name' => 'required',
@@ -478,16 +431,16 @@ class OCFAPIController extends Controller
                         ->where('id','=', $request->companycode)
                         ->first();
             //Customer Decrypt Data
-            $checkcustomer =  DB::table('customer_master')
-                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                        ->where('id','=',$request->customercode)
-                        ->first();
+            // $checkcustomer =  DB::table('customer_master')
+            //             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+            //             DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+            //             DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+            //             DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+            //             'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+            //             'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+            //             'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+            //             ->where('id','=',$request->customercode)
+            //             ->first();
         
             // If Company Not Exist
             if($company == null)
@@ -496,50 +449,9 @@ class OCFAPIController extends Controller
                 $expirytime = date('d-m-Y', strtotime($time . " +5 minutes") );
                 // OTP Generate IF Company Data Not match
                 if($request->otp == "")
-                {
-                    $checkcustomer =  DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                        ->where('id','=',$request->customercode)
-                                        ->first();
-                    
-                    $otp =  rand(100000, 999999);
-                    
-                    $update_verifyotp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-                
-                    $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
-                    
-                    Log::info("otp = ".$otp);
-                    Log::info("otp_expires_time = ".$otp_expires_time);
-                    Cache::put('otp_expires_time', $otp_expires_time);
-                    
-                    $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-                    
-                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
-                
-                    $params = 
-                    [   
-                        "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                        "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                        "message" => 
-                        [
-                            "content" => 
-                            [
-                                "type" => "text",
-                                "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                            ]
-                        ]
-                    ];
-                    $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                    $client = new \GuzzleHttp\Client();
-                    $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                    $data = $response->getBody();
-                    Log::Info($data);
+                { 
+                    $this->companyotp($request);
+
                     return response()->json(['message' => 'OTP Generated Update Company','status' => 2]);
                 }
                 // Check OTP When Company Updated
@@ -552,7 +464,6 @@ class OCFAPIController extends Controller
                         $updateotp =  OCFCustomer::where('id', $customer->id)->update(['isverified'=> 1]);
                     
                         // Check Serial No Exist or Not
-                        // $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
                         $checkserial =  DB::table('serialno')
                                             ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
                                             ->where('ocfno', '=', $request->companycode)
@@ -641,38 +552,9 @@ class OCFAPIController extends Controller
                             else
                             {
                                 if($request->serialotp == "")
-                                {                                
-                                    $otp = rand(100000, 999999);
-                                
-                                    $update_verifyotp = OCFCustomer::where('id', $request->customercode)->update(['serialotp' => $otp]);
-                                    $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
-                                        
-                                    Log::info("otp = ".$otp);
-                                    Log::info("otp_expires_time = ".$otp_expires_time);
-                                    Cache::put('otp_expires_time', $otp_expires_time);
-                                
-                                    $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-
-                                    $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
-                        
-                                    $params = 
-                                        [   
-                                            "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                                            "message" => 
-                                            [
-                                                "content" => 
-                                                [
-                                                    "type" => "text",
-                                                    "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                                                ]
-                                            ]
-                                        ];
-                                    $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                                    $client = new \GuzzleHttp\Client();
-                                    $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                                    $data = $response->getBody();
-                                    Log::Info($data);
+                                {          
+                                    $this->serialnootp($request);                      
+                                    
                                     return response()->json(['message' => 'OTP Generated Update Serial','status' => 2]);  
                                 }
                                 else
@@ -849,38 +731,7 @@ class OCFAPIController extends Controller
                 {
                     if($request->serialotp == "")
                     { 
-                        $otp = rand(100000, 999999);
-                                
-                        $updateotp =  OCFCustomer::where('id', $customer->id)->update(['serialotp'=> $otp]);
-                        $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
-                                        
-                        Log::info("otp = ".$otp);
-                        Log::info("otp_expires_time = ".$otp_expires_time);
-                        Cache::put('otp_expires_time', $otp_expires_time);
-                            // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
-                        $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-                                        
-
-                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
-            
-                        $params = 
-                                [   
-                                    "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                                    "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                                    "message" => 
-                                            [
-                                                "content" => 
-                                                [
-                                                    "type" => "text",
-                                                    "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                                                ]
-                                            ]
-                                ];
-                        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                        $client = new \GuzzleHttp\Client();
-                        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                        $data = $response->getBody();
-                        Log::Info($data);
+                        $this->serialnootp($request);
                         return response()->json(['message' => 'OTP Generated Update Serial','status' => 2]);  
                     }
                     else
@@ -963,7 +814,7 @@ class OCFAPIController extends Controller
 
     public function serialnoverifyotp(Request $request)  //Verify Otp
     {
-        $key = "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=";
+        $key = config('global.key');
         //Customer Data 
         $customer =  DB::table('customer_master')
                     ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
@@ -1083,11 +934,17 @@ class OCFAPIController extends Controller
         return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
     }
 
-
-
-    public function serialnootp(Request $request)          // Currenly unused
+    public function companyotp(Request $request)          // Currenly unused
     {
+        $key = config('global.key');
             $customer = OCFCustomer::where('id', $request->customercode)->first();
+            $compupdate = DB::table('company_master')
+            ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+            DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+            DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
+            'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
+            ->where('id','=', $request->companycode)
+            ->first();
             $checkcustomer =  DB::table('customer_master')
                             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
                             DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
@@ -1105,18 +962,19 @@ class OCFAPIController extends Controller
                 }
             
                 $otp =  rand(100000, 999999);
-                
+                    
                 $update_verifyotp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-             
+            
                 $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
                 
                 Log::info("otp = ".$otp);
                 Log::info("otp_expires_time = ".$otp_expires_time);
                 Cache::put('otp_expires_time', $otp_expires_time);
-                // $user = Customers::where('phone','=',$request->phone)->update(['otp' => $otp]);
+                
                 $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                 
-                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
+                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+            
                 $params = 
                 [   
                     "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
@@ -1135,7 +993,69 @@ class OCFAPIController extends Controller
                 $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
                 $data = $response->getBody();
                 Log::Info($data);
-                return response()->json(['message' => 'OTP Generated','status' => 2]);
+                // return response()->json(['message' => 'OTP Generated','status' => 2]);
+    }
+
+    public function serialnootp(Request $request)          // Currenly unused
+    {
+        $key = config('global.key');
+            $customer = OCFCustomer::where('id', $request->customercode)->first();
+            $compupdate = DB::table('company_master')
+            ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
+            DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
+            DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
+            'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
+            ->where('id','=', $request->companycode)
+            ->first();
+            $checkcustomer =  DB::table('customer_master')
+                            ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
+                            'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
+                            'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
+                            'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                            ->where('id','=',$request->customercode)
+                            ->first();
+
+                if($checkcustomer == null)
+                {
+                    return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
+                }
+            
+                $otp =  rand(100000, 999999);
+                    
+                $update_verifyotp = OCFCustomer::where('id', $request->customercode)->update(['serialotp' => $otp]);
+            
+                $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
+                
+                Log::info("otp = ".$otp);
+                Log::info("otp_expires_time = ".$otp_expires_time);
+                Cache::put('otp_expires_time', $otp_expires_time);
+                
+                $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
+                
+                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+            
+                $params = 
+                [   
+                    "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
+                    "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                    "message" => 
+                    [
+                        "content" => 
+                        [
+                            "type" => "text",
+                            "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                        ]
+                    ]
+                ];
+                $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                $data = $response->getBody();
+                Log::Info($data);
+                // return response()->json(['message' => 'OTP Generated','status' => 2]);
     }
 
     public function broadcastmessage(Request $request)   //Broadcastmessage store API
