@@ -92,15 +92,22 @@ class OCFCustomerController extends Controller
             }
             else
             {
+
+                $ocfcustomerflastid = OCFCustomer::orderBy('id', 'desc')->first();
+                if($ocfcustomerflastid){
+                    $id=$ocfcustomerflastid->id+1;
+                }
+                else{
+                    $id=1;
+                }
                 $role_id = 10;
                 $password = 'AcmeAcme1994';
-                $ocfcompanyflastid = Company::orderBy('id', 'desc')->first();
                 $insert_customers = new OCFCustomer();
                 $insert_customers->name = DB::raw("HEX(AES_ENCRYPT('$request->name' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
                 $insert_customers->phone = DB::raw("HEX(AES_ENCRYPT('$request->phone' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
                 $insert_customers->email =DB::raw("HEX(AES_ENCRYPT('$request->email' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
-                $insert_customers->entrycode = $request->entrycode;
-                $insert_customers->whatsappno = $request->whatsappno;
+                $insert_customers->entrycode = $id;
+                $insert_customers->whatsappno =DB::raw("HEX(AES_ENCRYPT('$request->whatsappno' , 'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY='))");
                 $insert_customers->address1 = $request->address1;
                 $insert_customers->address2 = $request->address2;
                 $insert_customers->state = $request->state;
