@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class JWTController extends Controller
 {
-    
+
     /**
      * Create a new AuthController instance.
      *
@@ -57,7 +57,7 @@ class JWTController extends Controller
         if (!$token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        
+
         return $this->respondWithToken($token);
     }
 
@@ -72,7 +72,7 @@ class JWTController extends Controller
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
@@ -80,9 +80,9 @@ class JWTController extends Controller
         if (!$token = auth()->attempt($validator->validated())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        
+
         return $this->respondWithToken($token);
-       
+
     }
 
     /**
@@ -114,6 +114,7 @@ class JWTController extends Controller
      */
     public function profile()
     {
+
         return response()->json(auth()->user());
     }
 
