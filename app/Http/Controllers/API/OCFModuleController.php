@@ -34,16 +34,11 @@ class OCFModuleController extends Controller
         //
     }
 
-    function model_expire_date($id){
-        return $id;
-
+    function model_expire_date($id)
+    {
         $module=DB::table('acme_module_type')
-        ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid' )
-        ->where('acme_module.ModuleName',$id)->first();
-
-        if ($module) {
-            # code...
-        }
+                    ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid' )
+                    ->where('acme_module.ModuleName',$id)->first();
         return $module;
 
     }
