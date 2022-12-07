@@ -19,10 +19,12 @@ class CustomersController extends Controller
      */
     public function index()
     {
+
+        $key = config('global.key');
         $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
-        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),
-                DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),
-                DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone',
+        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, "'.$key.'") AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(email, "'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(phone, "'.$key.'") AS CHAR) AS phone',
                 'entrycode','whatsappno','otp','serialotp','isverified','otp_expires_time','role_id','address1','address2',
                 'state','district','taluka','city','noofbranch','concernperson','packagecode','subpackagecode',`password`,'active','callcenterid'
                 ,'created_at','updated_at')]);
@@ -38,7 +40,7 @@ class CustomersController extends Controller
     public function deactivecustomerslist()
     {
         $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 0)->orderBy('name','asc')
-        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(email, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(phone, \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone'),'city']);
+        ->get(['id',DB::raw('CAST(AES_DECRYPT(name, "'.$key.'") AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(email, "'.$key.'") AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(phone, "'.$key.'") AS CHAR) AS phone'),'city']);
 
         // $package = Customers::where('active', 0)->orderBy('name', 'asc')->get();
         return response()->json($customer);
@@ -133,9 +135,9 @@ class CustomersController extends Controller
         $module =array();
         $company =array();
         $ocf =array();
-        $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
+        $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
 
 //compnay list
         for ($i=0; $i < count($getbyid_customer) ; $i++) {
