@@ -59,7 +59,9 @@ class CompanyController extends Controller
     public function show($id)
     {
 
-        $company = Company::where('customercode', $id)->get();
+        $company = Company::where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
         return $company;
 
         return response()->json($company);

@@ -29,9 +29,15 @@ class OCFController extends Controller
 
     public function getocflastid()
     {
-        $ocf = OCF::orderBy('DocNo', 'desc')->get();
-        return $ocf[0];
-        // return response()->json($ocf);
+        $ocf = OCF::orderBy('DocNo', 'desc')->get('DocNo');
+        if (count($ocf)!=0) {
+            return response()->json($ocf[0]->DocNo+1);
+        }else{
+            return response()->json($ocf[0]=01);
+        }
+        // return $ocf[0]->DocNo;
+
+        //  return response()->json($ocf);
     }
 
     /**
@@ -52,6 +58,7 @@ class OCFController extends Controller
      */
     public function store(Request $request)
     {
+
         $str = substr($request->ocfno,3);
 
         $series = OCF::orderBy('DocNo', 'desc')->first();
@@ -179,7 +186,7 @@ class OCFController extends Controller
           // $insert_ocf->series=$series->series+1;
           $insert_ocf->save();
 
-          OCFModule::where('ocfcode',$insert_ocf->id)->delete();
+
           if(!empty($insert_ocf->id))
           {
 
@@ -190,6 +197,7 @@ class OCFController extends Controller
                 ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
                 ->where('acme_module.ModuleName',$data['modulecode'])
                 ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+
                 if ($data['id']==0) {
                          $data=[
                             'ocfcode'=> $insert_ocf->id,
@@ -206,8 +214,8 @@ class OCFController extends Controller
                      OCFModule::create($data);
                 }
             else{
-                $update_data= OCFModule::find($data['id']);
-                $update_data->ocfcode= $insert_ocf->id;
+
+               $update_data= OCFModule::find($data['id']);
                 $update_data->modulename=$data['modulecode'];
                 $update_data->modulecode=$data['modulecode'];
                 $update_data->moduletypes=$module_unit[0]->moduletype;
@@ -218,26 +226,12 @@ class OCFController extends Controller
                 $update_data->activation=$data['activation'];
                 $update_data->save();
                 }
-              $module_unit=[];
-              $module_unit = DB::table('acme_module')
-              ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
-              ->where('acme_module.ModuleName',$data['modulecode'])
-              ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+            //   $module_unit=[];
+            //   $module_unit = DB::table('acme_module')
+            //   ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
+            //   ->where('acme_module.ModuleName',$data['modulecode'])
+            //   ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
 
-              $data=[
-                  'ocfcode'=> $insert_ocf->id,
-                  'modulename'=> $data['modulecode'],
-                  'modulecode'=> $data['modulecode'],
-                  'moduletypes'=> $module_unit[0]->moduletype,
-                  'quantity'=> $data['quantity'],
-                  'unit'=>  $module_unit[0]->unit,
-                  'expirydate'=> $data['expirydate'],
-                  'amount'=> $data['amount'],
-                  'activation'=> $data['activation']
-
-              ];
-
-                  OCFModule::create($data);
 
           }
           return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data ]);
@@ -314,7 +308,7 @@ class OCFController extends Controller
     public function get_ocfdata_list_customerwise($DocNo){
         $data = DB::table('ocf_modules')
                 ->leftJoin('ocf_master','ocf_master.id','=','ocf_modules.ocfcode')
-                ->where('ocf_master.DocNo',$DocNo)->get();
+                ->where('ocf_master.DocNo',$DocNo)->get('ocf_modules.*');
  return $data;
     }
 

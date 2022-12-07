@@ -133,7 +133,9 @@ class CustomersController extends Controller
         $module =array();
         $company =array();
         $ocf =array();
-        $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get();
+        $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
 
 //compnay list
         for ($i=0; $i < count($getbyid_customer) ; $i++) {

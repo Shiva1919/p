@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class Customer_Mobile extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -17,14 +18,19 @@ class Customer_Mobile extends Controller
      */
     public function index($custid)
     {
-        $data =Customer_mobile_Model::where('Customercode', $custid)->where('active_flag',1)->get();
+        $key = config('global.key');
+        $data =Customer_mobile_Model::where('Customercode', $custid)->where('active_flag',1)
+        ->get(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), '.$key.') AS CHAR) AS Mobile_number'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
         return response()->json($data);
     }
    function getcustomer($id){
+    $key = config('global.key');
     return  $data =Customer_mobile_Model::where('Customercode',$id)->where('active_flag',1)->get();
         // return response()->json($data);
     }
     function getcustomer_mobile($id,$mobile){
+        $key = config('global.key');
         $data =Customer_mobile_Model::where('Customercode',$id)->where('Mobile_number',$mobile)->where('active_flag',1)->get();
         if (count($data) > 0) {
             return response()->json([
@@ -41,7 +47,10 @@ class Customer_Mobile extends Controller
         return response()->json($data);
     }
     function getmobile_edit($id,$custid){
-        $data =Customer_mobile_Model::where('Customercode',$custid)->where('id',$id)->first();
+        $key = config('global.key');
+        $data =Customer_mobile_Model::where('Customercode',$custid)->where('id',$id)
+        ->first(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), '.$key.') AS CHAR) AS Mobile_number'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
         return response()->json($data);
     }
 
@@ -63,7 +72,8 @@ class Customer_Mobile extends Controller
      */
     public function store(Request $request)
     {
-        $data = Customer_mobile_Model::where('Mobile_number',$request->Mobilenumber)->first();
+          $key = config('global.key');
+        $data = Customer_mobile_Model::where('Mobile_number',DB::raw("HEX(AES_ENCRYPT('$request->Mobilenumber','$key'))"))->first();
         if ($data) {
             $data->active_flag=1;
             $data->update();
@@ -74,8 +84,8 @@ class Customer_Mobile extends Controller
         }
         else{
               $Customer_mobile_Model= new Customer_mobile_Model;
-              $Customer_mobile_Model->Mobile_number= $request->Mobilenumber;
-              $Customer_mobile_Model->Email= $request->Email;
+              $Customer_mobile_Model->Mobile_number= DB::raw("HEX(AES_ENCRYPT('$request->Mobilenumber' , '$key'))");
+              $Customer_mobile_Model->Email= DB::raw("HEX(AES_ENCRYPT('$request->Email' , '$key'))");
               $Customer_mobile_Model->User_Name= $request->UserName;
               $Customer_mobile_Model->Customercode= $request->Customercode;
               $Customer_mobile_Model->save();
@@ -135,10 +145,10 @@ class Customer_Mobile extends Controller
 
         $Customer_mobile_Model= Customer_mobile_Model::find($id);
          if ($Customer_mobile_Model) {
-           $Customer_mobile_Model->Mobile_number= $request->Mobilenumber;
-          $Customer_mobile_Model->Email= $request->Email;
-          $Customer_mobile_Model->User_Name= $request->UserName;
-          $Customer_mobile_Model->update();
+        $Customer_mobile_Model->Mobile_number= DB::raw("HEX(AES_ENCRYPT('$request->Mobilenumber' , '$key'))");
+        $Customer_mobile_Model->Email= DB::raw("HEX(AES_ENCRYPT('$request->Email' , '$key'))");
+        $Customer_mobile_Model->User_Name= $request->UserName;
+        $Customer_mobile_Model->update();
           return response()->json([
             'status'=>200,
             'message'=>'Update Successfully'
@@ -155,7 +165,7 @@ class Customer_Mobile extends Controller
     }
     function allerdy_mobile($mobile){
 
-        $data = DB::table('Customer_mobilenumbers')->where('Mobile_number',$mobile)->where('active_flag',1)->get();
+        $data = DB::table('Customer_mobilenumbers')->where('Mobile_number',DB::raw("HEX(AES_ENCRYPT('$mobile','$key'))"))->where('active_flag',1)->get();
         if (count($data) > 0 ) {
             return response()->json([
                 'status'=>1,
