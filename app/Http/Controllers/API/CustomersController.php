@@ -39,6 +39,7 @@ class CustomersController extends Controller
 
     public function deactivecustomerslist()
     {
+        $key = config('global.key');
         $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 0)->orderBy('name','asc')
         ->get(['id',DB::raw('CAST(AES_DECRYPT(name, "'.$key.'") AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(email, "'.$key.'") AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(phone, "'.$key.'") AS CHAR) AS phone'),'city']);
 
@@ -132,9 +133,11 @@ class CustomersController extends Controller
     }
     public function ocflist($id)
     {
+        $key = config('global.key');
         $module =array();
         $company =array();
         $ocf =array();
+
         $getbyid_customer = DB::table('company_master')->where('customercode',$id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
         DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
         DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
