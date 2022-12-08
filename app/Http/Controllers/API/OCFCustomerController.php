@@ -27,8 +27,9 @@ class OCFCustomerController extends Controller
         $key = config('global.key');
         $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
         // ->get();
-       ->get(['id','entrycode','whatsappno','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'),
+       ->get(['id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
           return response()->json($customer);
     }
@@ -66,7 +67,7 @@ class OCFCustomerController extends Controller
     //vikram changes
     public function store(Request $request)
     {
-
+        $key = config('global.key');
             $rules = array(
                 'name' => 'required',
                 'entrycode' => '',
@@ -129,6 +130,9 @@ class OCFCustomerController extends Controller
                     for ($i=0; $i < count($request->Cdocument); $i++)
                     {
                         $data=(object) $document[$i];
+                        // $responce_data=[];
+                        // array_push($responce_data, $document[$i]);
+
                     DB::table('company_master')
                        ->insert(
                            array(
@@ -159,6 +163,7 @@ class OCFCustomerController extends Controller
          //vikram changes
     public function show($id)
     {
+        $key = config('global.key');
         $getbyid_customer = DB::Table('customer_master')->where('id',$id)
         ->first(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'),DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),'state','district','taluka','address1','address2','role_id','concernperson','packagecode','password','city','subpackagecode','active']);
 
@@ -192,7 +197,7 @@ class OCFCustomerController extends Controller
     public function update(Request $request, OCFCustomer $customer)
     {
 
-
+        $key = config('global.key');
 
         $role_id = 10;
         $password = 'AcmeAcme1994';
