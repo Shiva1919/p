@@ -22,8 +22,8 @@ use function PHPUnit\Framework\returnSelf;
 
 class OCFAPIController extends Controller
 <<<<<<< HEAD
-{    
-    // public $key = config('global.key'); 
+{
+    // public $key = config('global.key');
 
 =======
 {
@@ -483,7 +483,7 @@ class OCFAPIController extends Controller
                         'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                         ->where('id','=', $request->companycode)
                         ->first();
-           
+
             if(empty($company))
             {
                 return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
@@ -499,7 +499,7 @@ class OCFAPIController extends Controller
                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                         ->where('id','=',$request->customercode)
                         ->first();
-         
+
                 // $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
                 $checkserial =  DB::table('serialno')
                                     ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
@@ -650,11 +650,7 @@ class OCFAPIController extends Controller
                         }
                     }
                 }
-<<<<<<< HEAD
-              
-=======
             }
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
         }
     }
 
@@ -683,12 +679,6 @@ class OCFAPIController extends Controller
                     'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('id','=',$request->customercode)
                     ->first();
-<<<<<<< HEAD
-  
-        
-        if($request->customercode)
-        { 
-=======
 
 
         if($getotp == null)
@@ -700,7 +690,6 @@ class OCFAPIController extends Controller
 
         else if($request->customercode)
         {
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
             if($getcustomer == null)
             {
                 return response()->json(['Message' => 'Customer Not Exist', 'status' => 1]);
@@ -722,14 +711,8 @@ class OCFAPIController extends Controller
             return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $getcustomer, 'Company' => $company ] );
         }
         //verify OTP
-<<<<<<< HEAD
-     
-        else if($request->otp)
-        { 
-=======
         else if($request->otp == $getotp->otp)
         {
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
             $custpmerupdate = OCFCustomer::where('id', $getotp->id)->update(['isverified'=> 1]);
 
             //Company Data
