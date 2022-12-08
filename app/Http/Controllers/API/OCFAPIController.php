@@ -21,13 +21,9 @@ use App\Models\API\SubPackages;
 use function PHPUnit\Framework\returnSelf;
 
 class OCFAPIController extends Controller
-<<<<<<< HEAD
-{
-    // public $key = config('global.key');
 
-=======
+
 {
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
     public function customercreate(Request $request)
     {
         $key = config('global.key');
@@ -652,7 +648,7 @@ class OCFAPIController extends Controller
                 }
             }
         }
-    }
+
 
     public function serialnoverifyotp(Request $request)  //Verify Otp
     {
