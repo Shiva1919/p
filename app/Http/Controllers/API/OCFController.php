@@ -100,13 +100,13 @@ class OCFController extends Controller
                         ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
                         ->where('acme_module.ModuleName',$data['modulecode'])
                         ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
-                        // return $module_unit;
+                      
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
                         'modulename'=> $data['modulecode'],
-                        'moduletypes'=> $module_unit[0]->moduletype,
+                        'moduletypes'=> $module_unit[0]['moduletype'],
                         'quantity'=> $data['quantity'],
-                        'unit'=>  $module_unit[0]->unit,
+                        'unit'=>  $module_unit[0]['unit'],
                         'expirydate'=> $data['expirydate'],
                         'amount'=> $data['amount'],
                         'activation'=> $data['activation']
@@ -134,7 +134,7 @@ class OCFController extends Controller
                         }
                         $otp =  rand(100000, 999999);
 
-                        $phone =  OCFCustomer::where('id', $request->customercode)->where('phone', $customer->phone)->first();
+                        $phone =  OCFCustomer::where('id', $request->customercode)->first();
 
                         $verifyotp = [
                             'otp' => $otp,
@@ -192,17 +192,18 @@ class OCFController extends Controller
 
               foreach ($request->Dcoument as $data ){
 
-                $module_unit=[];
+                // $module_unit=[];
                 $module_unit = DB::table('acme_module')
                 ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
-                ->where('acme_module.ModuleName',$data['modulecode'])
-                ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
-
+                ->where('acme_module.ModuleName',$data['modulename'])
+                ->first(['acme_module.ModuleName AS Modulename','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
+               
+                
                 if ($data['id']==0) {
                          $data=[
                             'ocfcode'=> $insert_ocf->id,
-                            'modulename'=> $data['modulecode'],
-                            'modulecode'=> $data['modulecode'],
+                            'modulename'=> $data['modulename'],
+                            'modulecode'=> $data['modulename'],
                             'moduletypes'=> $module_unit[0]->moduletype,
                             'quantity'=> $data['quantity'],
                             'unit'=>  $module_unit[0]->unit,

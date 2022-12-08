@@ -22,6 +22,8 @@ use function PHPUnit\Framework\returnSelf;
 
 class OCFAPIController extends Controller
 {    
+    // public $key = config('global.key'); 
+
     public function customercreate(Request $request)
     {
         $key = config('global.key');
@@ -476,6 +478,11 @@ class OCFAPIController extends Controller
                         'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                         ->where('id','=', $request->companycode)
                         ->first();
+           
+            if(empty($company))
+            {
+                return response()->json(['message' => 'Company Not Exist', 'status' => 1]);
+            }
             //Customer Decrypt Data
             $checkcustomer =  DB::table('customer_master')
                         ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
@@ -487,235 +494,7 @@ class OCFAPIController extends Controller
                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                         ->where('id','=',$request->customercode)
                         ->first();
-        
-            // If Company Not Exist
-            if($company == null)
-            {               
-                $time = date('Y-m-d');
-                $expirytime = date('d-m-Y', strtotime($time . " +5 minutes") );
-                // OTP Generate IF Company Data Not match
-                if($request->otp == "")
-                {
-                    $checkcustomer =  DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode', 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'), 
-                                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time', 
-                                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state', 
-                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson', 
-                                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                                        ->where('id','=',$request->customercode)
-                                        ->first();
-                    
-                    $this->companyotp($request);
-
-                    return response()->json(['message' => 'OTP Generated Update Company','status' => 2]);
-                }
-                // Check OTP When Company Updated
-                else
-                {
-                    // IF OTP Match
-                    if($request->otp == $customer->otp)
-                    {
-                        //IF OTP verified
-                        $updateotp =  OCFCustomer::where('id', $customer->id)->update(['isverified'=> 1]);
-                    
-                        // Check Serial No Exist or Not
-                        // $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
-                        $checkserial =  DB::table('serialno')
-                                            ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
-                                            ->where('ocfno', '=', $request->companycode)
-                                            ->where('serialno_issue_date', '=', $request->issuedate)
-                                            ->where('serialno', '=', DB::raw("HEX(AES_ENCRYPT('$request->serialno' , '$key'))"))
-                                            ->first();
-                        //Check Packagecode if 2 then expirytime is 1 Month  
-                        if($customer->packagecode == 2)
-                        {
-                            $time = date('Y-m-d');
-                            $expirytime = date('d-m-Y', strtotime($time . " + 1 month") );
-                            $companydata->expirydates = $expirytime;
-                            $companydata->save();
-                                
-                        }
-                        // Check Packagecode if 3 then expirytime is 6 Month
-                        elseif($customer->packagecode == 3) 
-                        {
-                            $time = date('Y-m-d');
-                            $expirytime = date('d-m-Y', strtotime($time . " + 6 month") );
-                            $companydata->expirydates = $expirytime;
-                            $companydata->save();
-                        }
-                        else
-                        {
-                            return response()->json(['message' => 'Invalid Package', 'status' => 1]);
-                        }
-                        //If Serialno correct
-                        if($checkserial)
-                        {  
-                                // Update Company
-                                $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
-                                ->update(array(
-                                    'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
-                                    'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
-                                    'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
-                                ));
-                                $updatecompany = DB::table('company_master')
-                                                ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
-                                                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
-                                                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
-                                                'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
-                                                ->where('id','=', $request->companycode)
-                                                ->first();
-                              
-                                // Modules
-                                $module = OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
-                                                        ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
-                                                        ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
-                                                        ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
-                                                        ->where('ocf_master.customercode', $request->customercode)
-                                                        ->where('ocf_master.companycode', $request->companycode)
-                                                        ->whereRaw('IF(acme_module_type.expiry = 1, IF(ocf_modules. expirydate >= DATE(NOW()),1,0),1)')
-                                                        ->groupBy('ocf_modules.modulecode')
-                                                        ->get();
-                                
-                                // Serial No 
-                                $serial = md5($module);
-                                $time = date('d-m-Y');
-                                $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
-                                $insert_serialno = DB::table('serialno')
-                                        ->insert( array( 
-                                        'ocfno' => $request->companycode,
-                                        'comp_name' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->companyname' , '$key'))"), 
-                                        'pan' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->panno', '$key'))"),
-                                        'gst' => DB::raw("HEX(AES_ENCRYPT('$updatecompany->gstno', '$key'))"),
-                                        'serialno_issue_date' => $time,
-                                        'serialno_validity'=>$expirydate,
-                                        'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
-                                            ) );
-                                $sr = Serialno::orderBy('id', 'desc')->first();
-                                $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
-                                            
-                                //Decrypt Saved Serial Data
-                                $getserial =  DB::table('serialno')
-                                            ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
-                                            DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
-                                            DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
-                                            'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                            DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
-                                            ->where('id','=', $srid->id)
-                                            ->first();
-                                return response()->json(['message' => 'Company Updated', 'status' => 0, 'Company' => $updatecompany,'Modules' => $module, 'Serial' => $getserial]);
-                            }
-                            //If Serialno Incorrect
-                            else
-                            {
-                                if($request->serialotp == "")
-                                {          
-                                    $this->serialnootp($request);                      
-                                    return response()->json(['message' => 'OTP Generated Update Serial','status' => 2]);  
-                                }
-                                else
-                                {
-                                    if($request->serialotp == $customer->serialotp)
-                                    {
-                                        $updateotp =  OCFCustomer::where('id', $customer->id)->update(['isverified'=> 1]);
-                                        
-                                        $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
-                                                        ->update(array(
-                                                            'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
-                                                            'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
-                                                            'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
-                                                        ));
-                                        
-                                        if($customer->packagecode == 2)
-                                        {
-                                            $time = date('Y-m-d');
-                                            $expirytime = date('d-m-Y', strtotime($time . " + 1 month") );
-                                            $companydata->expirydates = $expirytime;
-                                            $companydata->save();
-                                        }
-                                        elseif($customer->packagecode == 3) 
-                                        {
-                                            $time = date('Y-m-d');
-                                            $expirytime = date('d-m-Y', strtotime($time . " + 6 month") );
-                                            $companydata->expirydates = $expirytime;
-                                            $companydata->save();       
-                                        }
-                                        else
-                                        {
-                                            return response()->json(['message' => 'Invalid Package', 'status' => 1]);
-                                        }
-                                        $updatecomp = DB::table('company_master')->where('id', '=', $request->companycode)
-                                                            ->update(array(
-                                                                'companyname' => DB::raw("HEX(AES_ENCRYPT('$request->company_name' , '$key'))"), 
-                                                                'panno' => DB::raw("HEX(AES_ENCRYPT('$request->pan_no', '$key'))"),
-                                                                'gstno' => DB::raw("HEX(AES_ENCRYPT('$request->gst_no', '$key'))"),
-                                                            ));
-                                        $updatecompany1 = DB::table('company_master')
-                                                            ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'), 
-                                                            DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'), 
-                                                            DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'), 
-                                                            'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
-                                                            ->where('id','=', $request->companycode)
-                                                            ->first();
-                        
-                                        $module =OCF::select(DB::raw('max(acme_module.ModuleName) as ModuleName'),   DB::raw('max(ocf_modules.expiryDate) as ExpiryDate'),  DB::raw('max(acme_module_type.expiry) as Expiry'),DB::raw('SUM(ocf_modules.quantity) AS Quantity'))
-                                                        ->join('ocf_modules', 'ocf_master.id', '=', 'ocf_modules.ocfcode')
-                                                        ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
-                                                        ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
-                                                        ->where('ocf_master.customercode', $request->customercode)
-                                                        ->where('ocf_master.companycode', $request->companycode)
-                                                        ->whereRaw('IF(acme_module_type.expiry = 1, IF(ocf_modules. expirydate >= DATE(NOW()),1,0),1)')
-                                                        ->groupBy('ocf_modules.modulecode')
-                                                        ->get();
-                                        
-                                        $serial = md5($module);
-                                        $time = date('d-m-Y');
-                                        $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
-                                        $insert_serialno = DB::table('serialno')
-                                                                ->insert( array( 
-                                                                'ocfno' => $request->companycode,
-                                                                'comp_name' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->companyname' , '$key'))"), 
-                                                                'pan' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->panno', '$key'))"),
-                                                                'gst' => DB::raw("HEX(AES_ENCRYPT('$updatecompany1->gstno', '$key'))"),
-                                                                'serialno_issue_date' => $time,
-                                                                'serialno_validity'=>$expirydate,
-                                                                'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"), 
-                                                                'otp_flag' =>1) );
-
-                                        $sr = Serialno::orderBy('id', 'desc')->first();
-                                        $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
-                                                    
-                                        //Decrypt Saved Serial Data
-                                        $getserial =  DB::table('serialno')
-                                                    ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'), 
-                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(pan), "'.$key.'") AS CHAR) AS pan'), 
-                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(gst), "'.$key.'") AS CHAR) AS gst'), 
-                                                    'serialno.serialno_issue_date', 'serialno.serialno_validity', 
-                                                    DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
-                                                    ->where('id','=', $srid->id)
-                                                    ->first();
-                                            
-                                        return response()->json(['message' => 'Company And Serialno Updated', 'status' => 0, 'Company data' => $updatecompany1,'Modules' => $module, 'Serialno' => $getserial]);
-                                    }
-                                    else
-                                    {  
-                                        return response()->json(['status' => 1 , 'message' => 'Invalid OTP']);
-                                    }
-                                }        
-                            
-                        }    
-                    } 
-                    // OTP Not Match
-                    else
-                    {
-                        return response()->json(['message' => 'Invalid OTP', 'status' => 1]);
-                    }  
-                }
-            }
-            // If Company Exist
-            else
-            {
+         
                 // $checkserial = Serialno::where('ocfno', $request->companycode)->where('serialno_issue_date', $request->issuedate)->where('serialno', $request->serialno)->orderBy('id', 'desc')->first();
                 $checkserial =  DB::table('serialno')
                                     ->select('serialno.ocfno','serialno.comp_name','serialno.pan', 'serialno.gst', 'serialno.serialno_issue_date', 'serialno.serialno_validity', 'serialno.otp_flag', 'serialno.serialno', 'serialno.id')
@@ -825,7 +604,7 @@ class OCFAPIController extends Controller
                                             ->join('acme_module', 'ocf_modules.modulecode', '=', 'acme_module.id')
                                             ->join('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
                                             ->where('ocf_master.customercode', $request->customercode)
-                                            ->where('ocf_master.companycode', $company->id)
+                                            ->where('ocf_master.companycode', $request->companycode)
                                             ->whereRaw('IF(acme_module_type.expiry = 1, IF(ocf_modules. expirydate >= DATE(NOW()),1,0),1)')
                                             ->groupBy('ocf_modules.modulecode')
                                             ->get();
@@ -866,7 +645,7 @@ class OCFAPIController extends Controller
                         }
                     }            
                 }
-            }   
+              
         }
     }
 
@@ -895,16 +674,9 @@ class OCFAPIController extends Controller
                     'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('id','=',$request->customercode)
                     ->first();
+  
         
-        
-        if($getotp == null)
-        {
-            return response()->json(['Message' => 'Invalid OTP', 'status' => 1]);
-        }
-
-       
-        
-        else if($request->customercode)
+        if($request->customercode)
         { 
             if($getcustomer == null)
             {
@@ -927,7 +699,8 @@ class OCFAPIController extends Controller
             return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $getcustomer, 'Company' => $company ] );
         }
         //verify OTP
-        else if($request->otp == $getotp->otp)
+     
+        else if($request->otp)
         { 
             $custpmerupdate = OCFCustomer::where('id', $getotp->id)->update(['isverified'=> 1]);
 
