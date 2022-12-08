@@ -105,20 +105,6 @@ class OCFController extends Controller
                                                     ->where('acme_module.ModuleName',$data['modulecode'])
                                                     ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
 
-<<<<<<< HEAD
-                        $module_unit = DB::table('acme_module')
-                        ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
-                        ->where('acme_module.ModuleName',$data['modulecode'])
-                        ->get(['acme_module.ModuleName AS Module_name','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
-                      
-                    $data=[
-                        'ocfcode'=> $insert_ocf->id,
-                        'modulename'=> $data['modulecode'],
-                        'moduletypes'=> $module_unit[0]['moduletype'],
-                        'quantity'=> $data['quantity'],
-                        'unit'=>  $module_unit[0]['unit'],
-                        'expirydate'=> $data['expirydate'],
-=======
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
                         'modulename'=> $data['modulecode'],
@@ -126,7 +112,6 @@ class OCFController extends Controller
                         'moduletypes'=> $module_unit[0]->acme_module_typeid,
                         'quantity'=> $data['quantity'],
                         'expirydate'=> $expirydate,
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
                         'amount'=> $data['amount'],
                         'activation'=> $data['activation']
 
@@ -166,12 +151,8 @@ class OCFController extends Controller
 
                 $otp =  rand(100000, 999999);
 
-<<<<<<< HEAD
-                        $phone =  OCFCustomer::where('id', $request->customercode)->first();
-=======
                 $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
                 // $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
 
                 // Log::info("otp = ".$otp);
                 // Log::info("otp_expires_time = ".$otp_expires_time);
@@ -221,16 +202,6 @@ class OCFController extends Controller
           {
 
               foreach ($request->Dcoument as $data ){
-<<<<<<< HEAD
-
-                // $module_unit=[];
-                $module_unit = DB::table('acme_module')
-                ->join('acme_module_type','acme_module.moduletypeid','=','acme_module_type.id')
-                ->where('acme_module.ModuleName',$data['modulename'])
-                ->first(['acme_module.ModuleName AS Modulename','acme_module_type.moduletype As moduletype','acme_module_type.unit as unit']);
-               
-                
-=======
                 if ($data['expirydate']==null) {
                     $data['expirydate']='0000-00-00';
                 }
@@ -242,21 +213,14 @@ class OCFController extends Controller
                 ->where('customer_master.id', $request->customercode)
                 ->where('acme_module.ModuleName',$data['modulecode'])
                 ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
                 if ($data['id']==0) {
 
 
                          $data=[
                             'ocfcode'=> $insert_ocf->id,
-<<<<<<< HEAD
-                            'modulename'=> $data['modulename'],
-                            'modulecode'=> $data['modulename'],
-                            'moduletypes'=> $module_unit[0]->moduletype,
-=======
                             'modulename'=> $data['modulecode'],
                             'modulecode' => $module_unit[0]->moduleid,
                             'moduletypes'=> $module_unit[0]->acme_module_typeid,
->>>>>>> 2b601b693c36fe423a62c4f3f3c23781862e71f5
                             'quantity'=> $data['quantity'],
                             'expirydate'=> $expirydate,
                             'amount'=> $data['amount'],
