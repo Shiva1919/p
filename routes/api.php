@@ -250,7 +250,7 @@ Route::post('pincode',                                     [OCFAPIController::cl
 Route::post('autologin',                                   [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
 Route::post('broadcast_messages',                          [OCFAPIController::class, 'broadcast_messages'])->middleware('auth:sanctum');
 Route::post('date_time',                                   [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
-
+Route::get('acmeinfo',                                    [OCFAPIController::class, 'acme_info'])->middleware('auth:sanctum');
 Route::get('companyocfs',                                  [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::post('companyotp',                                  [OCFAPIController::class, 'companyotp'])->middleware('auth:sanctum');
