@@ -49,7 +49,7 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-       
+
         $input = $request->all();
         // $validator = Validator::make($input, [
         //     'name' => 'required',
@@ -57,10 +57,16 @@ class RoleController extends Controller
         // ]);
         // if($validator->fails())
         // {
-        //     return $this->sendError('Validation Error.', $validator->errors());       
+        //     return $this->sendError('Validation Error.', $validator->errors());
         // }
         $role = Role::create($input);
-        return response()->json($role);
+
+        return response()->json([
+            'status'=>200,
+            'message'=>'Role Added Successfully',
+            'data'=>$role
+        ]);
+        // return response()->json($role);
     }
 
     /**
@@ -72,7 +78,7 @@ class RoleController extends Controller
     public function show($id)
     {
         $role = Role::find($id);
-        if (is_null($role)) 
+        if (is_null($role))
         {
             return $this->sendError('Role not found.');
         }
@@ -87,7 +93,7 @@ class RoleController extends Controller
      */
     public function edit($id)
     {
-        
+
     }
 
     /**
@@ -105,7 +111,12 @@ class RoleController extends Controller
         $role->permission_id = $input['permission_id'];
         $role->active = $input['active'];
         $role->save();
-        return response()->json($role);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Role Updated Successfully',
+            'data'=>$role
+        ]);
+        // return response()->json($role);
     }
 
     /**
@@ -122,21 +133,21 @@ class RoleController extends Controller
 
     public function rolestatus($id, $active)
     {
-        try 
+        try
         {
             $update_role = Role::where('id', $id)->update([
                 'active' => $active
-            ]);   
+            ]);
             if($update_role)
             {
-                return response()->json(['message'=>'Role Updated Successfully'], 200); 
-            } 
+                return response()->json(['message'=>'Role Updated Successfully'], 200);
+            }
             else
             {
-                return response()->json(['message'=>'Role Updated Unsuccessfully'], 404); 
+                return response()->json(['message'=>'Role Updated Unsuccessfully'], 404);
             }
-        } 
-        catch (\Throwable $th) 
+        }
+        catch (\Throwable $th)
         {
             throw $th;
         }

@@ -36,11 +36,18 @@ class OCFModuleController extends Controller
 
     function model_expire_date($id)
     {
-        $module=DB::table('acme_module_type')
-                    ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid' )
-                    ->where('acme_module.ModuleName',$id)->first();
-        return $module;
+             if (gettype($id)=='interger') {
 
+                 $module=DB::table('acme_module_type')
+                ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid')
+                ->where('acme_module.id',$id)->first();
+                }
+                else{
+                 $module=DB::table('acme_module_type')
+                 ->join('acme_module','acme_module_type.id','=','acme_module.moduletypeid')
+                ->where('acme_module.ModuleName',$id)->first();
+               }
+        return $module;
     }
 
     /**

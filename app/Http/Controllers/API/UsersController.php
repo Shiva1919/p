@@ -26,7 +26,7 @@ class UsersController extends Controller
 
     public function getuserlogin(Request $request)
     {
-        session_start();  
+        session_start();
         $data =  $_SESSION;
         return $data;
     }
@@ -46,6 +46,16 @@ class UsersController extends Controller
     {
         //
     }
+    public function duplicate_usermail($email){
+        $dublicate = Users::where('email',$email)->first();
+        if($dublicate){
+            return response()->json([
+                'status'=>1,
+                'message'=>'This Mail Allready Available in Database',
+
+            ]);
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -57,19 +67,36 @@ class UsersController extends Controller
     {
         $this->validate(request(),[
             //put fields to be validated here
-            ]);         
-       
+            ]);
+
+
         $user= new Users();
-            $user->name= $request['name'];
-            $user->last_name= $request['last_name'];
-            $user->email= $request['email'];
-            $user->phone= $request['phone'];
-            $user->password= Hash::make($request['password']);
-            $user->active= $request['active'];
-            $user->role_id= $request['role_id'];
-            $user->permission_id= $request['permission_id'];
+        $user->name = $request['fristname'];
+        $user->last_name = $request['lastname'];
+        $user->email = $request['email'];
+        $user->phone = $request['mobile'];
+        $user->active = $request['active'];
+        $user->password = Hash::make($request['password']);
+        $user->rowpassword= $request['password'];
+        $user->role_id = $request['role_id'];
+        $user->permission_id = $request['module'];
         $user->save();
-        return response()->json([$user]);
+            if ($user->id) {
+                return response()->json([
+                    'status'=>1,
+                    'message'=>'User Added Successfully',
+                    'data'=>$user
+                ]);
+            }
+            else{
+                return response()->json([
+                    'status'=>0,
+                    'message'=>'Something error'
+                ]);
+
+            }
+
+
 
 
     }
@@ -83,7 +110,7 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = Users::find($id);
-        if (is_null($user)) 
+        if (is_null($user))
         {
             return $this->sendError('User not found.');
         }
@@ -110,34 +137,28 @@ class UsersController extends Controller
      */
     public function update(Request $request, Users $user)
     {
-        $input = $request->all();
-        $validator = Validator::make($input, [
-            // 'tenantcode' =>'',
-            'name' => 'required',
-            'last_name' => '',
-            'email' => '',
-            'phone' => '',
-            'password' => '',
-            'active' => '',
-            'role_id' => '',
-            'permission_id' => '',
-        ]);
-        if($validator->fails())
-        {
-            return $this->sendError('Validation Error.', $validator->errors());       
-        }
-        // $user->tenantcode = $input['tenantcode'];
-        $user->name = $input['name'];
-        $user->last_name = $input['last_name'];
-        $user->email = $input['email'];
-        $user->phone = $input['phone'];
-        $user->active = $input['active'];
-        $user->password = Hash::make($input['password']);
-        $user->role_id = $input['role_id'];
-        $user->permission_id = $input['permission_id'];
+        $request->all();
+
+
+        $user->name = $request['fristname'];
+        $user->last_name = $request['lastname'];
+        $user->email = $request['email'];
+        $user->phone = $request['mobile'];
+        $user->active = $request['active'];
+        if (!empty($request['password']) ) {
+           $user->password = Hash::make($request['password']);
+           $user->rowpassword= $request['password'];
+         }
+        $user->role_id = $request['role'];
+        $user->permission_id = $request['module'];
         $user->save();
         // return $user;
-        return response()->json($user);
+        return response()->json([
+            'status'=>200,
+            'message'=>'User Updated Successfully',
+            'data'=>$user
+        ]);
+
     }
 
     /**
@@ -164,21 +185,21 @@ class UsersController extends Controller
 
     public function userstatus($id, $active)
     {
-        try 
+        try
         {
             $update_user = Users::where('id', $id)->update([
                 'active' => $active
-            ]);   
+            ]);
             if($update_user)
             {
-                return response()->json(['message'=>'User Updated Successfully'], 200); 
-            } 
+                return response()->json(['message'=>'User Updated Successfully'], 200);
+            }
             else
             {
-                return response()->json(['message'=>'User Updated Unsuccessfully'], 404); 
+                return response()->json(['message'=>'User Updated Unsuccessfully'], 404);
             }
-        } 
-        catch (\Throwable $th) 
+        }
+        catch (\Throwable $th)
         {
             throw $th;
         }

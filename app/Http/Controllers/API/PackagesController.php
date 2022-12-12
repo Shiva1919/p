@@ -53,7 +53,12 @@ class PackagesController extends Controller
             'active' => ''
         ]);
         $insert_package = Packages::create($request->all());
-        return response()->json($insert_package);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Package Added Successfully',
+            'data'=>$insert_package
+        ]);
+
     }
 
     /**
@@ -106,7 +111,12 @@ class PackagesController extends Controller
         $package->description = $input['description'];
         $package->active = $input['active'];
         $package->save();
-        return response()->json([$package]);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Package Updated Successfully',
+            'data'=>$package
+        ]);
+        // return response()->json([$package]);
     }
 
     /**
@@ -154,7 +164,12 @@ class PackagesController extends Controller
         $subpackage->active = $request->active;
         $subpackage->packagetype =$packageid;
         $subpackage->save();
-        return response()->json([$subpackage]);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Sub-Package Added Successfully',
+            'data'=>$subpackage
+        ]);
+        // return response()->json([$subpackage]);
     }
 
     public function subpackageupdate(Request $request, $packageid, $id)
@@ -166,14 +181,24 @@ class PackagesController extends Controller
             'active' => $request->active
         ];
         $update_subpackage = $subpackage->update($subpackagedata);
-        return response()->json([$update_subpackage]);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Sub-Package Update Successfully',
+            'data'=>$update_subpackage
+        ]);
+        // return response()->json([$update_subpackage]);
     }
 
     public function subpackagedelete($packageid, $id)
     {
         $subpackagedata = SubPackages::where('packagetype', $packageid)->where('id', $id)->first();
         $delete_subpackage = $subpackagedata->delete();
-        return response()->json([$delete_subpackage]);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Sub-Package Deleted Successfully',
+            'data'=>$delete_subpackage
+        ]);
+        // return response()->json([$delete_subpackage]);
     }
 
     public function moduleindex($packageid)

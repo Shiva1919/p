@@ -37,7 +37,7 @@ class IApi extends Controller
      */
     public function store(Request $request)
     {
-       
+
         $data=date('Y-m-d');
         $api = new acme_einvoice_subscriptions;
         $api->CustomerName = $request->CustomerName;
@@ -140,12 +140,12 @@ public function Payment($owncode,$id){
     // return $data;
 
     if ($data) {
-        if ($id=='Y') {
-            $data->PaymentReceived = 'N';
+        if ($id==1) {
+            $data->PaymentReceived = 0;
         }
-        if ($id=='N'){
+        if ($id==0){
 
-            $data->PaymentReceived = 'Y';
+            $data->PaymentReceived = 1;
         }
 
       $data->save();

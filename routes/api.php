@@ -208,6 +208,7 @@ Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcu
 
 
 // Users
+Route::get('duplicate_mail/{email}',                       [UsersController::class, 'duplicate_usermail']);
 Route::resource('users',                                    UsersController::class);
 Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
 Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);

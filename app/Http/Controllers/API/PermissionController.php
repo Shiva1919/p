@@ -55,7 +55,12 @@ class PermissionController extends Controller
             return $this->sendError('Validation Error.', $validator->errors());
         }
         $permission = Permission::create($input);
-        return response()->json($permission);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Module Added Successfully',
+            'data'=>$permission
+        ]);
+        // return response()->json($permission);
     }
 
     /**
@@ -106,7 +111,12 @@ class PermissionController extends Controller
         $permission->name = $input['name'];
         $permission->active = $input['active'];
         $permission->save();
-        return response()->json($permission);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Module Update Successfully',
+            'data'=>$permission
+        ]);
+        // return response()->json($permission);
     }
 
     /**
