@@ -197,7 +197,6 @@ class OCFController extends Controller
           // $insert_ocf->series=$series->series+1;
           $insert_ocf->save();
 
-
           if(!empty($insert_ocf->id))
           {
 
