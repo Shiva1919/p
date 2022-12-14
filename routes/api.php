@@ -243,6 +243,35 @@ Route::get('gettoken',                            [AuthController::class, 'getto
 Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcustomerlogin']);
 
 
+<<<<<<< HEAD
+=======
+// Users
+Route::get('duplicate_mail/{email}',                       [UsersController::class, 'duplicate_usermail']);
+Route::resource('users',                                    UsersController::class);
+Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
+Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);
+Route::put('users/{id}/{active}/status',                   [UsersController::class, 'userstatus']);
+Route::get('usersactive',                                  [UsersController::class, 'activeuser']);
+Route::get('usersdeactive',                                [UsersController::class, 'deactiveuser']);
+Route::get('customers',                                    [UsersController::class, 'getcustomer']);
+Route::get('customerlogin/{tenantcode}/{password}/{token}',[UsersController::class, 'customerlogin']);
+
+//Role
+Route::resource('roles',                                    RoleController::class);
+Route::get('rolesgetexcept',                               [RoleController::class, 'rolesgetexcept']);
+Route::get('rolesdeactivelist',                            [RoleController::class, 'deactiverolesslist']);
+Route::put('roles/{id}/{active}',                          [RoleController::class, 'rolestatus']);
+Route::get('rolesactive',                                  [RoleController::class, 'activerole']);
+Route::get('rolesdeactive',                                [RoleController::class, 'deactiverole']);
+
+ //Permission
+ Route::resource('permissions',                             PermissionController::class);
+ Route::get('permissiondeactivelist',                      [PermissionController::class, 'deactivepermissionslist']);
+ Route::put('permissions/{id}/{active}/status',            [PermissionController::class, 'permissionstatus']);
+ Route::get('permissionsactive',                           [PermissionController::class, 'activepermission']);
+ Route::get('permissionsdeactive',                         [PermissionController::class, 'deactivepermission']);
+
+>>>>>>> f4105dedbf3afa41c8248b5a84680dc388060908
 //  Company
 Route::get('customer_wise_company/{id}',                   [CompanyController::class,'customer_wise_company']);
 

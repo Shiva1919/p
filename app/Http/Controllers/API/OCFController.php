@@ -58,7 +58,7 @@ class OCFController extends Controller
      */
     public function store(Request $request)
     {
-        $key = config('global.key');
+           $key = config('global.key');
 
         $str = substr($request->ocfno,3);
         $data1=[];
@@ -83,7 +83,7 @@ class OCFController extends Controller
                     $insert_ocf->DocNo=$series->DocNo+1;
                 }
                 $insert_ocf->Series = ('OCF');
-                $ocf_date= date("d/m/Y", strtotime($request->ocf_date));
+                $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
                 $insert_ocf->ocf_date =  $ocf_date;
                 $insert_ocf->AmountTotal=$request->module_total;
                 $insert_ocf->save();
@@ -96,7 +96,7 @@ class OCFController extends Controller
                         if ($data['expirydate']==null) {
                             $data['expirydate']='0000-00-00';
                         }
-                       $expirydate= date("d/m/Y", strtotime($data['expirydate']));
+                       $expirydate= date("Y-m-d", strtotime($data['expirydate']));
 
                     $module_unit =OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                                     ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
@@ -188,13 +188,14 @@ class OCFController extends Controller
 
     }
     else{
+
+
         $insert_ocf = OCF::where('DocNo', $str)->first();
-        $ocf_date= date("d/m/Y", strtotime($request->ocf_date));
+        $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
           $insert_ocf->customercode = $request->customercode;
           $insert_ocf->companycode = $request->companycode;
           $insert_ocf->ocf_date = $ocf_date;
           $insert_ocf->AmountTotal=$request->module_total;
-          // $insert_ocf->series=$series->series+1;
           $insert_ocf->save();
 
           if(!empty($insert_ocf->id))
@@ -204,7 +205,7 @@ class OCFController extends Controller
                 if ($data['expirydate']==null) {
                     $data['expirydate']='0000-00-00';
                 }
-                $expirydate= date("d/m/Y", strtotime($data['expirydate']));
+                $expirydate= date("Y-m-d", strtotime($data['expirydate']));
                 $module_unit=[];
                 $module_unit = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
@@ -224,7 +225,6 @@ class OCFController extends Controller
                             'expirydate'=> $expirydate,
                             'amount'=> $data['amount'],
                             'activation'=> $data['activation']
-
                         ];
 
                      OCFModule::create($data);
@@ -233,7 +233,7 @@ class OCFController extends Controller
 
                $update_data= OCFModule::find($data['id']);
                 $update_data->modulename=$data['modulecode'];
-                $update_data->$module_unit[0]->moduleid;
+                $update_data->modulecode=$module_unit[0]->moduleid;
                 $update_data->moduletypes=$module_unit[0]->acme_module_typeid;
                 $update_data->quantity=$data['quantity'];
                 $update_data->expirydate=$expirydate;
