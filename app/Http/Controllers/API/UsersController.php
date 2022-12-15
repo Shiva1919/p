@@ -18,7 +18,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)
+        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)->orderBy('name','asc')
                         ->get( ['roles.name as rolename','users.*']);
         // $user = Users::where('active', 1)->orderBy('name', 'asc')->get();
         return $user;
