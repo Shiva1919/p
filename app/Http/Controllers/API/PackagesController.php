@@ -52,6 +52,7 @@ class PackagesController extends Controller
             'description' => 'required',
             'active' => ''
         ]);
+
         $insert_package = Packages::create($request->all());
         return response()->json([
             'status'=>200,
@@ -95,22 +96,24 @@ class PackagesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Packages $package)
+    public function update(Request $request, $id)
     {
+
         $input = $request->all();
-        $validator = Validator::make($input, [
-            'packagename' => 'required',
-            'description'=> 'required',
-            'active' => ''
-        ]);
-        if($validator->fails())
-        {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
+        // $validator = Validator::make($input, [
+        //     'packagename' => 'required',
+        //     'description'=> 'required',
+        //     'active' => ''
+        // ]);
+        // if($validator->fails())
+        // {
+        //     return $this->sendError('Validation Error.', $validator->errors());
+        // }
+        $package=Packages::find($id);
         $package->packagename = $input['packagename'];
         $package->description = $input['description'];
         $package->active = $input['active'];
-        $package->save();
+        $package->update();
         return response()->json([
             'status'=>200,
             'message'=>'Package Updated Successfully',
@@ -244,13 +247,17 @@ class PackagesController extends Controller
         $module->producttype =$packageid;
         $module->moduletypeid = $request->moduletypeid;
         $module->save();
+        return response()->json([
+            'status'=>200,
+            'message'=>'Module Added Successfully',
+            'data'=>$module
+        ]);
 
-        return response()->json([$module]);
     }
 
     public function moduleupdate(Request $request, $packageid, $id)
     {
-        // return $request;
+
         $module = Modules::where('producttype', $packageid)->where('id', $id)->first();
         $moduledata = [
             'productcode' => $request->productcode,
@@ -259,7 +266,13 @@ class PackagesController extends Controller
             'active' => $request->active
         ];
         $update_module = $module->update($moduledata);
-        return response()->json([$update_module]);
+        return response()->json([
+            'status'=>200,
+            'message'=>'Module Updated Successfully',
+            'data'=>$update_module
+        ]);
+
+
     }
 
     public function moduledelete($packageid, $id)

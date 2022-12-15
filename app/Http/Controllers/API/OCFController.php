@@ -149,38 +149,38 @@ class OCFController extends Controller
                     return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
                 }
 
-                $otp =  rand(100000, 999999);
+                // $otp =  rand(100000, 999999);
 
-                $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-                // $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
+                // $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
+                // // $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
 
-                // Log::info("otp = ".$otp);
-                // Log::info("otp_expires_time = ".$otp_expires_time);
-                // Cache::put('otp_expires_time', $otp_expires_time);
+                // // Log::info("otp = ".$otp);
+                // // Log::info("otp_expires_time = ".$otp_expires_time);
+                // // Cache::put('otp_expires_time', $otp_expires_time);
 
-                // $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
+                // // $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
 
-                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
-                $params =
-                        [
-                            "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                            "message" =>
-                                        [
-                                            "content" =>
-                                            [
-                                                "type" => "text",
-                                                "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                                            ]
-                                        ]
-                        ];
-                $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                $data = $response->getBody();
-                Log::Info($data);
+                // $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
+                // $params =
+                //         [
+                //             "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
+                //             "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                //             "message" =>
+                //                         [
+                //                             "content" =>
+                //                             [
+                //                                 "type" => "text",
+                //                                 "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                //                             ]
+                //                         ]
+                //         ];
+                // $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                // $client = new \GuzzleHttp\Client();
+                // $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                // $data = $response->getBody();
+                // Log::Info($data);
 
-                        return response()->json(['message' => 'OCF Created Successfully OTP Generated','status' => '0','OCF' => $insert_ocf, 'Module' => $data1]);
+                        return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1]);
                    }
 
 

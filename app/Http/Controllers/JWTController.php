@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class JWTController extends Controller
 {
@@ -28,10 +29,10 @@ class JWTController extends Controller
      */
     public function register(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2|max:100',
-            'role_id' => '',
-            'email' => 'required|string|email|max:100|unique:users',
+             'email' => 'required|string|email|max:100|unique:users',
             'phone' => '',
              'gender' => '',
             'password' => 'required|string|min:6',
@@ -39,15 +40,17 @@ class JWTController extends Controller
         if($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
-        $user = User::create([
-                'name' => $request->name,
-                'role_id' => $request->role_id,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'gender' => $request->gender,
-                'password' => Hash::make($request->password)
-            ]);
+        $roles = DB::table('roles')->where('id',10)->first();
+$data=[
+    'name' => $request->name,
+    'role_id' => 10,
+    'email' => $request->email,
+    'phone' => $request->phone,
+    'gender' => $request->gender,
+    'permission_id'=> $roles->permission_id,
+    'password' => Hash::make($request->password)
+];
+        $user = User::create($data);
 
         // return response()->json([
         //     'message' => 'User successfully registered',
@@ -78,7 +81,7 @@ class JWTController extends Controller
         }
 
         if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         return $this->respondWithToken($token);
@@ -128,6 +131,7 @@ class JWTController extends Controller
     protected function respondWithToken($token)
     {
         return response()->json([
+            'message'=>'Success',
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 30,

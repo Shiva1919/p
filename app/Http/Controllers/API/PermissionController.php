@@ -97,7 +97,7 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Permission $permission)
+    public function update(Request $request, $id)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -108,6 +108,7 @@ class PermissionController extends Controller
         {
             return $this->sendError('Validation Error.', $validator->errors());
         }
+        $permission = Permission::find($id);
         $permission->name = $input['name'];
         $permission->active = $input['active'];
         $permission->save();
@@ -155,6 +156,7 @@ class PermissionController extends Controller
 
     public function user_permition($userid){
         $user_permissions=DB::table('users')->where('id',$userid)->first();
+
         return $user_permissions;
     }
 

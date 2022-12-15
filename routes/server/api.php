@@ -27,6 +27,16 @@ use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
 use App\Http\Controllers\IApi;
 
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
 
 Route::group(['middleware' => 'api'], function($router) {
     Route::post('/register', [JWTController::class, 'register']);
@@ -118,6 +128,12 @@ Route::get('getocfid',                             [OCFController::class, 'getoc
 Route::get('getseries',                            [OCFController::class, 'getocflastseries']);
 
 Route::get('customerdeactivelist',                 [CustomersController::class, 'deactivecustomerslist']);
+//Country
+// Route::get('state', [CustomersController::class, 'getState']);
+// Route::get('district/{stateid}', [CustomersController::class, 'getDistrict']);
+// Route::get('taluka/{districtid}', [CustomersController::class, 'getTaluka']);
+// Route::get('city/{talukaid}', [CustomersController::class, 'getCity']);
+
 // Branch
 Route::get('branch/{customerid}',                 [CustomersController::class, 'branchindex']);
 Route::get('branchgetbyid/{customerid}/{id}',     [CustomersController::class, 'branchshow']);
@@ -192,7 +208,6 @@ Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcu
 
 
 // Users
-Route::get('duplicate_mail/{email}',                       [UsersController::class, 'duplicate_usermail']);
 Route::resource('users',                                    UsersController::class);
 Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
 Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);
@@ -234,7 +249,7 @@ Route::post('pincode',                                     [OCFAPIController::cl
 Route::post('autologin',                                   [OCFAPIController::class, 'autologin'])->middleware('auth:sanctum');
 Route::post('broadcast_messages',                          [OCFAPIController::class, 'broadcast_messages'])->middleware('auth:sanctum');
 Route::post('date_time',                                   [OCFAPIController::class, 'date_time'])->middleware('auth:sanctum');
-Route::get('acmeinfo',                                    [OCFAPIController::class, 'acme_info'])->middleware('auth:sanctum');
+Route::get('acmeinfo',                                     [OCFAPIController::class, 'acme_info'])->middleware('auth:sanctum');
 Route::get('companyocfs',                                  [OCFAPIController::class, 'companyocf'])->middleware('auth:sanctum');
 Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage'])->middleware('auth:sanctum');
 Route::post('companyotp',                                  [OCFAPIController::class, 'companyotp'])->middleware('auth:sanctum');

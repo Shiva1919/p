@@ -10,12 +10,12 @@ class Users extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected static $logAttributes = ['uuid', 'name', 'last_name', 'email', 'email_verified_at', 'phone',  'password', 'password_changed_at', 'active', 'confirmation_code', 'confirmed', 'role_id', 'permission_id', 'timezone', 'last_login_at', 'last_login_ip', 'to_be_logged_out', 'status', 'created_by', 'updated_by', 'is_term_accept'];
+    protected static $logAttributes = ['id', 'name', 'last_name', 'email', 'email_verified_at', 'phone',  'password', 'password_changed_at', 'active', 'confirmation_code', 'confirmed', 'role_id', 'permission_id', 'timezone', 'last_login_at', 'last_login_ip', 'to_be_logged_out', 'status', 'created_by', 'updated_by', 'is_term_accept'];
 
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
-    protected static $logName = 'User';
+    protected static $logName = 'Users';
 
     public function getDescriptionForEvent(string $eventName): string
     {
@@ -24,6 +24,6 @@ class Users extends Model
 
     protected $table = 'users';
     protected $fillable = [
-        'uuid', 'name', 'last_name', 'email', 'email_verified_at', 'phone',  'password', 'password_changed_at', 'active', 'confirmation_code', 'confirmed', 'role_id', 'permission_id', 'timezone', 'last_login_at', 'last_login_ip', 'to_be_logged_out', 'status', 'created_by', 'updated_by', 'is_term_accept',
+        'id', 'name', 'last_name', 'email', 'email_verified_at', 'phone',  'password', 'password_changed_at', 'active', 'confirmation_code', 'confirmed', 'role_id', 'permission_id', 'timezone', 'last_login_at', 'last_login_ip', 'to_be_logged_out', 'status', 'created_by', 'updated_by', 'is_term_accept',
     ];
 }

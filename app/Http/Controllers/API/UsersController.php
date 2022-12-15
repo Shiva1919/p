@@ -78,7 +78,7 @@ class UsersController extends Controller
         $user->active = $request['active'];
         $user->password = Hash::make($request['password']);
         $user->rowpassword= $request['password'];
-        $user->role_id = $request['role_id'];
+        $user->role_id = $request['role'];
         $user->permission_id = $request['module'];
         $user->save();
             if ($user->id) {
@@ -135,11 +135,9 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Users $user)
+    public function update(Request $request,$id)
     {
-        $request->all();
-
-
+        $user = Users::find($id);
         $user->name = $request['fristname'];
         $user->last_name = $request['lastname'];
         $user->email = $request['email'];

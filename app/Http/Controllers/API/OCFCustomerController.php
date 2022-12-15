@@ -38,7 +38,9 @@ class OCFCustomerController extends Controller
     {
         $getmodules = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-                               ->where('customer_master.id', $customerid)->get('acme_module.*');
+                               ->where('customer_master.id', $customerid)
+                               ->where('acme_module.active', 1)
+                               ->get('acme_module.*');
 
         return response()->json($getmodules);
     }
@@ -289,7 +291,8 @@ class OCFCustomerController extends Controller
           }
 
       }
-        return response()->json([$customer]);
+      return response()->json(['message' => 'Customer Updated Successfully','status' => '0','Customer' => $customer]);
+
     }
 
     /**
