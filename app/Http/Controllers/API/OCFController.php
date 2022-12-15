@@ -198,7 +198,6 @@ class OCFController extends Controller
           $insert_ocf->AmountTotal=$request->module_total;
           $insert_ocf->save();
 
-
           if(!empty($insert_ocf->id))
           {
 

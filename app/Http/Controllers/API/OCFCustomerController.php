@@ -151,7 +151,8 @@ class OCFCustomerController extends Controller
                     }
 
                 }
-                return response()->json(['message' => 'Customer Saved Successfully','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+                $customerotp = (new OCFAPIController)->companyotp($request); 
+                return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
     }
 
