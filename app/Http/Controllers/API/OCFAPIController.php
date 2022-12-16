@@ -919,8 +919,8 @@ class OCFAPIController extends Controller
         }  
         
         $otp =  rand(100000, 999999);
-        $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successful%20.%20\nYour%20Verification%20OTP%20-%20$otp%20\n*Please%20Do%20Not%20Share%20OTP%20With%20Anyone";
+        $update_otp = OCFCustomer::Where('id', $request->customercode)->update((['otp' => $otp]));
+        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
         $params = 
                 [   
                     "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
@@ -977,7 +977,7 @@ class OCFAPIController extends Controller
                 
         $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
                 
-        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
+        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20Serial%20No%20Not%20Match%20With%20ACME%20\nPlease%20Verify%20With%20OTP%20-%20$otp\n*%20Please%20Do%20Not%20Share%20This%20OTP%20With%20Anyone.";
         $params = 
                 [   
                     "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
