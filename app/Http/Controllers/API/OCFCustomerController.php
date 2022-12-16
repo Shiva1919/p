@@ -164,7 +164,7 @@ class OCFCustomerController extends Controller
                 ->first();
                 $otp =  rand(100000, 999999);
                 $update_otp = OCFCustomer::Where('id',$id)->update((['otp' => $otp]));
-                $wt= DB::raw("HEX(AES_ENCRYPT('$request->whatsappno' , '$key'))");
+              
                 $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
                 $params = 
                         [   
