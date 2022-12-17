@@ -18,7 +18,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)
+        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)->orderBy('name','asc')
                         ->get( ['roles.name as rolename','users.*']);
         // $user = Users::where('active', 1)->orderBy('name', 'asc')->get();
         return $user;
@@ -71,14 +71,14 @@ class UsersController extends Controller
 
 
         $user= new Users();
-        $user->name = $request['fristname'];
-        $user->last_name = $request['lastname'];
+        $user->name = $request['name'];
+        $user->last_name = $request['last_name'];
         $user->email = $request['email'];
-        $user->phone = $request['mobile'];
+        $user->phone = $request['phone'];
         $user->active = $request['active'];
         $user->password = Hash::make($request['password']);
         $user->rowpassword= $request['password'];
-        $user->role_id = $request['role'];
+        $user->role_id = $request['role_id'];
         $user->permission_id = $request['module'];
         $user->save();
             if ($user->id) {

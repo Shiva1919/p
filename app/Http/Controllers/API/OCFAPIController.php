@@ -207,6 +207,39 @@ class OCFAPIController extends Controller
                                     'customer_master.packagecode', 'customer_master.subpackagecode')
                                     ->where('id','=',$ocfcustomerflastid->id+1)
                                     ->first();
+
+                        $checkcustomer =  DB::table('customer_master')
+                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time',
+                                    'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state',
+                                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                                    'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                                    ->where('id','=',$ocfcustomerflastid->id+1)
+                                    ->first();
+                        $otp =  rand(100000, 999999);
+                        $update_otp = OCFCustomer::Where('id',$ocfcustomerflastid->id+1)->update((['otp' => $otp]));
+
+                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
+                        $params =
+                                [
+                                    "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
+                                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                                            "message" =>
+                                                        [
+                                                            "content" =>
+                                                            [
+                                                                "type" => "text",
+                                                                "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                                            ]
+                                                        ]
+                                ];
+                        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                        $client = new \GuzzleHttp\Client();
+                        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                        $data = $response->getBody();
+                        Log::Info($data);
                     }
                     //Get Customer Data with requested customercode
                     else if($request->customercode)
@@ -346,6 +379,7 @@ class OCFAPIController extends Controller
     {
         $key = config('global.key');
         $data1=[];
+        $datas=[];
         $module_data=[];
 
         $series = OCF::orderBy('series', 'desc')->first('series');                      //Set series
@@ -403,6 +437,13 @@ class OCFAPIController extends Controller
                                                 ->where('customer_master.id', $request->customercode)
                                                 ->where('acme_module.ModuleName',$data['modulename'])
                                                 ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
+                    $getmoduledata1 = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
+                                                ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
+                                                ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
+                                                ->where('customer_master.id', $request->customercode)
+                                                ->where('acme_module.ModuleName',$data['modulename'])
+                                                ->get();
+
 
 
                     if(count($getmoduledata)==0)
@@ -422,12 +463,44 @@ class OCFAPIController extends Controller
                             ];
 
                         array_push($data1,$data);
-                        $ocfmoduledata = OCFModule::create($data);
-
+                        OCFModule::create($data);
                     }
 
                 }
 
+
+                if($getmoduledata1[0]['packagecode'] == 2)
+                {
+                    $data=[
+                        'ocfcode'=> $insert_ocf->id,
+                        'modulename'=> 'Users',
+                        'quantity'=> 30,
+                        'expirydate'=> "0000-00-00",
+                        'amount'=> 0,
+                        'moduletypes' => 2,
+                        'modulecode' => 29,
+                    ];
+
+                    OCFModule::create($data);
+                }
+                else if($getmoduledata1[0]['packagecode'] == 3)
+                {
+                    $data=[
+                            'ocfcode'=> $insert_ocf->id,
+                            'modulename'=> 'Users',
+                            'quantity'=> 15,
+                            'expirydate'=> "0000-00-00",
+                            'amount'=> 0,
+                            'moduletypes' => 2,
+                            'modulecode' => 30,
+                        ];
+
+                        OCFModule::create($data);
+                }
+                else{
+                     return response()->json(['message' => 'Invalid Package', 'status'=> 1]);
+                }
+            //    return $data2;
 
             //    $a= implode(",",$module_data);
 
@@ -902,6 +975,7 @@ class OCFAPIController extends Controller
         Log::Info($data);
         return   $otp;
     }
+
 
     public function serialnootp(Request $request)          // Currenly unused
     {
