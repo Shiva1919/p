@@ -33,6 +33,16 @@ class OCFCustomerController extends Controller
                 DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
           return response()->json($customer);
     }
+   public function deactivecustomerslist(){
+        $key = config('global.key');
+        $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 0)->orderBy('name','asc')
+        // ->get();
+       ->get(['id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
+          return response()->json($customer);
+    }
 
     public function getmoduledata($customerid)
     {
@@ -44,11 +54,7 @@ class OCFCustomerController extends Controller
 
         return response()->json($getmodules);
     }
-    public function deactivecustomerslist()
-    {
-        $package = OCFCustomer::where('active', 0)->orderBy('name', 'asc')->get();
-        return response()->json($package);
-    }
+
 
     public function getmoduletypedata($moduleid)
     {
@@ -69,6 +75,7 @@ class OCFCustomerController extends Controller
     //vikram changes
     public function store(Request $request)
     {
+
         $key = config('global.key');
             $rules = array(
                 'name' => 'required',
@@ -151,8 +158,9 @@ class OCFCustomerController extends Controller
                     }
 
                 }
-                $customerotp = (new OCFAPIController)->companyotp($request); 
-                return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => '0','Customer' => $insert_customers,'Company' => $data]);
+
+                $customerotp = (new OCFAPIController)->companyotp($request);
+                // return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
     }
 

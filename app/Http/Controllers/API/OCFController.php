@@ -21,13 +21,13 @@ class OCFController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+     function index()
     {
         $ocf = OCF::all();
         return response()->json($ocf);
     }
 
-    public function getocflastid()
+    function getocflastid()
     {
         $ocf = OCF::orderBy('DocNo', 'desc')->get('DocNo');
         if (count($ocf)!=0) {
@@ -45,7 +45,7 @@ class OCFController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    function create()
     {
         //
     }
@@ -56,7 +56,7 @@ class OCFController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    function store(Request $request)
     {
            $key = config('global.key');
 
