@@ -41,7 +41,7 @@ class JWTController extends Controller
             return response()->json($validator->errors(), 400);
         }
         $roles = DB::table('roles')->where('id',10)->first();
-$data=[
+        $data=[
     'name' => $request->name,
     'role_id' => 10,
     'email' => $request->email,
@@ -71,6 +71,7 @@ $data=[
      */
     public function login(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
@@ -81,7 +82,7 @@ $data=[
         }
 
         if (!$token = auth()->attempt($validator->validated())) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized']);
         }
 
         return $this->respondWithToken($token);

@@ -156,7 +156,6 @@ class PermissionController extends Controller
 
     public function user_permition($userid){
         $user_permissions=DB::table('users')->where('id',$userid)->first();
-
         return $user_permissions;
     }
 

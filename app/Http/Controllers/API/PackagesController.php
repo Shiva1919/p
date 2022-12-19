@@ -262,6 +262,7 @@ class PackagesController extends Controller
         $moduledata = [
             'productcode' => $request->productcode,
             'ModuleName' => $request->ModuleName,
+            'moduletypeid'=>$request->moduletypeid,
             'description' => $request->description,
             'active' => $request->active
         ];
