@@ -222,8 +222,9 @@ class OCFAPIController extends Controller
                         $update_otp = OCFCustomer::Where('id',$ocfcustomerflastid->id+1)->update((['otp' => $otp]));
 
                         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
-                        $params =
-                                [
+                        
+                        $params = 
+                                [   
                                     "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
                                             "from" => ["type" => "whatsapp", "number" => "9422031763"],
                                             "message" =>
@@ -903,7 +904,7 @@ class OCFAPIController extends Controller
     public function date_time()
     {
         $time = date('d-m-Y H:i:s');
-        return response()->json(['message' => 'Server Date Time', 'status' => 0, 'Date Time' => $time]);
+        return response()->json(['message' => 'ServerDateTime', 'status' => 0, 'Date Time' => $time]);
     }
 
     public function companyotp(Request $request)          // Currenly unused
@@ -1011,10 +1012,10 @@ class OCFAPIController extends Controller
         Cache::put('otp_expires_time', $otp_expires_time);
 
         $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-
-        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20otp%20for%20$compupdate->companyname%20is%20$otp";
-        $params =
-                [
+                
+        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20Serial%20No%20Verification%20With%20ACME%20\nPlease%20Verify%20With%20OTP%20-%20$otp\n*%20Please%20Do%20Not%20Share%20This%20OTP%20With%20Anyone.";
+        $params = 
+                [   
                     "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
                     "from" => ["type" => "whatsapp", "number" => "9422031763"],
                     "message" =>
