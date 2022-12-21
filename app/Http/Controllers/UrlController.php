@@ -55,7 +55,7 @@ class UrlController extends Controller
               $url->save();
               return response()->json([
                 'status'=>200,
-                'message'=>'Url Added Successfully'
+                'message'=>'Url Added Successful'
             ]);
         }
     }
@@ -114,7 +114,7 @@ class UrlController extends Controller
                 return response()->json([
                   'status'=>200,
                   'error'=>$validater->messages(),
-                  'message'=>'Url Update Successfully'
+                  'message'=>'Url Update Successful'
               ]);
             }
             else{
@@ -141,7 +141,7 @@ class UrlController extends Controller
     $url->delete();
     return response()->json([
         'status'=>200,
-        'message'=>'Url Delete Successfully'
+        'message'=>'Url Delete Successful'
     ]);
     }
 }
