@@ -2,9 +2,9 @@
    
 return [
   
-    'pagination_records' => 10,
+    'pagination_records' => 25,
   
-    'key' => "YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=",
+    'key' => "AcmeInfovision@1994#",
 ]
   
 ?>

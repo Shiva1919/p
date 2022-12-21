@@ -17,6 +17,7 @@ use App\Models\API\OCFCustomer;
 use App\Models\API\BroadcastMessage;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
+use DateTime;
 
 use function PHPUnit\Framework\returnSelf;
 use function Psy\debug;
@@ -27,6 +28,7 @@ class OCFAPIController extends Controller
     {
         $key = config('global.key');
 
+       
         //Filter Customer data id wise
         $customerdata = DB::table('customer_master')
                             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
@@ -624,23 +626,23 @@ class OCFAPIController extends Controller
             }
             if($checkserial)
             {
-                $module = DB::table(DB::raw('acme_module a'))
-                                    ->select('a.modulename as ModuleName', DB::raw('IFNULL(e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(e.expiry,0) AS Expiry'), DB::raw('IFNULL(e.quantity, a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(e.activation,0) AS activation'))
+                $module = DB::table(DB::raw('srno_acme_module srno_a'))
+                                    ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'), DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
                                     ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, SUM(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
-                                            FROM `customer_master` cu
-                                            JOIN `acme_package` i ON cu.packagecode = i.id
-                                            JOIN `ocf_master` b ON cu.id = b.customercode
-                                            JOIN `ocf_modules` c ON b.id = c.ocfcode
-                                            JOIN `acme_module` g ON c.modulecode = g.id
-                                            JOIN `acme_module_type` h ON g.moduletypeid = h.id
-                                            WHERE g.producttype = i.id AND cu.id = '.$request->customercode.' GROUP BY c.ModuleCode ) e'),'a.id', '=', 'e.modulecode')
+                                            FROM `srno_customer_master` cu
+                                            JOIN `srno_acme_package` i ON cu.packagecode = i.id
+                                            JOIN `srno_ocf_master` b ON cu.id = b.customercode
+                                            JOIN `srno_ocf_modules` c ON b.id = c.ocfcode
+                                            JOIN `srno_acme_module` g ON c.modulecode = g.id
+                                            JOIN `srno_acme_module_type` h ON g.moduletypeid = h.id
+                                            WHERE g.producttype = i.id AND cu.id = '.$request->customercode.' GROUP BY c.ModuleCode ) srno_e'),'a.id', '=', 'e.modulecode')
                                     ->leftJoin(DB::raw('(SELECT g.producttype
-                                        FROM `customer_master` a
-                                        JOIN `acme_package` f ON a.packagecode = f.id
-                                        JOIN `acme_module` g ON f.id = g.producttype
-                                        WHERE a.id ='.$request->customercode.' GROUP BY g.producttype) m'),'a.producttype', '=', 'm.producttype')
+                                        FROM `srno_customer_master` a
+                                        JOIN `srno_acme_package` f ON a.packagecode = f.id
+                                        JOIN `srno_acme_module` g ON f.id = g.producttype
+                                        WHERE a.id ='.$request->customercode.' GROUP BY g.producttype) srno_m'),'a.producttype', '=', 'm.producttype')
                                     ->where( 'm.producttype', '!=', Null)
-                                    ->get();
+                                    ->get(); 
 
 
                 $serial = md5($module);
@@ -713,25 +715,27 @@ class OCFAPIController extends Controller
                         //             // ->where('producttype','=',2)
                         //             ->get();
 
-                         $module = DB::table(DB::raw('acme_module a'))
-                                    ->select('a.modulename as ModuleName', DB::raw('IFNULL(e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(e.expiry,0) AS Expiry'), DB::raw('IFNULL(e.quantity, a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(e.activation,0) AS activation'))
+                        $module = DB::table(DB::raw('srno_acme_module srno_a'))
+                                    ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'), DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
                                     ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, SUM(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
-                                            FROM `customer_master` cu
-                                            JOIN `acme_package` i ON cu.packagecode = i.id
-                                            JOIN `ocf_master` b ON cu.id = b.customercode
-                                            JOIN `ocf_modules` c ON b.id = c.ocfcode
-                                            JOIN `acme_module` g ON c.modulecode = g.id
-                                            JOIN `acme_module_type` h ON g.moduletypeid = h.id
-                                            WHERE g.producttype = i.id AND cu.id = '.$request->customercode.' GROUP BY c.ModuleCode ) e'),'a.id', '=', 'e.modulecode')
+                                            FROM `srno_customer_master` cu
+                                            JOIN `srno_acme_package` i ON cu.packagecode = i.id
+                                            JOIN `srno_ocf_master` b ON cu.id = b.customercode
+                                            JOIN `srno_ocf_modules` c ON b.id = c.ocfcode
+                                            JOIN `srno_acme_module` g ON c.modulecode = g.id
+                                            JOIN `srno_acme_module_type` h ON g.moduletypeid = h.id
+                                            WHERE g.producttype = i.id AND cu.id = '.$request->customercode.' GROUP BY c.ModuleCode ) srno_e'),'a.id', '=', 'e.modulecode')
                                     ->leftJoin(DB::raw('(SELECT g.producttype
-                                        FROM `customer_master` a
-                                        JOIN `acme_package` f ON a.packagecode = f.id
-                                        JOIN `acme_module` g ON f.id = g.producttype
-                                        WHERE a.id ='.$request->customercode.' GROUP BY g.producttype) m'),'a.producttype', '=', 'm.producttype')
+                                        FROM `srno_customer_master` a
+                                        JOIN `srno_acme_package` f ON a.packagecode = f.id
+                                        JOIN `srno_acme_module` g ON f.id = g.producttype
+                                        WHERE a.id ='.$request->customercode.' GROUP BY g.producttype) srno_m'),'a.producttype', '=', 'm.producttype')
                                     ->where( 'm.producttype', '!=', Null)
-                                    ->get();
+                                    ->get(); 
+                        // $serial2 =(json_encode($module));
 
                         $serial = md5($module);
+
                         $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
 
                         $insert_serialno = DB::table('serialno')->insert( array(
@@ -903,8 +907,8 @@ class OCFAPIController extends Controller
 
     public function date_time()
     {
-        $time = date('d-m-Y H:i:s');
-        return response()->json(['message' => 'ServerDateTime', 'status' => 0, 'Date Time' => $time]);
+        $time = new DateTime();
+        return response()->json(['message' => 'ServerDateTime', 'status' => 0, 'Date_Time' => $time]);
     }
 
     public function companyotp(Request $request)          // Currenly unused
@@ -919,23 +923,7 @@ class OCFAPIController extends Controller
                         ->where('id','=', $request->companycode)
                         ->first();
         $ocfcustomerflastid = OCFCustomer::orderBy('id', 'desc')->first();
-        if($request->companycode==0 || $request->customercode==null)
-        {
-            $checkcustomer =  DB::table('customer_master')
-                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time',
-                        'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
-                        'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                        ->where('id','=',$ocfcustomerflastid->id)
-                        ->first();
-
-        }
-        else
-        {
-            $checkcustomer =  DB::table('customer_master')
+        $checkcustomer =  DB::table('customer_master')
                         ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                         DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
@@ -945,9 +933,7 @@ class OCFAPIController extends Controller
                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                         ->where('id','=',$request->customercode)
                         ->first();
-        }
-
-
+ 
         if($checkcustomer == null)
         {
             return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);

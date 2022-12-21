@@ -95,7 +95,7 @@ class AuthController extends Controller
     {
 
 
-        $user = DB::table('customer_master')->where('id', $login)->where('active', 1)->first(['id','entrycode','whatsappno','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),
+        $user = DB::table('srno_customer_master')->where('id', $login)->where('active', 1)->first(['id','entrycode','whatsappno','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS name'),
         DB::raw('CAST(AES_DECRYPT(UNHEX(email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS email'),
         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS phone')]);
 
