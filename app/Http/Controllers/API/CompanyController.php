@@ -58,10 +58,11 @@ class CompanyController extends Controller
      */
     public function show($id)
     {
+         $key = config('global.key');
 
-        $company = Company::where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
+        $company = Company::where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname),"'.$key.'") AS CHAR) AS companyname'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
         return $company;
 
         return response()->json($company);
@@ -69,9 +70,10 @@ class CompanyController extends Controller
 //vikram
     public function customer_wise_company($id)
     {
-        $companys = DB::table('company_master')->where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS companyname'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS panno'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS gstno')]);
+        $key = config('global.key');
+        $companys = DB::table('company_master')->where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
         // ->get();
         return response()->json($companys);
     }

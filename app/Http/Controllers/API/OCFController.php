@@ -58,30 +58,31 @@ class OCFController extends Controller
      */
     function store(Request $request)
     {
-           $key = config('global.key');
-
+        $key = config('global.key');
         $str = substr($request->ocfno,3);
         $data1=[];
-        $series = OCF::orderBy('DocNo', 'desc')->first();
         $ocf= OCF::where('DocNo', $str)->get();
-        $ocflastid = OCF::orderBy('id', 'desc')->orderBy('Series', 'desc')->first();
+        $series = OCF::orderBy('DocNo', 'desc')->first();
 
+        $ocflastid = OCF::orderBy('id', 'desc')->first();
+        // if(count($ocf)==0)
+        // {
 
-        if(count($ocf)==0)
-        {
 
                 $insert_ocf = new OCF();
+                if ($series) {
+                    $insert_ocf->DocNo=$series->DocNo+1;
+                }
+                else{
+                    $insert_ocf->DocNo=1;
+                 }
+                if (!$series && !$ocflastid) {
+                    $insert_ocf->DocNo=01;
+                 }
+
                 $insert_ocf->customercode = $request->customercode;
                 $insert_ocf->companycode = $request->companycode;
 
-
-                if (!$series && !$ocflastid) {
-                   $insert_ocf->DocNo=01;
-                }
-                else {
-
-                    $insert_ocf->DocNo=$series->DocNo+1;
-                }
                 $insert_ocf->Series = ('OCF');
                 $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
                 $insert_ocf->ocf_date =  $ocf_date;
@@ -148,105 +149,73 @@ class OCFController extends Controller
                 {
                     return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
                 }
-
-                // $otp =  rand(100000, 999999);
-
-                // $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => $otp]);
-                // // $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(48);
-
-                // // Log::info("otp = ".$otp);
-                // // Log::info("otp_expires_time = ".$otp_expires_time);
-                // // Cache::put('otp_expires_time', $otp_expires_time);
-
-                // // $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-
-                // $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20unique%20registration%20key%20for%20Acme%20is%20$otp";
-                // $params =
-                //         [
-                //             "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                //             "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                //             "message" =>
-                //                         [
-                //                             "content" =>
-                //                             [
-                //                                 "type" => "text",
-                //                                 "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
-                //                             ]
-                //                         ]
-                //         ];
-                // $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-                // $client = new \GuzzleHttp\Client();
-                // $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-                // $data = $response->getBody();
-                // Log::Info($data);
-
-                        return response()->json(['message' => 'OCF Created Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1]);
+                        return response()->json(['message' => "'OCF Created Successfully Your OCF No is OCF$insert_ocf->DocNo" ,'status' => '0','OCF' => $insert_ocf, 'Module' => $data1]);
                    }
 
 
             }
 
-    }
-    else{
+    // }
+//     else{
 
 
-        $insert_ocf = OCF::where('DocNo', $str)->first();
-        $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
-          $insert_ocf->customercode = $request->customercode;
-          $insert_ocf->companycode = $request->companycode;
-          $insert_ocf->ocf_date = $ocf_date;
-          $insert_ocf->AmountTotal=$request->module_total;
-          $insert_ocf->save();
+//         $insert_ocf = OCF::where('DocNo', $str)->first();
+//         $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
+//           $insert_ocf->customercode = $request->customercode;
+//           $insert_ocf->companycode = $request->companycode;
+//           $insert_ocf->ocf_date = $ocf_date;
+//           $insert_ocf->AmountTotal=$request->module_total;
+//           $insert_ocf->save();
 
-          if(!empty($insert_ocf->id))
-          {
+//           if(!empty($insert_ocf->id))
+//           {
 
-              foreach ($request->Dcoument as $data ){
-                if ($data['expirydate']==null) {
-                    $data['expirydate']='0000-00-00';
-                }
-                $expirydate= date("Y-m-d", strtotime($data['expirydate']));
-                $module_unit=[];
-                $module_unit = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
-                ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
-                ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
-                ->where('customer_master.id', $request->customercode)
-                ->where('acme_module.ModuleName',$data['modulecode'])
-                ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
-                if ($data['id']==0) {
+//               foreach ($request->Dcoument as $data ){
+//                 if ($data['expirydate']==null) {
+//                     $data['expirydate']='0000-00-00';
+//                 }
+//                 $expirydate= date("Y-m-d", strtotime($data['expirydate']));
+//                 $module_unit=[];
+//                 $module_unit = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
+//                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
+//                 ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
+//                 ->where('customer_master.id', $request->customercode)
+//                 ->where('acme_module.ModuleName',$data['modulecode'])
+//                 ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
+//                 if ($data['id']==0) {
 
 
-                         $data=[
-                            'ocfcode'=> $insert_ocf->id,
-                            'modulename'=> $data['modulecode'],
-                            'modulecode' => $module_unit[0]->moduleid,
-                            'moduletypes'=> $module_unit[0]->acme_module_typeid,
-                            'quantity'=> $data['quantity'],
-                            'expirydate'=> $expirydate,
-                            'amount'=> $data['amount'],
-                            'activation'=> $data['activation']
-                        ];
+//                          $data=[
+//                             'ocfcode'=> $insert_ocf->id,
+//                             'modulename'=> $data['modulecode'],
+//                             'modulecode' => $module_unit[0]->moduleid,
+//                             'moduletypes'=> $module_unit[0]->acme_module_typeid,
+//                             'quantity'=> $data['quantity'],
+//                             'expirydate'=> $expirydate,
+//                             'amount'=> $data['amount'],
+//                             'activation'=> $data['activation']
+//                         ];
 
-                     OCFModule::create($data);
-                }
-            else{
+//                      OCFModule::create($data);
+//                 }
+//             else{
 
-               $update_data= OCFModule::find($data['id']);
-                $update_data->modulename=$data['modulecode'];
-                $update_data->modulecode=$module_unit[0]->moduleid;
-                $update_data->moduletypes=$module_unit[0]->acme_module_typeid;
-                $update_data->quantity=$data['quantity'];
-                $update_data->expirydate=$expirydate;
-                $update_data->amount=$data['amount'];
-                $update_data->activation=$data['activation'];
-                $update_data->save();
-                }
-                array_push($data1,$data);
-           }
-          return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1 ]);
+//                $update_data= OCFModule::find($data['id']);
+//                 $update_data->modulename=$data['modulecode'];
+//                 $update_data->modulecode=$module_unit[0]->moduleid;
+//                 $update_data->moduletypes=$module_unit[0]->acme_module_typeid;
+//                 $update_data->quantity=$data['quantity'];
+//                 $update_data->expirydate=$expirydate;
+//                 $update_data->amount=$data['amount'];
+//                 $update_data->activation=$data['activation'];
+//                 $update_data->save();
+//                 }
+//                 array_push($data1,$data);
+//            }
+//           return response()->json(['message' => 'OCF Updated Successfully','status' => '0','OCF' => $insert_ocf, 'Module' => $data1 ]);
 
-      }
-  }
+//       }
+//   }
 }
 
 

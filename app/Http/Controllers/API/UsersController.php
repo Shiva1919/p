@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\DB;
 class UsersController extends Controller
 {
     /**
@@ -20,9 +20,17 @@ class UsersController extends Controller
     {
         $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)->orderBy('name','asc')
                         ->get( ['roles.name as rolename','users.*']);
-        // $user = Users::where('active', 1)->orderBy('name', 'asc')->get();
+        //  $user = Users::where('active', 1)->orderBy('name', 'asc')->limit(10)->get();
         return $user;
     }
+    public function getdata($search,$limit1=0,$limit2=10){
+          $user = DB::table('users')->where('name','LIKE',$search.'%')->skip($limit1)->take($limit2)->get();
+           return $user;
+    }
+    public function getdata_id($id){
+        $user = DB::table('users')->where('id',$id)->get();
+         return $user;
+  }
 
     public function getuserlogin(Request $request)
     {
@@ -65,6 +73,17 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+        $new_array = array();
+      $restricted_module = DB::table('acme_module_type')->whereNotIn('id',[$request['module']])->get('id');
+        $new_array=array();
+        foreach ($restricted_module as $key) {
+
+            array_push($new_array,$key->id);
+        }
+        $restricted_module= implode(',',$new_array);
+
+
+
         $this->validate(request(),[
             //put fields to be validated here
             ]);
@@ -80,6 +99,7 @@ class UsersController extends Controller
         $user->rowpassword= $request['password'];
         $user->role_id = $request['role'];
         $user->permission_id = $request['module'];
+        $user->restricted_permission=$restricted_module;
         $user->save();
             if ($user->id) {
                 return response()->json([
@@ -137,6 +157,13 @@ class UsersController extends Controller
      */
     public function update(Request $request,$id)
     {
+        $new_array = array();
+        $restricted_module = DB::table('permissionsss')->whereNotIn('id',[$request['module']])->get('id');
+        $new_array=array();
+          foreach ($restricted_module as $key) {
+              array_push($new_array,$key->id);
+          }
+        $restricted_module= implode(',',$new_array);
         $user = Users::find($id);
         $user->name = $request['fristname'];
         $user->last_name = $request['lastname'];
@@ -149,6 +176,7 @@ class UsersController extends Controller
          }
         $user->role_id = $request['role'];
         $user->permission_id = $request['module'];
+        $user->restricted_permission=$restricted_module;
         $user->save();
         // return $user;
         return response()->json([

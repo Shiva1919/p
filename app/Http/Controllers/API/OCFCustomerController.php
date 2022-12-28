@@ -159,7 +159,38 @@ class OCFCustomerController extends Controller
 
                 }
 
-                $customerotp = (new OCFAPIController)->companyotp($request);
+                $checkcustomer =  DB::table('customer_master')
+                ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time',
+                'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state',
+                'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                ->where('id','=',$id)
+                ->first();
+                $otp =  rand(100000, 999999);
+                $update_otp = OCFCustomer::Where('id',$id)->update((['otp' => $otp]));
+                $wt= DB::raw("HEX(AES_ENCRYPT('$request->whatsappno' , '$key'))");
+                $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
+                $params =
+                        [
+                            "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
+                            "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                            "message" =>
+                                        [
+                                            "content" =>
+                                            [
+                                                "type" => "text",
+                                                "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                            ]
+                                        ]
+                        ];
+                $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+                $data = $response->getBody();
+                Log::Info($data);
                  return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
     }
