@@ -57,8 +57,7 @@ class SerialnoController extends Controller
         $users = OCFCustomer::where('phone','=',$request->phone)->update(['otp_expires_time' => $otp_expires_time]);
 
         // return $update_verifyotp;
-        // DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
-
+      
         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkmobile->phone&message=Your%20otp%20for%20Acme%20catalogue%20is%20$otp";
 
         $params = ["to" => ["type" => "whatsapp", "number" => $request->input('number')],
