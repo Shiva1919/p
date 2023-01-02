@@ -5,9 +5,11 @@ namespace App\Models\API;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Packages extends Model
+class Packages extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     use HasFactory, LogsActivity;
 
     protected static $logAttributes = [ 'packagename','description','active'];

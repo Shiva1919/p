@@ -6,15 +6,21 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "cartalyst/sentinel": "^5.1",
+        "doctrine/dbal": "^3.5",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "illuminate/database": "^8.83",
+        "illuminate/events": "^8.83",
         "laravel/framework": "^8.14",
         "laravel/passport": "^10.1",
-        "lcobucci/jwt": "^3.3.3",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "lcobucci/jwt": "^3.3.3",
+        "owen-it/laravel-auditing": "^13.0",
         "spatie/laravel-activitylog": "^3.17",
+        "symfony/http-foundation": "^5.4",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {

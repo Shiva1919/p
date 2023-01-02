@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Support\Facades\Crypt;
-class OCFCustomer extends Model
-{
-    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+use OwenIt\Auditing\Contracts\Auditable;
 
+class OCFCustomer extends Model implements Auditable
+{
+    use \OwenIt\Auditing\Auditable;
+    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+   
     protected static $logAttributes = [ 'name', 'entrycode', 'address1', 'address2', 'otp', 'isverified', 'phone', 'whatsappno', 'email', 'state', 'district', 'taluka', 'city', 'role_id', 'noofbranch', 'password', 'concernperson', 'packagename','subpackagecode', 'customercode'];
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];
@@ -22,7 +24,7 @@ class OCFCustomer extends Model
     {
         return "You have {$eventName} Customer";
     }
-    use HasFactory;
+    
     public $table="customer_master";
     // public $timestamps = false;
     protected $primaryKey = 'id';
@@ -48,6 +50,7 @@ class OCFCustomer extends Model
         'password',
         'concernperson',
         'packagename',
+        'packagecode',
         'subpackagecode',
         'customercode'
     ];

@@ -9,11 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, Auditable
 {
     use HasApiTokens, HasFactory, Notifiable, LogsActivity;
-
+    use \OwenIt\Auditing\Auditable;
     protected static $logAttributes = ['name', 'email', 'password'];
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];

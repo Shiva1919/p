@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Validator;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class OCFCustomerController extends Controller
 {
@@ -159,7 +160,7 @@ class OCFCustomerController extends Controller
 
                 }
 
-                $customerotp = (new OCFAPIController)->companyotp($request);
+                $customerotp = $this->companyotps($request);
                  return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => '0','Customer' => $insert_customers,'Company' => $data]);
             }
     }
@@ -509,6 +510,7 @@ class OCFCustomerController extends Controller
 
         $otp =  rand(100000, 999999);
         $update_otp = OCFCustomer::Where('id',$id)->update((['otp' => $otp]));
+        try{
         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
         $params =
                 [
@@ -529,5 +531,11 @@ class OCFCustomerController extends Controller
         $data = $response->getBody();
         Log::Info($data);
         return   $otp;
+        }
+        catch (Throwable $e) {
+            report($e);
+    
+            return response()->json(['message' => 'Whatsapp Url Error']);
+        }
     }
 }

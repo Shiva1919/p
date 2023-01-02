@@ -21,11 +21,15 @@ use App\Http\Controllers\API\OCFCustomerController;
 use App\Http\Controllers\API\OCFModuleController;
 use App\Http\Controllers\API\OrderConfirmationsController;
 use App\Http\Controllers\API\PermissionController;
+use App\Http\Controllers\API\RequestChangeController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
 use App\Http\Controllers\IApi;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 
 /*
 |--------------------------------------------------------------------------
@@ -273,3 +277,30 @@ Route::get('role_permissions/{id}',[PermissionController::class,'role_permition'
 
 //ocf module date wise
 Route::get('model_expire_date/{id}',[OCFModuleController::class,'model_expire_date']);
+
+
+
+
+//shivani
+//CustomerChangeRequest
+Route::post('customerchange', [RequestChangeController::class, 'customerchangerequest']);
+//CompanyrChangeRequest
+Route::post('companychange', [RequestChangeController::class, 'companychangerequest']);
+//ChangeRequest
+Route::post('changerequestaction', [RequestChangeController::class, 'changerequestaction']);
+
+
+Route::get( '/user/create', function() {
+    $guards = Config::get('audit.user.guards', [
+        \config('auth.defaults.guard')
+    ]);
+    foreach ($guards as $guard) {
+
+        $authenticated = Auth::guard($guard)->check();
+    }
+    Sentinel::register(array(
+    'email'    => 'john.doe152@example.com',
+    'password' => 'foobar',
+    ));
+    return (['user john.doe@example.com(foobar) created', $authenticated]);
+}); 

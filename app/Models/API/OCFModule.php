@@ -5,9 +5,11 @@ namespace App\Models\API;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class OCFModule extends Model
+class OCFModule extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     use HasFactory, LogsActivity;
 
     protected static $logAttributes = [ 'ocfcode','modulecode', 'modulename','moduletypes','quantity','unit','expirydate','activation','amount','total'];

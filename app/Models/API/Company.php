@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Support\Facades\Crypt;
-class Company extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+
+class Company extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     use HasFactory, LogsActivity;
 
     protected static $logAttributes = [ 'customercode', 'companyname', 'panno', 'gstno', 'InstallationType', 'InstallationDesc'];
