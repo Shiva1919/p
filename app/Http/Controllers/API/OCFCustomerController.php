@@ -31,7 +31,7 @@ class OCFCustomerController extends Controller
                 DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
-          return response()->json($customer);
+          return $customer;
     }
    public function deactivecustomerslist(){
         $key = config('global.key');
@@ -301,7 +301,7 @@ class OCFCustomerController extends Controller
                     DB::table('company_master')
                        ->insert(
                            array(
-                               'customercode'=> $insert_customers->id,
+                               'customercode'=> $customer->id,
                             //    'comapnycode'=> $ocfcompanyflastid->id+1,
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),

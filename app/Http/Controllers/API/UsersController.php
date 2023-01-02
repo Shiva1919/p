@@ -18,7 +18,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)->orderBy('name','asc')
+        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('users.role_id', '!=', 10)->where('users.active', 0)->orderBy('users.name','asc')
                         ->get( ['roles.name as rolename','users.*']);
         //  $user = Users::where('active', 1)->orderBy('name', 'asc')->limit(10)->get();
         return $user;
@@ -41,7 +41,9 @@ class UsersController extends Controller
 
     public function deactiveuserslist()
     {
-        $user = Users::where('active', 0)->orderBy('name', 'asc')->where('role_id', '!=', 10)->get();
+        $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('role_id', '!=', 10)->where('users.active', 0)->orderBy('name','asc')
+        ->get( ['roles.name as rolename','users.*']);
+        // $user = Users::where('active', 0)->orderBy('name', 'asc')->where('role_id', '!=', 10)->get();
         return $user;
     }
 
