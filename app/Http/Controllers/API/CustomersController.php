@@ -165,6 +165,7 @@ $ocfdata=[];
                     $ocfdata=[
                         'companyname'=>$getbyid_customer[$i]->companyname,
                         'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
+                        'ocf_date'=> date("d-m-Y", strtotime($company_ocf[$b]->ocf_date))
 
                  ];
                  array_push($ocf,$ocfdata);

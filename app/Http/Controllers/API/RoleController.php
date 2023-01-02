@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\API\Role;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class RoleController extends Controller
 {
      /**
@@ -105,7 +105,22 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        // return $request->permission_id;
+        $b=array();
+        $user=DB::table('users')->where('permission_id',$role->id)->get();
+        $a= explode(',',$request->permission_id);
+        for ($i=0; $i < count($a) ; $i++) {
+            $n=(int)$a[$i];
+            array_push($b,$n);
+        }
+        if (count($user) !=0 ) {
+        $restricted = DB::table('permissionsss')->whereNotIn('id',$b)->get();
+         $new_array=array();
+            foreach ($restricted as $key) {
+                array_push($new_array,$key->id);
+            }
+          $restricted= implode(',',$new_array);
+          DB::table('users')->where('role_id',$role->id)->update(['permission_id'=> $role->permission_id,'restricted_permission'=>$restricted]);
+        }
         $input = $request->all();
         $role->name = $input['name'];
         $role->permission_id = $input['permission_id'];

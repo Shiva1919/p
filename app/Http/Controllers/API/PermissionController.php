@@ -17,6 +17,11 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        $permissions = Permission::where('active', 1)->orderBy('name', 'asc')->get();
+        return response()->json( $permissions);
+    }
+    public function displaymenu()
+    {
         $permissions = Permission::where('active', 1)->get();
         return response()->json( $permissions);
     }
@@ -57,7 +62,7 @@ class PermissionController extends Controller
         $permission = Permission::create($input);
         return response()->json([
             'status'=>200,
-            'message'=>'Module Added Successfully',
+            'message'=>'Menu Added Successfully',
             'data'=>$permission
         ]);
         // return response()->json($permission);
@@ -114,7 +119,7 @@ class PermissionController extends Controller
         $permission->save();
         return response()->json([
             'status'=>200,
-            'message'=>'Module Update Successfully',
+            'message'=>'Menu Updated successfully',
             'data'=>$permission
         ]);
         // return response()->json($permission);
