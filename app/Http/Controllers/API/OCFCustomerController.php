@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Validator;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class OCFCustomerController extends Controller
 {
@@ -27,12 +26,11 @@ class OCFCustomerController extends Controller
     {           //vikram changes
         $key = config('global.key');
         $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
-        // ->get();
-       ->get(['id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
-          return $customer;
+        ->get(['id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(email),"'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno),"'.$key.'") AS CHAR) AS whatsappno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone')]);
+          return response()->json($customer);
     }
    public function deactivecustomerslist(){
         $key = config('global.key');
@@ -160,7 +158,6 @@ class OCFCustomerController extends Controller
 
                 }
 
-                $customerotp = $this->companyotps($request);
                 $checkcustomer =  DB::table('customer_master')
                 ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                 DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
@@ -542,7 +539,6 @@ class OCFCustomerController extends Controller
 
         $otp =  rand(100000, 999999);
         $update_otp = OCFCustomer::Where('id',$id)->update((['otp' => $otp]));
-        try{
         $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
         $params =
                 [
@@ -563,11 +559,5 @@ class OCFCustomerController extends Controller
         $data = $response->getBody();
         Log::Info($data);
         return   $otp;
-        }
-        catch (Throwable $e) {
-            report($e);
-    
-            return response()->json(['message' => 'Whatsapp Url Error']);
-        }
     }
 }

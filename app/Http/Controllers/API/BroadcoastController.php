@@ -14,7 +14,7 @@ class BroadcoastController extends Controller
      */
     public function index()
     {
-        $Broad = BroadcastMessage::where('Active',1)->orderBy('id','desc')->Tosql();
+        $Broad = BroadcastMessage::where('Active',1)->orderBy('id','desc')->get();
         return $Broad;
     }
 
@@ -77,6 +77,7 @@ class BroadcoastController extends Controller
             $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
             $broadcast_message->RoleCode = $request->role;
             $broadcast_message->URLString = $request->url;
+            $broadcast_message->AllPreferredLanguages = $request->preferlang;
             $broadcast_message->MessageDesc = $request->msgdescription;
             $broadcast_message->MessageDescMarathi = $request->desc_marathi;
             $broadcast_message->MessageDescHindi = $request->desc_hindi;
@@ -155,6 +156,7 @@ class BroadcoastController extends Controller
         $broadcast_message->HowManyDaysToDisplay = $request->howmanydaytodisplay;
         $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
         $broadcast_message->RoleCode = $request->role;
+        $broadcast_message->AllPreferredLanguages = $request->preferlang;
         $broadcast_message->URLString = $request->url;
         $broadcast_message->MessageDesc = $request->msgdescription;
         $broadcast_message->MessageDescMarathi = $request->desc_marathi;
