@@ -37,8 +37,13 @@ class OCFAPIController extends Controller
                             DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                             DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                             DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                           'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                            'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                             'customer_master.packagecode', 'customer_master.subpackagecode')
                             ->where('id','=',$request->customercode)
                             ->first();
@@ -110,31 +115,36 @@ class OCFAPIController extends Controller
                         $insert_customers = DB::table('customer_master')
                                             ->insert( array(
                                                             'id' => $request->customercode,
-                                                            'entrycode' =>$request->customercode,
+                                                            'entrycode' =>$ocfcustomerflastid->id+1,
                                                             'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                                             'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
-                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),
-                                                            'address2' => $request->address2 == null ? "" : $request->address2,
-                                                            'state' => $request->state  == null ? "" : $request->state,
-                                                            'district' => $request->district == null ? "" : $request->district,
-                                                            'taluka' => $request->taluka == null ? "" : $request->taluka,
-                                                            'city' => $request->city  == null ? "" : $request->city,
-                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
-                                                            'concernperson' => $request->concernperson,
-                                                            'packagecode' => $request->packagecode,
-                                                            'subpackagecode' => $request->subpackagecode,
-                                                            'password' => $password,
+                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
+                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
+                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
+                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
+                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
+                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
+                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
+                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
+                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
+                                                            'packagecode' => $request->packagecode,                    
+                                                            'subpackagecode' => $request->subpackagecode,                    
+                                                            'password' => $password,                    
                                                             'role_id' => $role_id,
                                                         )
                                                     );
                         $cust = DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                                        'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                                         'customer_master.packagecode', 'customer_master.subpackagecode')
                                         ->where('id','=',$request->customercode)
                                         ->first();
@@ -144,32 +154,37 @@ class OCFAPIController extends Controller
                         $insert_customers = DB::table('customer_master')
                                             ->insert( array(
                                                             'id' => $request->customercode,
-                                                            'entrycode' =>$id,
+                                                            'entrycode' =>$ocfcustomerflastid->id+1,
                                                             'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                                             'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
-                                                            'address1' => $request->address1,
-                                                            'address2' => $request->address2 == null ? "" : $request->address2,
-                                                            'state' => $request->state  == null ? "" : $request->state,
-                                                            'district' => $request->district == null ? "" : $request->district,
-                                                            'taluka' => $request->taluka == null ? "" : $request->taluka,
-                                                            'city' => $request->city  == null ? "" : $request->city,
-                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
-                                                            'concernperson' => $request->concernperson,
-                                                            'packagecode' => $request->packagecode,
-                                                            'subpackagecode' => $request->subpackagecode,
-                                                            'password' => $password,
+                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
+                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
+                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
+                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
+                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
+                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
+                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
+                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
+                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
+                                                            'packagecode' => $request->packagecode,                    
+                                                            'subpackagecode' => $request->subpackagecode,                    
+                                                            'password' => $password,                    
                                                             'role_id' => $role_id,
                                                         )
                                                     );
 
                         $cust = DB::table('customer_master')
-                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                         DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                                        'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                                        'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                                        DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                                         'customer_master.packagecode', 'customer_master.subpackagecode')
                                         ->where('id','=',1)
                                         ->first();
@@ -186,28 +201,33 @@ class OCFAPIController extends Controller
                                         'entrycode' =>$ocfcustomerflastid->id+1,
                                         'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                         'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
-                                        'address1' => $request->address1,
-                                        'address2' => $request->address2 == null ? "" : $request->address2,
-                                        'state' => $request->state  == null ? "" : $request->state,
-                                        'district' => $request->district == null ? "" : $request->district,
-                                        'taluka' => $request->taluka == null ? "" : $request->taluka,
-                                        'city' => $request->city  == null ? "" : $request->city,
-                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
-                                        'concernperson' => $request->concernperson,
-                                        'packagecode' => $request->packagecode,
-                                        'subpackagecode' => $request->subpackagecode,
-                                        'password' => $password,
+                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
+                                        'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
+                                        'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
+                                        'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
+                                        'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
+                                        'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
+                                        'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
+                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
+                                        'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
+                                        'packagecode' => $request->packagecode,                    
+                                        'subpackagecode' => $request->subpackagecode,                    
+                                        'password' => $password,                    
                                         'role_id' => $role_id,
                                        )
                                 );
                         $cust = DB::table('customer_master')
-                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                                    'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                                     'customer_master.packagecode', 'customer_master.subpackagecode')
                                     ->where('id','=',$ocfcustomerflastid->id+1)
                                     ->first();
@@ -251,41 +271,49 @@ class OCFAPIController extends Controller
                     {
                         $insert_customers = DB::table('customer_master')
                         ->insert( array(
-                                        'id' => $request->customercode,
-                                        'entrycode' =>$request->customercode,
-                                        'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
-                                        'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
-                                        'address1' => $request->address1,
-                                        'address2' => $request->address2 == null ? "" : $request->address2,
-                                        'state' => $request->state  == null ? "" : $request->state,
-                                        'district' => $request->district == null ? "" : $request->district,
-                                        'taluka' => $request->taluka == null ? "" : $request->taluka,
-                                        'city' => $request->city  == null ? "" : $request->city,
-                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
-                                        'concernperson' => $request->concernperson,
-                                        'packagecode' => $request->packagecode,
-                                        'subpackagecode' => $request->subpackagecode,
-                                        'password' => $password,
-                                        'role_id' => $role_id,
+                                    'id' => $request->customercode,
+                                    'entrycode' =>$ocfcustomerflastid->id+1,
+                                    'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
+                                    'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
+                                    'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
+                                    'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
+                                    'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
+                                    'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
+                                    'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
+                                    'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
+                                    'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
+                                    'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
+                                    'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
+                                    'packagecode' => $request->packagecode,                    
+                                    'subpackagecode' => $request->subpackagecode,                    
+                                    'password' => $password,                    
+                                    'role_id' => $role_id,
+
                                        )
                                 );
                         $cust = DB::table('customer_master')
-                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-                                    'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
-                                    'customer_master.packagecode', 'customer_master.subpackagecode' )
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
+                                    'customer_master.packagecode', 'customer_master.subpackagecode')
                                     ->where('id','=',$request->customercode)
                                     ->first();
+                                
                     }
                     else
                     {
                         return response()->json(['message' => 'Customer Not Saved', 'status' =>1]);
                     }
                 }
+               
                 $customerotp = $this->companyotp($request);
                 return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => 0,'Customer' => $cust]);
             }
@@ -439,6 +467,7 @@ class OCFAPIController extends Controller
                                                 ->where('customer_master.id', $request->customercode)
                                                 ->where('acme_module.ModuleName',$data['modulename'])
                                                 ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
+                    
                     $getmoduledata1 = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
                                                 ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
@@ -761,21 +790,36 @@ class OCFAPIController extends Controller
                     ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                     DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time',
-                    'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
-                    'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
-                    ->where('otp','=',$request->otp)
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(otp), "'.$key.'") AS CHAR) AS otp'),
+                   'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode', 
+                   'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                    ->where('otp','=',DB::raw("HEX(AES_ENCRYPT('$request->otp' , '$key'))"))
                     ->first();
 
+                   
         $getcustomer =  DB::table('customer_master')
-                    ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
-                    DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
-                    DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 'customer_master.otp', 'customer_master.isverified', 'customer_master.otp_expires_time',
-                    'customer_master.role_id', 'customer_master.address1', 'customer_master.address2', 'customer_master.state',
-                    'customer_master.district', 'customer_master.taluka', 'customer_master.city', 'customer_master.concernperson',
-                    'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
+                        ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(district), "'.$key.'") AS CHAR) AS district'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(taluka), "'.$key.'") AS CHAR) AS taluka'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(otp), "'.$key.'") AS CHAR) AS otp'),
+                        'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode', 
+                        'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('id','=',$request->customercode)
                     ->first();
 

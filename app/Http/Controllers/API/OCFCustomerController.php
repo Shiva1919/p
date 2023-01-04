@@ -121,16 +121,16 @@ class OCFCustomerController extends Controller
                 $insert_customers->email =DB::raw("HEX(AES_ENCRYPT('$request->email' , '$key'))");
                 $insert_customers->entrycode = $id;
                 $insert_customers->whatsappno =DB::raw("HEX(AES_ENCRYPT('$request->whatsappno' , '$key'))");
-                $insert_customers->address1 = $request->address1;
-                $insert_customers->address2 = $request->address2;
-                $insert_customers->state = $request->state;
-                $insert_customers->district = $request->district;
-                $insert_customers->taluka = $request->taluka;
-                $insert_customers->city = $request->city;
+                $insert_customers->address1 = DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))");
+                $insert_customers->address2 = DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))");
+                $insert_customers->state = DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))");
+                $insert_customers->district = DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))");
+                $insert_customers->taluka = DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))");
+                $insert_customers->city = DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))");
                 $insert_customers->active = $request->active;
+                $insert_customers->concernperson = DB::raw("HEX(AES_ENCRYPT('$request->consernperson', '$key'))");
                 $insert_customers->password = $password;
                 $insert_customers->role_id = $role_id;
-                $insert_customers->concernperson = $request->concernperson;
                 $insert_customers->packagecode = $request->packagecode;
                 $insert_customers->subpackagecode = $request->subpackagecode;
                 $insert_customers->save();
@@ -172,7 +172,7 @@ class OCFCustomerController extends Controller
                 ->where('id','=',$id)
                 ->first();
                 $otp =  rand(100000, 999999);
-                $update_otp = OCFCustomer::Where('id',$id)->update((['otp' => $otp]));
+                $update_otp = OCFCustomer::Where('id',$id)->update(['otp' =>  DB::raw("HEX(AES_ENCRYPT('$otp' , '$key'))")]);
                 $wt= DB::raw("HEX(AES_ENCRYPT('$request->whatsappno' , '$key'))");
                 $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
                 $params =
