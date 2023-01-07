@@ -23,14 +23,23 @@ class OCFCustomerController extends Controller
      */
     public function index()
 
-    {           //vikram changes
+    {
+
         $key = config('global.key');
-        $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
-        ->get(['id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+
+        $customer = DB::Table('customer_master')
+        ->select('id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',
+                DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(email),"'.$key.'") AS CHAR) AS email'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno),"'.$key.'") AS CHAR) AS whatsappno'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone')]);
-          return response()->json($customer);
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone'))
+                ->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+        ->get();
+    //  $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+    //             ->get();
+
+                return $customer;
+                       return response()->json($customer);
     }
    public function deactivecustomerslist(){
         $key = config('global.key');

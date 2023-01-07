@@ -109,8 +109,9 @@ class SendurlController extends Controller
     }
     public function getDistrict($request)
     {
+
         $state =DB::table('state')->where("statename",$request)->first();
-        $data =DB::table('district')->where("stateid",$state->id)->orderBy('districtname','asc')->get();
+          $data =DB::table('district')->where("stateid",$state->id)->orderBy('districtname','asc')->get();
         return response()->json($data);
     }
 

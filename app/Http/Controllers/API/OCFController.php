@@ -295,4 +295,28 @@ class OCFController extends Controller
         $data = DB::table('ocf_modules')->where('ocfcode', $ocf)->get();
         return response()->json($data);
     }
+//ocf activation deactivation
+    public function activeocf($customer,$company,$ocf)
+    {
+        $active = OCF::where('customercode', $customer)->where('companycode', $company)->where('DocNo', $ocf)->first();
+        $updateactive = OCF::where('DocNo', $ocf)->update(['active'=> 1]);
+
+        if($updateactive ==1)
+        {
+            $activeocfmodules = OCFModule::where('ocfcode', $active->id)->update(['activation' => 1]);
+        }
+        return response()->json(['message'=> 'OCF Activated','Customer'=>$customer]);
+    }
+
+    public function deactiveocf($customer, $company, $ocf)
+    {
+        $deactive = OCF::where('customercode', $customer)->where('companycode', $company)->where('DocNo', $ocf)->first();
+        $updateactive = OCF::where('DocNo', $ocf)->update(['active'=> 0]);
+
+        if($updateactive == 1)
+        {
+            $deactiveocfmodules = OCFModule::where('ocfcode', $deactive->id)->update(['activation' => 0]);
+        }
+        return response()->json(['message'=> 'OCF Deactivated','Customer'=>$customer]);
+    }
 }

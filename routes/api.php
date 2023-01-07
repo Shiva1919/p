@@ -278,3 +278,6 @@ Route::get('model_expire_date/{id}',[OCFModuleController::class,'model_expire_da
 Route::resource('broadcast',BroadcoastController::class);
 Route::get('broadCast_deactive',[BroadcoastController::class,'broadCast_deactive']);
 Route::get('broadCast_Activations/{id}/{activation}',[BroadcoastController::class,'activation']);
+// Ocf activation and deactivation
+Route::get('activeocf/{customer}/{company}/{ocf}', [OCFController::class, 'activeocf']);
+Route::get('deactiveocf/{customer}/{company}/{ocf}', [OCFController::class, 'deactiveocf']);
