@@ -20,20 +20,20 @@ class Customer_Mobile extends Controller
     {
         $key = config('global.key');
         $data =Customer_mobile_Model::where('Customercode', $custid)->where('active_flag',1)
-        ->get(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'") AS CHAR) AS Mobile_number'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
+        ->get(['id',DB::raw('AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'")AS Mobile_number'),
+        DB::raw('AES_DECRYPT(UNHEX(Email), "'.$key.'") AS Email'),DB::raw('AES_DECRYPT(UNHEX(User_Name), "'.$key.'") AS User_Name'),'Customercode','active_flag']);
         return response()->json($data);
     }
    function getcustomer($id){
     $key = config('global.key');
     return  $data =Customer_mobile_Model::where('Customercode',$id)->where('active_flag',1)->get(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'") AS CHAR) AS Mobile_number'),
-    DB::raw('CAST(AES_DECRYPT(UNHEX(Email),"'.$key.'") AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
+    DB::raw('CAST(AES_DECRYPT(UNHEX(Email),"'.$key.'") AS CHAR) AS Email'),DB::raw('AES_DECRYPT(UNHEX(User_Name), "'.$key.'") AS User_Name'),'Customercode','active_flag']);
         // return response()->json($data);
     }
     function getcustomer_mobile($id,$mobile){
         $key = config('global.key');
         $data =Customer_mobile_Model::where('Customercode',$id)->where('Mobile_number',DB::raw("HEX(AES_ENCRYPT('$mobile','$key'))"))->where('active_flag',1)->get(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'") AS CHAR) AS Mobile_number'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
+        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), "'.$key.'") AS CHAR) AS Email'),DB::raw('AES_DECRYPT(UNHEX(User_Name), "'.$key.'") AS User_Name'),'Customercode','active_flag']);
         if (count($data) > 0) {
             return response()->json([
                 'status'=>404,
@@ -52,7 +52,7 @@ class Customer_Mobile extends Controller
         $key = config('global.key');
         $data =Customer_mobile_Model::where('Customercode',$custid)->where('id',$id)
         ->first(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'") AS CHAR) AS Mobile_number'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
+        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), "'.$key.'") AS CHAR) AS Email'),DB::raw('AES_DECRYPT(UNHEX(User_Name), "'.$key.'") AS User_Name'),'Customercode','active_flag']);
         return response()->json($data);
     }
 
@@ -88,7 +88,7 @@ class Customer_Mobile extends Controller
               $Customer_mobile_Model= new Customer_mobile_Model;
               $Customer_mobile_Model->Mobile_number= DB::raw("HEX(AES_ENCRYPT('$request->Mobilenumber' , '$key'))");
               $Customer_mobile_Model->Email= DB::raw("HEX(AES_ENCRYPT('$request->Email' , '$key'))");
-              $Customer_mobile_Model->User_Name= $request->UserName;
+              $Customer_mobile_Model->User_Name= DB::raw("HEX(AES_ENCRYPT('$request->UserName' , '$key'))");
               $Customer_mobile_Model->Customercode= $request->Customercode;
               $Customer_mobile_Model->save();
               return response()->json([
@@ -150,7 +150,7 @@ class Customer_Mobile extends Controller
          if ($Customer_mobile_Model) {
         $Customer_mobile_Model->Mobile_number= DB::raw("HEX(AES_ENCRYPT('$request->Mobilenumber' , '$key'))");
         $Customer_mobile_Model->Email= DB::raw("HEX(AES_ENCRYPT('$request->Email','$key'))");
-        $Customer_mobile_Model->User_Name= $request->UserName;
+        $Customer_mobile_Model->User_Name= DB::raw("HEX(AES_ENCRYPT('$request->UserName','$key'))");
         $Customer_mobile_Model->update();
           return response()->json([
             'status'=>200,
@@ -169,7 +169,7 @@ class Customer_Mobile extends Controller
     function allerdy_mobile($mobile){
         $key = config('global.key');
         $data = DB::table('Customer_mobilenumbers')->where('Mobile_number',DB::raw("HEX(AES_ENCRYPT('$mobile','$key'))"))->where('active_flag',1)->get(['id',DB::raw('CAST(AES_DECRYPT(UNHEX(Mobile_number), "'.$key.'") AS CHAR) AS Mobile_number'),
-        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), \'YsfaHZ7FCKJcAEb7UuTX+QCQzJa7kR1bMflozJzmyOY=\') AS CHAR) AS Email'),'User_Name','Customercode','active_flag']);
+        DB::raw('CAST(AES_DECRYPT(UNHEX(Email), "'.$key.'") AS CHAR) AS Email'),DB::raw('CAST(AES_DECRYPT(UNHEX(User_Name), "'.$key.'") AS CHAR) AS User_Name'),'Customercode','active_flag']);
         if (count($data) > 0 ) {
             return response()->json([
                 'status'=>1,

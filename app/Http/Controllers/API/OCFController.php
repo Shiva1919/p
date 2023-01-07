@@ -105,7 +105,7 @@ class OCFController extends Controller
                                                     ->where('customer_master.id', $request->customercode)
                                                     ->where('acme_module.ModuleName',$data['modulecode'])
                                                     ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
-
+                    return $module_unit;
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
                         'modulename'=> $data['modulecode'],
