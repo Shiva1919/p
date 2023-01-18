@@ -61,7 +61,7 @@ class UsersController extends Controller
         if($dublicate){
             return response()->json([
                 'status'=>1,
-                'message'=>'This Mail Allready Available in Database',
+                'message'=>'This Mail Already Available in Database',
 
             ]);
         }

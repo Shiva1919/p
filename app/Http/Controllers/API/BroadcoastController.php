@@ -176,6 +176,7 @@ class BroadcoastController extends Controller
         $broadcast_message->HowManyDaysToDisplay = $request->howmanydaytodisplay;
         $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
         $broadcast_message->RoleCode = $request->role;
+        $broadcast_message->AllPreferredLanguages = $request->preferlang;
         $broadcast_message->URLString = $request->url;
         $broadcast_message->MessageDesc = DB::raw("HEX(AES_ENCRYPT('$request->msgdescription' , '$key'))");
         $broadcast_message->MessageDescMarathi = DB::raw("HEX(AES_ENCRYPT('$request->desc_marathi' , '$key'))");

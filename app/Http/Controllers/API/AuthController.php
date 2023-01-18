@@ -97,17 +97,25 @@ class AuthController extends Controller
         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone')]);
 
         $checktoken = DB::table('personal_access_tokens')->where('token', $token)->first();
+    if ($checktoken != null) {
+        $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes((int)$checktoken->expired_at))->delete();
+        return response()->json(['message' => 'Login Successful', 'status' => '0','token' => $checktoken,'userData'=>$user,'time' => $checktoken->expired_at]);
+    }else if($user == null){
+        return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
 
-        $token = DB::table('personal_access_tokens')->where('created_at', '<', Carbon::now()->subMinutes(30))->delete();
+    }else  {
+        return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
+    }
 
-        if ($checktoken == null ) {
-            return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
-        }
-        if($user == null){
-            return response()->json(['message' => 'Invalid Login Credentials', 'status' => '1']);
 
-        }
-       return response()->json(['message' => 'Login Successful', 'status' => '0', 'token' => $checktoken,'userData'=>$user]);
+
+    }
+
+    public function getcustomer_logout($login, $token)
+    {
+        $key = config('global.key');
+        $checktoken = DB::table('personal_access_tokens')->where('token', $token)->delete();
+        return response()->json(['message' => 'Logout Successful', 'status' => '0']);
     }
 
 

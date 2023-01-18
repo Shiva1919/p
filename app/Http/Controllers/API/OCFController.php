@@ -133,7 +133,7 @@ class OCFController extends Controller
                            'moduletypes' => 2,
                            'modulecode' => 29,
                        ];
-   
+
                        OCFModule::create($data);
                    }
                    else if($getmoduledata1[0]['packagecode'] == 3)
@@ -147,7 +147,7 @@ class OCFController extends Controller
                                'moduletypes' => 2,
                                'modulecode' => 30,
                            ];
-   
+
                            OCFModule::create($data);
                    }
                    else{
@@ -326,17 +326,17 @@ class OCFController extends Controller
         $data = DB::table('ocf_modules')->where('ocfcode', $ocf)->get();
         return response()->json($data);
     }
-
-    public function activeocf($customer, $company, $ocf)
+//ocf activation deactivation
+    public function activeocf($customer,$company,$ocf)
     {
         $active = OCF::where('customercode', $customer)->where('companycode', $company)->where('DocNo', $ocf)->first();
         $updateactive = OCF::where('DocNo', $ocf)->update(['active'=> 1]);
-        
+
         if($updateactive ==1)
         {
             $activeocfmodules = OCFModule::where('ocfcode', $active->id)->update(['activation' => 1]);
         }
-        return response()->json(['message'=> 'OCF Activated']);
+        return response()->json(['message'=> 'OCF Activated','Customer'=>$customer]);
     }
 
     public function deactiveocf($customer, $company, $ocf)
@@ -346,9 +346,9 @@ class OCFController extends Controller
 
         if($updateactive == 1)
         {
-            $deactiveocfmodules = OCFModule::where('ocfcode', $deactive->id)->update(['activation' => 0]); 
+            $deactiveocfmodules = OCFModule::where('ocfcode', $deactive->id)->update(['activation' => 0]);
         }
-        return response()->json(['message'=> 'OCF Deactivated']);
+        return response()->json(['message'=> 'OCF Deactivated','Customer'=>$customer]);
     }
 }
 

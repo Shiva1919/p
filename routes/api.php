@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UrlController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\API\BroadcoastController;
 use App\Http\Controllers\SendurlController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\VerficationController;
@@ -21,16 +22,11 @@ use App\Http\Controllers\API\OCFCustomerController;
 use App\Http\Controllers\API\OCFModuleController;
 use App\Http\Controllers\API\OrderConfirmationsController;
 use App\Http\Controllers\API\PermissionController;
-use App\Http\Controllers\API\RequestChangeController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\UsersController;
-use App\Http\Controllers\API\BroadcoastController;
 use App\Http\Controllers\JWTController;
 use App\Http\Controllers\hsnController;
 use App\Http\Controllers\IApi;
-use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 
 /*
 |--------------------------------------------------------------------------
@@ -206,6 +202,7 @@ Route::post('logins',                             [AuthController::class, 'login
 Route::get('getlogin/{tenantcode}/{password}',    [AuthController::class, 'getlogin']);
 Route::get('gettoken',                            [AuthController::class, 'gettoken']);
 Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcustomerlogin']);
+Route::get('customerlogout/{tenantcode}/{token}',  [AuthController::class, 'getcustomer_logout']);
 Route::get('getcustid/{id}',                      [AuthController::class, 'getid']);
  Route::post('logouts',                           [AuthController::class, 'logout']);
 
@@ -213,12 +210,10 @@ Route::get('getlogin/{tenantcode}/{password}',    [AuthController::class, 'getlo
 Route::get('gettoken',                            [AuthController::class, 'gettoken']);
 Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcustomerlogin']);
 
-Route::get('getusers/{name}',                                    [UsersController::class, 'getdata']);
-Route::get('getusers_id/{name}',                                    [UsersController::class, 'getdata_id']);
+
 // Users
 Route::get('duplicate_mail/{email}',                       [UsersController::class, 'duplicate_usermail']);
 Route::resource('users',                                    UsersController::class);
-
 Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
 Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);
 Route::put('users/{id}/{active}/status',                   [UsersController::class, 'userstatus']);
@@ -283,34 +278,9 @@ Route::get('role_permissions/{id}',[PermissionController::class,'role_permition'
 
 //ocf module date wise
 Route::get('model_expire_date/{id}',[OCFModuleController::class,'model_expire_date']);
-
-
-
-
-//shivani
-//CustomerChangeRequest
-Route::post('customerchange', [RequestChangeController::class, 'customerchangerequest']);
-//CompanyrChangeRequest
-Route::post('companychange', [RequestChangeController::class, 'companychangerequest']);
-//ChangeRequest
-Route::post('changerequestaction', [RequestChangeController::class, 'changerequestaction']);
-
-
-Route::get( '/user/create', function() {
-    $guards = Config::get('audit.user.guards', [
-        \config('auth.defaults.guard')
-    ]);
-    foreach ($guards as $guard) {
-
-        $authenticated = Auth::guard($guard)->check();
-    }
-    Sentinel::register(array(
-    'email'    => 'john.doe152@example.com',
-    'password' => 'foobar',
-    ));
-    return (['user john.doe@example.com(foobar) created', $authenticated]);
-});
-
 Route::resource('broadcast',BroadcoastController::class);
 Route::get('broadCast_deactive',[BroadcoastController::class,'broadCast_deactive']);
-Route::get('broadCast_Activations',[BroadcoastController::class,'activation']);
+Route::get('broadCast_Activations/{id}/{activation}',[BroadcoastController::class,'activation']);
+// Ocf activation and deactivation
+Route::get('activeocf/{customer}/{company}/{ocf}', [OCFController::class, 'activeocf']);
+Route::get('deactiveocf/{customer}/{company}/{ocf}', [OCFController::class, 'deactiveocf']);

@@ -14,6 +14,7 @@ use App\Http\Controllers\OrderConfirmationController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SubPackageController;
+use App\Http\Controllers\Hsn\HsnController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,6 +29,8 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+Route::get('Acme_hsn', [HsnController::class, 'index']);
+Route::post('import', [HsnController::class,'importData']);
 Route::get('/', function () {
     return view('welcome');
  });

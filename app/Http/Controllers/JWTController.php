@@ -85,8 +85,15 @@ class JWTController extends Controller
         if (!$token = auth()->attempt($validator->validated())) {
             return response()->json(['message' => 'Unauthorized']);
         }
+        $token_data=$this->respondWithToken($token);
+        $data=[
+            'access_token' => $token_data['access_token'],
+            'token_type' => $token_data['token_type'],
+            'expires_in'=> $token_data['expires_in'],
+            'message' => $token_data['message']
+        ];
 
-        return $this->respondWithToken($token);
+        return $data;
 
     }
 
@@ -132,11 +139,12 @@ class JWTController extends Controller
      */
     protected function respondWithToken($token)
     {
-        return response()->json([
+        return [
             'message'=>'Success',
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 30,
-        ]);
+        ];
+
     }
 }

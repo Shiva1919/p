@@ -147,7 +147,8 @@ class CustomersController extends Controller
 $com=[];
             $com=[
                    'companyname'=>$getbyid_customer[$i]->companyname,
-
+                   'company_id'=>$getbyid_customer[$i]->id,
+                   'customer_id'=>$id,
             ];
             array_push($company,$com);
 
@@ -165,6 +166,8 @@ $ocfdata=[];
                     $ocfdata=[
                         'companyname'=>$getbyid_customer[$i]->companyname,
                         'ocf_no'=>$company_ocf[$b]->Series.$company_ocf[$b]->DocNo,
+                        'ocf_no_docnumber'=>$company_ocf[$b]->DocNo,
+                        'activation'=>$company_ocf[$b]->active,
                         'ocf_date'=> date("d-m-Y", strtotime($company_ocf[$b]->ocf_date))
 
                  ];
