@@ -200,6 +200,7 @@ Route::post('logins',                             [AuthController::class, 'login
 Route::get('getlogin/{tenantcode}/{password}',    [AuthController::class, 'getlogin']);
 Route::get('gettoken',                            [AuthController::class, 'gettoken']);
 Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcustomerlogin']);
+Route::get('customerlogout/{tenantcode}/{token}',  [AuthController::class, 'getcustomer_logout']);
 Route::get('getcustid/{id}',                      [AuthController::class, 'getid']);
  Route::post('logouts',                           [AuthController::class, 'logout']);
 
