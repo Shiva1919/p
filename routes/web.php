@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\JSONStoreController;
+use App\Http\Controllers\API\OCFAPIController;
 use App\Http\Controllers\API\SerialnoController;
 use App\Http\Controllers\API\SerialnosController;
 use App\Http\Controllers\BranchController;
@@ -42,9 +43,9 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'App\Http\Controllers\UserController', ['except' => ['show']]);
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'App\Http\Controllers\ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'App\Http\Controllers\ProfileController@update']);
-	Route::get('upgrade', function () {return view('pages.upgrade');})->name('upgrade'); 
+	Route::get('upgrade', function () {return view('pages.upgrade');})->name('upgrade');
 	 Route::get('map', function () {return view('pages.maps');})->name('map');
-	 Route::get('icons', function () {return view('pages.icons');})->name('icons'); 
+	 Route::get('icons', function () {return view('pages.icons');})->name('icons');
 	 Route::get('table-list', function () {return view('pages.tables');})->name('table');
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'App\Http\Controllers\ProfileController@password']);
 });
@@ -53,7 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
 Route::resource('/package',PackageController::class);
 
 //subpackage
-Route::resource('/subpackage',SubPackageController::class,['parameters' => 
+Route::resource('/subpackage',SubPackageController::class,['parameters' =>
 															[
 																'index' => 'owncode',
 																'create' => 'packagetype',
@@ -62,7 +63,7 @@ Route::resource('/subpackage',SubPackageController::class,['parameters' =>
 															]]);
 
 //module
-Route::resource('/module',ModuleController::class,['parameters' => 
+Route::resource('/module',ModuleController::class,['parameters' =>
 													[
 														'index' => 'owncode',
 														'create' => 'ProductType',
@@ -78,7 +79,7 @@ Route::post('getTaluka', [CustomerController::class, 'getTaluka']);
 Route::post('getCity', [CustomerController::class, 'getCity']);
 
 //branch
-Route::resource('branch', BranchController::class, ['parameters' => 
+Route::resource('branch', BranchController::class, ['parameters' =>
 													[
 														'index' => 'owncode',
 														'create' => 'customercode',
@@ -91,7 +92,7 @@ Route::post('getTalukas', [BranchController::class, 'getTaluka']);
 Route::post('getCitys', [BranchController::class, 'getCity']);
 
 //contact
-Route::resource('/contact', ContactController::class, ['parameters' => 
+Route::resource('/contact', ContactController::class, ['parameters' =>
 													[
 														'index' => 'owncode',
 														'create' => 'customercode',
@@ -108,12 +109,19 @@ Route::post('getBranch', [OrderConfirmationController::class, 'getBranch']);
 Route::post('getSubPackage', [OrderConfirmationController::class, 'getSubPackage']);
 
 
-Route::resource('serialnos', SerialnoController::class, ['parameters' => 
+Route::resource('serialnos', SerialnoController::class, ['parameters' =>
 													[
 														'store' => 'ocfno',
-														
+
 													]]);
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+Route::get('broadcast_message',                          [OCFAPIController::class, 'broadcast_messages']);
+
+Route::get('broadcast_message1',        function() {
+   return url()->current();
+}         );

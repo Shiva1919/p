@@ -646,6 +646,7 @@ class ComposerStaticInit24dec2410ea56351c64ea49ab330ddf6
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\API\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/AuthController.php',
+        'App\\Http\\Controllers\\API\\BroadcoastController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/BroadcoastController.php',
         'App\\Http\\Controllers\\API\\CompanyController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/CompanyController.php',
         'App\\Http\\Controllers\\API\\CustomerContactController' => __DIR__ . '/../..' . '/app/Http/Controllers/API/CustomerContactController.php',
         'App\\Http\\Controllers\\API\\Customer_Mobile' => __DIR__ . '/../..' . '/app/Http/Controllers/API/Customer_Mobile.php',

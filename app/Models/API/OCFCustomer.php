@@ -9,11 +9,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Traits\LogsActivity;
 use OwenIt\Auditing\Contracts\Auditable;
 
+
 class OCFCustomer extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
     use HasApiTokens, HasFactory, Notifiable, LogsActivity;
-   
+
+    protected $auditTimestamps = true;
+
     protected static $logAttributes = [ 'name', 'entrycode', 'address1', 'address2', 'otp', 'isverified', 'phone', 'whatsappno', 'email', 'state', 'district', 'taluka', 'city', 'role_id', 'noofbranch', 'password', 'concernperson', 'packagename','subpackagecode', 'customercode'];
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];

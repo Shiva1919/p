@@ -18,11 +18,8 @@ use App\Models\API\BroadcastMessage;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
 use DateTime;
-use Exception;
+use Illuminate\Support\Facades\URL;
 use Throwable;
-
-use function PHPUnit\Framework\returnSelf;
-use function Psy\debug;
 
 class OCFAPIController extends Controller
 {
@@ -30,7 +27,6 @@ class OCFAPIController extends Controller
     {
         $key = config('global.key');
 
-       
         //Filter Customer data id wise
         $customerdata = DB::table('customer_master')
                             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
@@ -47,7 +43,7 @@ class OCFAPIController extends Controller
                             'customer_master.packagecode', 'customer_master.subpackagecode')
                             ->where('id','=',$request->customercode)
                             ->first();
-       
+
         $getotp = OCFCustomer::select(DB::raw('CAST(AES_DECRYPT(UNHEX(otp), "'.$key.'") AS CHAR) AS otp'))
                             ->where('id', $request->customercode)->first();
         //IF customer Exist Get customerdata
@@ -118,18 +114,18 @@ class OCFAPIController extends Controller
                                                             'entrycode' =>$ocfcustomerflastid->id+1,
                                                             'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                                             'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
-                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
-                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
-                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
-                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
-                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
-                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
-                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
-                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
-                                                            'packagecode' => $request->packagecode,                    
-                                                            'subpackagecode' => $request->subpackagecode,                    
-                                                            'password' => $password,                    
+                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),
+                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),
+                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),
+                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),
+                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),
+                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),
+                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
+                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),
+                                                            'packagecode' => $request->packagecode,
+                                                            'subpackagecode' => $request->subpackagecode,
+                                                            'password' => $password,
                                                             'role_id' => $role_id,
                                                         )
                                                     );
@@ -157,18 +153,18 @@ class OCFAPIController extends Controller
                                                             'entrycode' =>$ocfcustomerflastid->id+1,
                                                             'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                                             'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
-                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
-                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
-                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
-                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
-                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
-                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
-                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
-                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
-                                                            'packagecode' => $request->packagecode,                    
-                                                            'subpackagecode' => $request->subpackagecode,                    
-                                                            'password' => $password,                    
+                                                            'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                                            'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),
+                                                            'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),
+                                                            'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),
+                                                            'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),
+                                                            'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),
+                                                            'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),
+                                                            'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
+                                                            'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),
+                                                            'packagecode' => $request->packagecode,
+                                                            'subpackagecode' => $request->subpackagecode,
+                                                            'password' => $password,
                                                             'role_id' => $role_id,
                                                         )
                                                     );
@@ -201,18 +197,18 @@ class OCFAPIController extends Controller
                                         'entrycode' =>$ocfcustomerflastid->id+1,
                                         'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                         'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
-                                        'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
-                                        'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
-                                        'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
-                                        'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
-                                        'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
-                                        'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
-                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
-                                        'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
-                                        'packagecode' => $request->packagecode,                    
-                                        'subpackagecode' => $request->subpackagecode,                    
-                                        'password' => $password,                    
+                                        'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                        'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),
+                                        'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),
+                                        'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),
+                                        'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),
+                                        'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),
+                                        'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),
+                                        'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
+                                        'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),
+                                        'packagecode' => $request->packagecode,
+                                        'subpackagecode' => $request->subpackagecode,
+                                        'password' => $password,
                                         'role_id' => $role_id,
                                        )
                                 );
@@ -245,10 +241,10 @@ class OCFAPIController extends Controller
                         $otp =  rand(100000, 999999);
                         $update_otp = OCFCustomer::Where('id',$ocfcustomerflastid->id+1)->update((['otp' => DB::raw("HEX(AES_ENCRYPT('$otp' , '$key'))")]));
 
-                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
-                        
-                        $params = 
-                                [   
+                        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Done%20Successfully%20Completed.%20\nYour%20Verification%20ID%20-%20$otp%20\n*%20Please%20Do%20Not%20Share%20ID%20With%20Anyone.";
+
+                        $params =
+                                [
                                     "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
                                             "from" => ["type" => "whatsapp", "number" => "9422031763"],
                                             "message" =>
@@ -275,20 +271,19 @@ class OCFAPIController extends Controller
                                     'entrycode' =>$ocfcustomerflastid->id+1,
                                     'name' => DB::raw("HEX(AES_ENCRYPT('$request->name' , '$key'))"),
                                     'phone' => DB::raw("HEX(AES_ENCRYPT('$request->phone', '$key'))"),
-                                    'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),                    
-                                    'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),                    
-                                    'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),                    
-                                    'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),                    
-                                    'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),                    
-                                    'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),                    
-                                    'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),                    
-                                    'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),                    
-                                    'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),                    
-                                    'packagecode' => $request->packagecode,                    
-                                    'subpackagecode' => $request->subpackagecode,                    
-                                    'password' => $password,                    
+                                    'email' => DB::raw("HEX(AES_ENCRYPT('$request->email', '$key'))"),
+                                    'address1' => DB::raw("HEX(AES_ENCRYPT('$request->address1', '$key'))"),
+                                    'address2' => DB::raw("HEX(AES_ENCRYPT('$request->address2', '$key'))"),
+                                    'state' => DB::raw("HEX(AES_ENCRYPT('$request->state', '$key'))"),
+                                    'district' => DB::raw("HEX(AES_ENCRYPT('$request->district', '$key'))"),
+                                    'taluka' => DB::raw("HEX(AES_ENCRYPT('$request->taluka', '$key'))"),
+                                    'city' => DB::raw("HEX(AES_ENCRYPT('$request->city', '$key'))"),
+                                    'whatsappno' => DB::raw("HEX(AES_ENCRYPT('$request->whatsappno', '$key'))"),
+                                    'concernperson' => DB::raw("HEX(AES_ENCRYPT('$request->concernperson', '$key'))"),
+                                    'packagecode' => $request->packagecode,
+                                    'subpackagecode' => $request->subpackagecode,
+                                    'password' => $password,
                                     'role_id' => $role_id,
-
                                        )
                                 );
                         $cust = DB::table('customer_master')
@@ -306,14 +301,14 @@ class OCFAPIController extends Controller
                                     'customer_master.packagecode', 'customer_master.subpackagecode')
                                     ->where('id','=',$request->customercode)
                                     ->first();
-                                
+
                     }
                     else
                     {
                         return response()->json(['message' => 'Customer Not Saved', 'status' =>1]);
                     }
                 }
-               
+
                 $customerotp = $this->companyotp($request);
                 return response()->json(['message' => 'Customer Saved Successfully OTP Generated','status' => 0,'Customer' => $cust]);
             }
@@ -359,6 +354,14 @@ class OCFAPIController extends Controller
                 }
                 else
                 {
+                    // if (strpos($request->company_name, "&") != false || strpos($request->company_name, "#") != false)
+                    // {
+                    //     $company_name = strtr($request->company_name, ["&" => "and", "#" => " "]);
+                    // }
+                    // else
+                    // {
+                    //     $company_name = $request->company_name;
+                    // }
                     //Insert Company using Encryption
                     $company = Company::insert( array(
                                         'customercode' => $request->customercode,
@@ -408,9 +411,7 @@ class OCFAPIController extends Controller
         $data1=[];
         $series = OCF::orderBy('series', 'desc')->first('series');                      //Set series
         if ($request->series==null) $series="OCF";
-
         $ocflastid = OCF::where('series', $series)->orderBy('DocNo', 'desc')->first();  //Get DOC No
-
         $rules = array(
             'customercode' => 'required',
             'companycode' => 'required',
@@ -457,7 +458,6 @@ class OCFAPIController extends Controller
 
             if(!empty($insert_ocf->id))
             {
-
                 foreach ($request->Data as $data )
                 {
                 //    array_push($module_data,$data['modulename']);
@@ -467,14 +467,14 @@ class OCFAPIController extends Controller
                                                 ->where('customer_master.id', $request->customercode)
                                                 ->where('acme_module.ModuleName',$data['modulename'])
                                                 ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
-                    
+
                     $getmoduledata1 = OCFCustomer::leftjoin('acme_package', 'customer_master.packagecode', '=','acme_package.id')
                                                 ->leftjoin('acme_module', 'acme_package.id', '=', 'acme_module.producttype')
                                                 ->leftjoin('acme_module_type', 'acme_module.moduletypeid', '=', 'acme_module_type.id')
                                                 ->where('customer_master.id', $request->customercode)
                                                 ->where('acme_module.ModuleName',$data['modulename'])
                                                 ->get();
-                      
+
                     if(count($getmoduledata)==0)
                     {
                         return response()->json(['message' => 'Check Module','status' => 1]);
@@ -490,12 +490,10 @@ class OCFAPIController extends Controller
                                 'moduletypes' => $getmoduledata[0]['acme_module_typeid'],
                                 'modulecode' => $getmoduledata[0]['moduleid'],
                             ];
-
                         array_push($data1,$data);
                         OCFModule::create($data);
                     }
                 }
-
                 if($getmoduledata1[0]['packagecode'] == 2)
                 {
                     $data=[
@@ -507,7 +505,6 @@ class OCFAPIController extends Controller
                         'moduletypes' => 2,
                         'modulecode' => 29,
                     ];
-
                     OCFModule::create($data);
                 }
                 else if($getmoduledata1[0]['packagecode'] == 3)
@@ -521,7 +518,6 @@ class OCFAPIController extends Controller
                             'moduletypes' => 2,
                             'modulecode' => 30,
                         ];
-
                         OCFModule::create($data);
                 }
                 else{
@@ -541,7 +537,6 @@ class OCFAPIController extends Controller
             'pan_no' => '',
             'gst_no' => ''
         );
-
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails())
         {
@@ -594,6 +589,7 @@ class OCFAPIController extends Controller
                                     ->where('ocfno', '=', $request->companycode)
                                     ->where('serialno_issue_date', '=', $request->issuedate)
                                     ->where('serialno', '=', DB::raw("HEX(AES_ENCRYPT('$request->serialno' , '$key'))"))
+                                    ->orderBy('id', 'desc')
                                     ->first();
 
             if($customer->packagecode == 2)
@@ -615,7 +611,7 @@ class OCFAPIController extends Controller
             if($checkserial)
             {
                 $ocf = OCF::where('customercode', $request->customercode)->where('companycode', $request->companycode)->first();
-             
+
                 if($ocf == null)
                 {
                    return response()->json(['message' => 'OCF Not Exist', 'status'=> 1]);
@@ -623,8 +619,11 @@ class OCFAPIController extends Controller
                 else{
 
                     $module = DB::table(DB::raw('srno_acme_module srno_a'))
-                            ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'), DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
-                            ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, max(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
+                            ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'),
+                            // DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'),
+                            DB::raw('(CASE WHEN (UPPER(`srno_a`.`modulename`) ="STANDARD") THEN srno_a.DefaultValue ELSE srno_e.quantity END ) AS Quantity'),
+                            DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
+                            ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, SUM(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
                                     FROM `srno_customer_master` cu
                                     JOIN `srno_company_master` comp ON cu.id = comp.customercode
                                     JOIN `srno_acme_package` i ON cu.packagecode = i.id
@@ -640,12 +639,10 @@ class OCFAPIController extends Controller
                                 JOIN `srno_acme_module` g ON f.id = g.producttype
                                 WHERE co.id ='.$request->companycode.' GROUP BY g.producttype) srno_m'),'a.producttype', '=', 'm.producttype')
                             ->where( 'm.producttype', '!=', Null)
-                            ->get(); 
-
-            
+                            ->where( 'e.activation', '!=', Null)
+                            ->get();
                     $serial = md5($module);
                     $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
-
                     $insert_serialno = DB::table('serialno')
                                             ->insert( array(
                                             'ocfno' => $request->companycode,
@@ -658,7 +655,6 @@ class OCFAPIController extends Controller
                                         ) );
                     $sr = Serialno::orderBy('id', 'desc')->first();
                     $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
-
                     //Decrypt Saved Serial Data
                     $getserial =  DB::table('serialno')
                                             ->select('serialno.id','serialno.ocfno', DB::raw('CAST(AES_DECRYPT(UNHEX(comp_name), "'.$key.'") AS CHAR) AS comp_name'),
@@ -674,20 +670,18 @@ class OCFAPIController extends Controller
             else
             {
                 $ocf = OCF::where('customercode', $request->customercode)->where('companycode', $request->companycode)->first();
-             
                 if($ocf == null)
                 {
                    return response()->json(['message' => 'OCF Not Exist', 'status'=> 1]);
                 }
                 else{
-
                     if($request->serialotp == "")
                     {
                         $this->serialnootp($request);
                         return response()->json(['message' => 'OTP Generated Update Serial','status' => 2]);
                     }
                     else
-                    {   
+                    {
                         if($request->serialotp == $companyid->serialotp)
                         {
                             $updateotp =  OCFCustomer::where('id', $request->customercode)->update(['isverified'=> 1]);
@@ -723,8 +717,11 @@ class OCFAPIController extends Controller
                             //             ->get();
 
                             $module = DB::table(DB::raw('srno_acme_module srno_a'))
-                                        ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'), DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'), DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
-                                        ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, max(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
+                                        ->select('a.modulename as ModuleName', DB::raw('IFNULL(srno_e.expirydate,\'\') AS ExpiryDate'), DB::raw('IFNULL(srno_e.expiry,0) AS Expiry'),
+                                        // DB::raw('IFNULL(srno_e.quantity, srno_a.DefaultValue) AS Quantity'),
+                                         DB::raw('(CASE WHEN (UPPER(`srno_a`.`modulename`) ="STANDARD") THEN srno_a.DefaultValue ELSE srno_e.quantity END ) AS Quantity'),
+                                        DB::raw( 'IFNULL(srno_e.activation,0) AS activation'))
+                                        ->leftJoin(DB::raw('(SELECT  c.modulecode, max(c.modulename), max(c.expirydate) as expirydate, SUM(c.quantity) AS quantity,  max(c.activation) as activation, max(h.expiry) as expiry
                                                 FROM `srno_customer_master` cu
                                                 JOIN `srno_company_master` comp ON cu.id = comp.customercode
                                                 JOIN `srno_acme_package` i ON cu.packagecode = i.id
@@ -740,14 +737,11 @@ class OCFAPIController extends Controller
                                             JOIN `srno_acme_module` g ON f.id = g.producttype
                                             WHERE co.id ='.$request->companycode.' GROUP BY g.producttype) srno_m'),'a.producttype', '=', 'm.producttype')
                                         ->where( 'm.producttype', '!=', Null)
-                                        ->get(); 
-
+                                        ->where( 'e.activation', '!=', Null)
+                                        ->get();
                             // $serial2 =(json_encode($module));
-
                             $serial = md5($module);
-
                             $expirydate = date('d-m-Y', strtotime($time . " +1 year") );
-
                             $insert_serialno = DB::table('serialno')->insert( array(
                                                 'ocfno' => $request->companycode,
                                                 'comp_name' => DB::raw("HEX(AES_ENCRYPT('$compupdate->companyname' , '$key'))"),
@@ -757,7 +751,6 @@ class OCFAPIController extends Controller
                                                 'serialno_validity'=> $expirydate,
                                                 'serialno' => DB::raw("HEX(AES_ENCRYPT('$serial' , '$key'))"),
                                                 'otp_flag' => 1));
-
                             $sr = Serialno::orderBy('id', 'desc')->first();
                             $srid = DB::table('serialno')->where('id', '=', $sr->id)->first();
                                 //Decrypt Saved Serial Data
@@ -769,7 +762,6 @@ class OCFAPIController extends Controller
                                             DB::raw('CAST(AES_DECRYPT(UNHEX(serialno), "'.$key.'") AS CHAR) AS serialno'), 'serialno.otp_flag')
                                             ->where('id','=', $srid->id)
                                             ->first();
-
                             return response()->json(['message' => 'Serialno Updated', 'status' => 0, 'Company' => $compupdate,'Modules' => $module, 'Serial' => $getserial]);
                         }
                         else
@@ -790,7 +782,7 @@ class OCFAPIController extends Controller
                     ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                     DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
@@ -799,17 +791,15 @@ class OCFAPIController extends Controller
                     DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                     DB::raw('CAST(AES_DECRYPT(UNHEX(otp), "'.$key.'") AS CHAR) AS otp'),
-                   'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode', 
+                   'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode',
                    'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('otp','=',DB::raw("HEX(AES_ENCRYPT('$request->otp' , '$key'))"))
                     ->first();
-
-                   
         $getcustomer =  DB::table('customer_master')
                         ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                         DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'), 
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(address1), "'.$key.'") AS CHAR) AS address1'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(address2), "'.$key.'") AS CHAR) AS address2'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(state), "'.$key.'") AS CHAR) AS state'),
@@ -818,11 +808,10 @@ class OCFAPIController extends Controller
                         DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(concernperson), "'.$key.'") AS CHAR) AS concernperson'),
                         DB::raw('CAST(AES_DECRYPT(UNHEX(otp), "'.$key.'") AS CHAR) AS otp'),
-                        'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode', 
+                        'customer_master.isverified', 'customer_master.otp_expires_time', 'customer_master.role_id', 'customer_master.packagecode',
                         'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                     ->where('id','=',$request->customercode)
                     ->first();
-
         if($request->customercode)
         {
             if($getcustomer == null)
@@ -830,7 +819,6 @@ class OCFAPIController extends Controller
                 return response()->json(['Message' => 'Customer Not Exist', 'status' => 1]);
             }
             $custpmerupdate = OCFCustomer::where('id', $getcustomer->id)->update(['isverified'=> 1]);
-
             //Company Data
             $company = DB::table('company_master')
                         ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
@@ -844,11 +832,9 @@ class OCFAPIController extends Controller
             return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $getcustomer, 'Company' => $company ] );
         }
         //verify OTP
-
         else if($getotp != null)
         {
             $custpmerupdate = OCFCustomer::where('id', $getotp->id)->update(['isverified'=> 1]);
-
             //Company Data
             $company = DB::table('company_master')
                         ->select('company_master.id','company_master.customercode', DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
@@ -860,7 +846,6 @@ class OCFAPIController extends Controller
                         ->where('company_master.customercode','=', $getotp->id)
                         ->get();
             // $company = Company::where('customercode', $customer->id)->get();
-
             return response()->json(['status' => 0, 'message' => 'Verified', 'Customer' => $getotp, 'Company' => $company ] );
         }
         else
@@ -873,7 +858,6 @@ class OCFAPIController extends Controller
     {
         //Filter City Data pincode wise
         $city = DB::table('city')->where('pincode', $request->pincode)->get();
-
         if(count($city) == 0)
         {
             return response()->json(['message' => 'Pincode Not Exist', 'status' => 1]);
@@ -901,30 +885,37 @@ class OCFAPIController extends Controller
         {
             //create token
             $token = $user->createToken('LoginSerialNoToken')->plainTextToken;
-
             $response = [
-
                  'token' => $token,
                  'status' => '0'
         ];
         //Generate Autologin URL
           $autologin = 'https://crm.acmeinfovision.com/customer/customerlogin/'.$request->customercode.'/'.$token ;
-
             return response()->json(['message' => 'Auto Login', 'status' => 0, 'URL' => $autologin ]);
         }
     }
 
     public function broadcast_messages(Request $request)
     {
+        $key = config('global.key');
         //Filter Data of messagetarget, customercode, rolecode, companycode
-        $message = BroadcastMessage::where('MessageTarget', $request->messagetarget)
+        $message = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+                                      DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+                                     'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+                                     'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
+                                     DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
+                                     DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"'.$key.'") AS CHAR) AS MessageDescKannada'),
+                                     DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"'.$key.'") AS CHAR) AS MessageDescGujarathi'))
+                                    ->where('MessageTarget', $request->messagetarget)
                                     ->where('RoleCode', $request->rolecode)
                                     ->where('CustomerCode', $request->customercode)
                                     ->where('CompanyCode', $request->companycode)
                                     ->where('PackageType', $request->packagetype)
                                     ->where('PackageSubType', $request->packagesubtype)
+                                    ->orderBy('id', 'desc')
                                     ->first();
-       
+
+
         if(empty($message))
         {
             return response()->json(['message' => 'Invalid Data', 'status' => 1]);
@@ -963,40 +954,38 @@ class OCFAPIController extends Controller
                         'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                         ->where('id','=',$request->customercode)
                         ->first();
- 
         if($checkcustomer == null)
         {
             return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
         }
-
         $otp =  rand(100000, 999999);
         $update_otp = OCFCustomer::where('id', $request->customercode)->update(['otp' => DB::raw("HEX(AES_ENCRYPT('$otp' , '$key'))")]);
-        try{
-        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Successful%20.%20\nYour%20Verification%20OTP%20-%20$otp%20\n*Please%20Do%20Not%20Share%20OTP%20With%20Anyone";
-      
-        $params =
-                [
-                    "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
-                    "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                    "message" =>
-                                [
-                                    "content" =>
+        try
+        {
+            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$checkcustomer->whatsappno&message=Your%20ACME%20Customer%20Registration%20is%20Done%20Successful%20.%20\nYour%20Verification%20OTP%20-%20$otp%20\n*Please%20Do%20Not%20Share%20OTP%20With%20Anyone";
+
+            $params =
+                    [
+                        "to" => ["type" => "whatsapp", "number" => $checkcustomer->whatsappno],
+                        "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                        "message" =>
                                     [
-                                        "type" => "text",
-                                        "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                        "content" =>
+                                        [
+                                            "type" => "text",
+                                            "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                                        ]
                                     ]
-                                ]
-                ];
-        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-        $data = $response->getBody();
-        Log::Info($data);
-      
+                    ];
+            $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+            $data = $response->getBody();
+            Log::Info($data);
         }
-        catch (Throwable $e) {
+        catch (Throwable $e)
+        {
             report($e);
-    
             return response()->json(['message' => 'Whatsapp Url Error']);
         }
     }
@@ -1013,6 +1002,16 @@ class OCFAPIController extends Controller
                         'company_master.InstallationType', 'company_master.InstallationDesc','company_master.expirydates', 'company_master.updated_at')
                         ->where('id','=', $request->companycode)
                         ->first();
+
+        if (strpos($request->company_name, "&") != false || strpos($request->company_name, "#") != false)
+        {
+            $company_name = strtr($request->company_name, ["&" => "%26", "#" => "%23"]);
+
+        }
+        else
+        {
+            $company_name = $request->company_name;
+        }
         $checkcustomer =  DB::table('customer_master')
                             ->select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name), "'.$key.'") AS CHAR) AS name'), 'customer_master.entrycode',
                             DB::raw('CAST(AES_DECRYPT(UNHEX(email), "'.$key.'") AS CHAR) AS email'),
@@ -1023,48 +1022,45 @@ class OCFAPIController extends Controller
                             'customer_master.packagecode', 'customer_master.subpackagecode', 'customer_master.password', 'customer_master.active')
                             ->where('id','=',$request->customercode)
                             ->first();
-
         if($checkcustomer == null)
         {
             return response()->json(['Message' => 'Invalid Mobile No', 'status' => 1]);
         }
         $otp =  rand(100000, 999999);
-      
         $update_verifyotp = Company::where('id', $request->companycode)->update(['serialotp' => DB::raw("HEX(AES_ENCRYPT('$otp' , '$key'))")]);
         $otp_expires_time = Carbon::now('Asia/Kolkata')->addHours(1);
         Log::info("otp = ".$otp);
-        Log::info("otp_expires_time = ".$otp_expires_time); 
+        Log::info("otp_expires_time = ".$otp_expires_time);
         Cache::put('otp_expires_time', $otp_expires_time);
-
         $users = OCFCustomer::where('id','=',$request->customercode)->update(['otp_expires_time' => $otp_expires_time]);
-        try{
-      
-        $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20Serial%20No%20Verification%20With%20ACME%20For%20Company%20Is%20$compupdate->companyname.\nPlease%20Verify%20With%20OTP%20-%20$otp\n*%20Please%20Do%20Not%20Share%20This%20OTP%20With%20Anyone.";
-      
-        $params = 
-                [   
-                    "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
-                    "from" => ["type" => "whatsapp", "number" => "9422031763"],
-                    "message" =>
+        try
+        {
+
+            $url = "http://whatsapp.acmeinfinity.com/api/sendText?token=60ab9945c306cdffb00cf0c2&phone=91$$checkcustomer->whatsappno&message=Your%20Serial%20No%20Verification%20With%20ACME%20For%20Company%20-%20$company_name.\nPlease%20Verify%20With%20OTP%20-%20$otp\n*%20Please%20Do%20Not%20Share%20This%20OTP%20With%20Anyone.";
+
+            $params =
                     [
-                        "content" =>
+                        "to" => ["type" => "whatsapp", "number" => $customer->whatsappno],
+                        "from" => ["type" => "whatsapp", "number" => "9422031763"],
+                        "message" =>
                         [
-                            "type" => "text",
-                            "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                            "content" =>
+                            [
+                                "type" => "text",
+                                "text" => "Hello from Vonage and Laravel :) Please reply to this message with a number between 1 and 100"
+                            ]
                         ]
-                    ]
-                ];
-        $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
-        
-        $data = $response->getBody();
-        Log::Info($data);
-          
+                    ];
+            $headers = ["Authorization" => "Basic " . base64_encode(env('60ab9945c306cdffb00cf0c2') . ":" . env('60ab9945c306cdffb00cf0c2'))];
+            $client = new \GuzzleHttp\Client();
+            $response = $client->request('POST', $url, ["headers" => $headers, "json" => $params]);
+
+            $data = $response->getBody();
+            Log::Info($data);
         }
-        catch (Throwable $e) {
+        catch (Throwable $e)
+        {
             report($e);
-     
             return response()->json(['message' => 'Whatsapp Url Error']);
         }
         // return response()->json(['message' => 'OTP Generated','status' => 2]);
@@ -1074,13 +1070,10 @@ class OCFAPIController extends Controller
     {
         $rules = array(
             'messagetarget' => 'required',
-            'customercode' => 'required',
             'datefrom' => 'required',
             'todate' => 'required',
             'messagetitle' => 'required',
-
         );
-
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails())
         {

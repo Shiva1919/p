@@ -112,6 +112,8 @@ Route::get('getocfno/{ocfno}',                     [OCFController::class, 'getoc
 Route::get('getocf_customer/{customer}',           [OCFController::class, 'getocf_customer']);
 Route::get('getocf_modules/{ocf}',                 [OCFController::class, 'getocf_modules']);
 Route::get('ocflist',                              [OCFCustomerController::class, 'ocflist']);
+Route::put('activeocf/{customer}/{company}/{ocf}', [OCFController::class, 'activeocf']);
+Route::put('deactiveocf/{customer}/{company}/{ocf}', [OCFController::class, 'deactiveocf']);
 
 //E-invoice
 

@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Expr\FuncCall;
 use Validator;
 class OCFController extends Controller
 {
@@ -105,7 +106,7 @@ class OCFController extends Controller
                                                     ->where('customer_master.id', $request->customercode)
                                                     ->where('acme_module.ModuleName',$data['modulecode'])
                                                     ->get(['acme_module.id as moduleid', 'acme_module.ModuleName as modulename', 'acme_module_type.id as acme_module_typeid','acme_module_type.moduletype as acme_module_moduletype']);
-                    return $module_unit;
+                    // return $module_unit->producttype;
                     $data=[
                         'ocfcode'=> $insert_ocf->id,
                         'modulename'=> $data['modulecode'],
@@ -121,7 +122,37 @@ class OCFController extends Controller
 
                    $ocfmoduledata = OCFModule::create($data);
 
-
+                   if($getmoduledata1[0]['packagecode'] == 2)
+                   {
+                       $data=[
+                           'ocfcode'=> $insert_ocf->id,
+                           'modulename'=> 'Users',
+                           'quantity'=> 30,
+                           'expirydate'=> "0000-00-00",
+                           'amount'=> 0,
+                           'moduletypes' => 2,
+                           'modulecode' => 29,
+                       ];
+   
+                       OCFModule::create($data);
+                   }
+                   else if($getmoduledata1[0]['packagecode'] == 3)
+                   {
+                       $data=[
+                               'ocfcode'=> $insert_ocf->id,
+                               'modulename'=> 'Users',
+                               'quantity'=> 15,
+                               'expirydate'=> "0000-00-00",
+                               'amount'=> 0,
+                               'moduletypes' => 2,
+                               'modulecode' => 30,
+                           ];
+   
+                           OCFModule::create($data);
+                   }
+                   else{
+                        return response()->json(['message' => 'Invalid Package', 'status'=> 1]);
+                   }
                 }
                    $customer = OCFCustomer::where('id', $request->customercode)->first();
 
@@ -287,7 +318,7 @@ class OCFController extends Controller
         $data = DB::table('ocf_modules')
                 ->leftJoin('ocf_master','ocf_master.id','=','ocf_modules.ocfcode')
                 ->where('ocf_master.DocNo',$DocNo)->get('ocf_modules.*');
- return $data;
+        return $data;
     }
 
     public function getocf_modules($ocf)
@@ -295,4 +326,29 @@ class OCFController extends Controller
         $data = DB::table('ocf_modules')->where('ocfcode', $ocf)->get();
         return response()->json($data);
     }
+
+    public function activeocf($customer, $company, $ocf)
+    {
+        $active = OCF::where('customercode', $customer)->where('companycode', $company)->where('DocNo', $ocf)->first();
+        $updateactive = OCF::where('DocNo', $ocf)->update(['active'=> 1]);
+        
+        if($updateactive ==1)
+        {
+            $activeocfmodules = OCFModule::where('ocfcode', $active->id)->update(['activation' => 1]);
+        }
+        return response()->json(['message'=> 'OCF Activated']);
+    }
+
+    public function deactiveocf($customer, $company, $ocf)
+    {
+        $deactive = OCF::where('customercode', $customer)->where('companycode', $company)->where('DocNo', $ocf)->first();
+        $updateactive = OCF::where('DocNo', $ocf)->update(['active'=> 0]);
+
+        if($updateactive == 1)
+        {
+            $deactiveocfmodules = OCFModule::where('ocfcode', $deactive->id)->update(['activation' => 0]); 
+        }
+        return response()->json(['message'=> 'OCF Deactivated']);
+    }
 }
+

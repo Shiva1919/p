@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\API\BroadcastMessage;
+use Illuminate\Support\Facades\DB;
+
 class BroadcoastController extends Controller
 {
     /**
@@ -14,7 +16,16 @@ class BroadcoastController extends Controller
      */
     public function index()
     {
-        $Broad = BroadcastMessage::where('Active',1)->orderBy('id','desc')->Tosql();
+        $key = config('global.key');
+        $Broad = BroadcastMessage::select('id','MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+                    'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+                    'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"'.$key.'") AS CHAR) AS MessageDescKannada'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"'.$key.'") AS CHAR) AS MessageDescGujarathi'))
+                    ->where('Active',1)->orderBy('id','desc')
+                    ->get();
         return $Broad;
     }
 
@@ -61,7 +72,7 @@ class BroadcoastController extends Controller
     public function store(Request $request)
     {
 
-
+        $key = config('global.key');
             $broadcast_message = new BroadcastMessage();
             $broadcast_message->MessageTarget = $request->target;
             $broadcast_message->CustomerCode = $request->customer;
@@ -71,17 +82,17 @@ class BroadcoastController extends Controller
             $broadcast_message->GstType = $request->gst_type;
             $broadcast_message->DateFrom = $request->fromdate;
             $broadcast_message->ToDate = $request->todate;
-            $broadcast_message->MessageTitle = $request->msgtitle;
+            $broadcast_message->MessageTitle = DB::raw("HEX(AES_ENCRYPT('$request->msgtitle' , '$key'))");
             $broadcast_message->UrlButtonText = $request->buttonurl;
             $broadcast_message->HowManyDaysToDisplay = $request->howmanydaytodisplay;
             $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
             $broadcast_message->RoleCode = $request->role;
             $broadcast_message->URLString = $request->url;
-            $broadcast_message->MessageDesc = $request->msgdescription;
-            $broadcast_message->MessageDescMarathi = $request->desc_marathi;
-            $broadcast_message->MessageDescHindi = $request->desc_hindi;
-            $broadcast_message->MessageDescKannada = $request->desc_kanad;
-            $broadcast_message->MessageDescGujarathi = $request->buttonurl;
+            $broadcast_message->MessageDesc = DB::raw("HEX(AES_ENCRYPT('$request->msgdescription' , '$key'))");
+            $broadcast_message->MessageDescMarathi = DB::raw("HEX(AES_ENCRYPT('$request->desc_marathi' , '$key'))");
+            $broadcast_message->MessageDescHindi = DB::raw("HEX(AES_ENCRYPT('$request->desc_hindi' , '$key'))");
+            $broadcast_message->MessageDescKannada = DB::raw("HEX(AES_ENCRYPT('$request->desc_kanad' , '$key'))");
+            $broadcast_message->MessageDescGujarathi = DB::raw("HEX(AES_ENCRYPT('$request->desc_gujrati' , '$key'))");
             $broadcast_message->save();
 
             if ($broadcast_message->id) {
@@ -113,7 +124,16 @@ class BroadcoastController extends Controller
      */
     public function show($id)
     {
-        $Broad = BroadcastMessage::find($id);
+        $key = config('global.key');
+        $Broad =  BroadcastMessage::select('MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+                    'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+                    'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"'.$key.'") AS CHAR) AS MessageDescKannada'),
+                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"'.$key.'") AS CHAR) AS MessageDescGujarathi'))
+                    ->where('id', $id)
+                    ->first();
         if (is_null($Broad))
         {
             return $this->sendError('User not found.');
@@ -141,6 +161,7 @@ class BroadcoastController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $key = config('global.key');
         $broadcast_message = BroadcastMessage::find($id);
         $broadcast_message->MessageTarget = $request->target;
         $broadcast_message->CustomerCode = $request->customer;
@@ -150,18 +171,19 @@ class BroadcoastController extends Controller
         $broadcast_message->GstType = $request->gst_type;
         $broadcast_message->DateFrom = $request->fromdate;
         $broadcast_message->ToDate = $request->todate;
-        $broadcast_message->MessageTitle = $request->msgtitle;
+        $broadcast_message->MessageTitle = DB::raw("HEX(AES_ENCRYPT('$request->msgtitle' , '$key'))");
         $broadcast_message->UrlButtonText = $request->buttonurl;
         $broadcast_message->HowManyDaysToDisplay = $request->howmanydaytodisplay;
         $broadcast_message->AllowToMarkAsRead = $request->allowtomarkasread;
         $broadcast_message->RoleCode = $request->role;
         $broadcast_message->URLString = $request->url;
-        $broadcast_message->MessageDesc = $request->msgdescription;
-        $broadcast_message->MessageDescMarathi = $request->desc_marathi;
-        $broadcast_message->MessageDescHindi = $request->desc_hindi;
-        $broadcast_message->MessageDescKannada = $request->desc_kanad;
-        $broadcast_message->MessageDescGujarathi = $request->buttonurl;
+        $broadcast_message->MessageDesc = DB::raw("HEX(AES_ENCRYPT('$request->msgdescription' , '$key'))");
+        $broadcast_message->MessageDescMarathi = DB::raw("HEX(AES_ENCRYPT('$request->desc_marathi' , '$key'))");
+        $broadcast_message->MessageDescHindi = DB::raw("HEX(AES_ENCRYPT('$request->desc_hindi' , '$key'))");
+        $broadcast_message->MessageDescKannada = DB::raw("HEX(AES_ENCRYPT('$request->desc_kanad' , '$key'))");
+        $broadcast_message->MessageDescGujarathi = DB::raw("HEX(AES_ENCRYPT('$request->desc_gujrati' , '$key'))");
         $broadcast_message->save();
+
         // return $user;
         return response()->json([
             'status'=>200,
