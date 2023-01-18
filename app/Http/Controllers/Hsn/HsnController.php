@@ -78,7 +78,7 @@ class HsnController extends Controller
         }
         else if(isset($msg_allready))
         {
-            return redirect('Acme_hsn')->with(['allready'=>'Allready Imported']);
+            return redirect('Acme_hsn')->with(['already'=>'Already Imported']);
         }
         else{
             return redirect('Acme_hsn')->with(['error'=>'Not Imported']);
