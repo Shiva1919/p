@@ -46,30 +46,55 @@ Route::group(['middleware' => 'api'], function($router) {
     Route::post('/refresh',  [JWTController::class, 'refresh']);
     Route::get('/profile',   [JWTController::class, 'profile']);
 });
-
 Route::post('logindata', [AuthController::class,'login']);
 Route::post('registerdata', [AuthController::class,'register']);
 
 Route::get('packagedata', [PackagesController::class, 'index'])->middleware('auth:sanctum');
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
 
-Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
-Route::post('company',                                     [OCFAPIController::class, 'company']);
-Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
-Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
-Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
-Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
-Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
-Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
-Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
-Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
-});
+// Route::post('customerdata',                                [OCFAPIController::class, 'customercreate']);
+// Route::post('company',                                     [OCFAPIController::class, 'company']);
+// Route::post('ocfs',                                        [OCFAPIController::class, 'OCF']);
+// Route::get('companydata/{customerid}',                     [OCFAPIController::class, 'getcompany']);
+// Route::get('companyocf',                                   [OCFAPIController::class, 'companyocf']);
+// Route::post('serialnootp',                                 [OCFAPIController::class, 'serialnootp']);
+// Route::post('serialnootpverify',                           [OCFAPIController::class, 'serialnoverifyotp']);
+// Route::post('serialno_validity',                           [OCFAPIController::class, 'sr_validity']);
+// Route::post('broadcastmessage',                            [OCFAPIController::class, 'broadcastmessage']);
+// Route::get('date_time',                                    [OCFAPIController::class, 'date_time']);
+// });
 
 
 Route::get('get_hsn/{id}',[hsnController::class,'index']);  // Provide valadation of HSN code
 
 Route::get('loginuser',   [UsersController::class, 'getuserlogin']);         // Auto Login
+
+
+Route::resource('users',                                    UsersController::class);
+Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
+Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);
+Route::put('users/{id}/{active}/status',                   [UsersController::class, 'userstatus']);
+Route::get('usersactive',                                  [UsersController::class, 'activeuser']);
+Route::get('usersdeactive',                                [UsersController::class, 'deactiveuser']);
+Route::get('customers',                                    [UsersController::class, 'getcustomer']);
+Route::get('customerlogin/{tenantcode}/{password}/{token}',[UsersController::class, 'customerlogin']);
+
+//Role
+Route::resource('roles',                                    RoleController::class);
+Route::get('rolesgetexcept',                               [RoleController::class, 'rolesgetexcept']);
+Route::get('rolesdeactivelist',                            [RoleController::class, 'deactiverolesslist']);
+Route::put('roles/{id}/{active}',                          [RoleController::class, 'rolestatus']);
+Route::get('rolesactive',                                  [RoleController::class, 'activerole']);
+Route::get('rolesdeactive',                                [RoleController::class, 'deactiverole']);
+
+ //Permission
+ Route::get('permissions_menu',                             [PermissionController::class, 'displaymenu']);
+ Route::resource('permissions',                             PermissionController::class);
+ Route::get('permissiondeactivelist',                      [PermissionController::class, 'deactivepermissionslist']);
+ Route::put('permissions/{id}/{active}/status',            [PermissionController::class, 'permissionstatus']);
+ Route::get('permissionsactive',                           [PermissionController::class, 'activepermission']);
+ Route::get('permissionsdeactive',                         [PermissionController::class, 'deactivepermission']);
 
 // Package
 Route::resource('package',         PackagesController::class);
@@ -131,38 +156,34 @@ Route::get('getocfid',                             [OCFController::class, 'getoc
 Route::get('getseries',                            [OCFController::class, 'getocflastseries']);
 
 Route::get('customerdeactivelist',                 [OCFCustomerController::class, 'deactivecustomerslist']);
-//Country
-// Route::get('state', [CustomersController::class, 'getState']);
-// Route::get('district/{stateid}', [CustomersController::class, 'getDistrict']);
-// Route::get('taluka/{districtid}', [CustomersController::class, 'getTaluka']);
-// Route::get('city/{talukaid}', [CustomersController::class, 'getCity']);
 
-// Branch
-Route::get('branch/{customerid}',                 [CustomersController::class, 'branchindex']);
-Route::get('branchgetbyid/{customerid}/{id}',     [CustomersController::class, 'branchshow']);
-Route::post('branchadd/{customerid}',             [CustomersController::class, 'branchstore']);
-Route::put('branchupdate/{customerid}/{id}',      [CustomersController::class, 'branchupdate']);
-Route::delete('branchdelete/{customerid}/{id}',   [CustomersController::class, 'branchdelete']);
 
-// Contact
-Route::get('contact/{customerid}',                [CustomersController::class, 'contactindex']);
-Route::get('contactgetbyid/{customerid}/{id}',    [CustomersController::class, 'contactshow']);
-Route::post('contactadd/{customerid}',            [CustomersController::class, 'contactstore']);
-Route::put('contactupdate/{customerid}/{id}',     [CustomersController::class, 'contactupdate']);
-Route::delete('contactdelete/{customerid}/{id}',  [CustomersController::class, 'contactdelete']);
+// // Branch
+// Route::get('branch/{customerid}',                 [CustomersController::class, 'branchindex']);
+// Route::get('branchgetbyid/{customerid}/{id}',     [CustomersController::class, 'branchshow']);
+// Route::post('branchadd/{customerid}',             [CustomersController::class, 'branchstore']);
+// Route::put('branchupdate/{customerid}/{id}',      [CustomersController::class, 'branchupdate']);
+// Route::delete('branchdelete/{customerid}/{id}',   [CustomersController::class, 'branchdelete']);
 
-// Order Confirmation Form
-Route::resource('orderconfirmation',               OrderConfirmationsController::class);
-Route::delete('orderconfirmationdelete/{id}',     [OrderConfirmationsController::class, 'destroy']);
-Route::get('getrefno/{refno}',                    [OrderConfirmationsController::class, 'getrefno']);
-Route::get('getcustomer/{customercode}',          [OrderConfirmationsController::class, 'getcustomer']);
+// // Contact
+// Route::get('contact/{customerid}',                [CustomersController::class, 'contactindex']);
+// Route::get('contactgetbyid/{customerid}/{id}',    [CustomersController::class, 'contactshow']);
+// Route::post('contactadd/{customerid}',            [CustomersController::class, 'contactstore']);
+// Route::put('contactupdate/{customerid}/{id}',     [CustomersController::class, 'contactupdate']);
+// Route::delete('contactdelete/{customerid}/{id}',  [CustomersController::class, 'contactdelete']);
+
+// // Order Confirmation Form
+// Route::resource('orderconfirmation',               OrderConfirmationsController::class);
+// Route::delete('orderconfirmationdelete/{id}',     [OrderConfirmationsController::class, 'destroy']);
+// Route::get('getrefno/{refno}',                    [OrderConfirmationsController::class, 'getrefno']);
+// Route::get('getcustomer/{customercode}',          [OrderConfirmationsController::class, 'getcustomer']);
 
 // Serialno
 // Route::resource('serialno', SerialnoController::class);
-Route::post('serialnosendotp',                    [SerialnoController::class, 'serialnosendotp']);
-Route::post('serialnoverifyotp',                  [SerialnoController::class, 'serialnoverifyotp']);
-Route::post('serialnos',                          [SerialnoController::class, 'serialnogenerate']);
-Route::post('ocfchange',                          [SerialnoController::class, 'ocfchange']);
+// Route::post('serialnosendotp',                    [SerialnoController::class, 'serialnosendotp']);
+// Route::post('serialnoverifyotp',                  [SerialnoController::class, 'serialnoverifyotp']);
+// Route::post('serialnos',                          [SerialnoController::class, 'serialnogenerate']);
+// Route::post('ocfchange',                          [SerialnoController::class, 'ocfchange']);
 
 // Get Employee
 Route::resource('Employee',                        EmployeeController::class);
@@ -213,30 +234,6 @@ Route::get('customerlogin/{tenantcode}/{token}',  [AuthController::class, 'getcu
 
 // Users
 Route::get('duplicate_mail/{email}',                       [UsersController::class, 'duplicate_usermail']);
-Route::resource('users',                                    UsersController::class);
-Route::get('gettenant/{tenantcode}',                       [UsersController::class, 'gettenant']);
-Route::get('usersdeactivelist',                            [UsersController::class, 'deactiveuserslist']);
-Route::put('users/{id}/{active}/status',                   [UsersController::class, 'userstatus']);
-Route::get('usersactive',                                  [UsersController::class, 'activeuser']);
-Route::get('usersdeactive',                                [UsersController::class, 'deactiveuser']);
-Route::get('customers',                                    [UsersController::class, 'getcustomer']);
-Route::get('customerlogin/{tenantcode}/{password}/{token}',[UsersController::class, 'customerlogin']);
-
-//Role
-Route::resource('roles',                                    RoleController::class);
-Route::get('rolesgetexcept',                               [RoleController::class, 'rolesgetexcept']);
-Route::get('rolesdeactivelist',                            [RoleController::class, 'deactiverolesslist']);
-Route::put('roles/{id}/{active}',                          [RoleController::class, 'rolestatus']);
-Route::get('rolesactive',                                  [RoleController::class, 'activerole']);
-Route::get('rolesdeactive',                                [RoleController::class, 'deactiverole']);
-
- //Permission
- Route::get('permissions_menu',                             [PermissionController::class, 'displaymenu']);
- Route::resource('permissions',                             PermissionController::class);
- Route::get('permissiondeactivelist',                      [PermissionController::class, 'deactivepermissionslist']);
- Route::put('permissions/{id}/{active}/status',            [PermissionController::class, 'permissionstatus']);
- Route::get('permissionsactive',                           [PermissionController::class, 'activepermission']);
- Route::get('permissionsdeactive',                         [PermissionController::class, 'deactivepermission']);
 
 //  Company
 Route::get('customer_wise_company/{id}',                   [CompanyController::class,'customer_wise_company']);

@@ -350,5 +350,6 @@ class OCFController extends Controller
         }
         return response()->json(['message'=> 'OCF Deactivated','Customer'=>$customer]);
     }
+    
 }
 

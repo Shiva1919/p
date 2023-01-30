@@ -899,8 +899,27 @@ class OCFAPIController extends Controller
     {
         $key = config('global.key');
         //Filter Data of messagetarget, customercode, rolecode, companycode
+        // $message = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+        //                               DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+        //                              'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+        //                              'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
+        //                              DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
+        //                              DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"'.$key.'") AS CHAR) AS MessageDescKannada'),
+        //                              DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"'.$key.'") AS CHAR) AS MessageDescGujarathi'))
+        //                             ->where('MessageTarget', $request->messagetarget)
+        //                             ->where('RoleCode', $request->rolecode)
+        //                             ->where('CustomerCode', $request->customercode)
+        //                             ->where('CompanyCode', $request->companycode)
+        //                             ->where('PackageType', $request->packagetype)
+        //                             ->where('PackageSubType', $request->packagesubtype)
+        //                             ->orderBy('id', 'desc')
+        //                             ->first();
+
+
+
+        $time = date('Y-m-d');
         $message = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
-                                      DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
                                      'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
                                      'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
                                      DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
@@ -912,8 +931,11 @@ class OCFAPIController extends Controller
                                     ->where('CompanyCode', $request->companycode)
                                     ->where('PackageType', $request->packagetype)
                                     ->where('PackageSubType', $request->packagesubtype)
+                                    ->where('DateFrom','>=', $time)
+                                    ->where('ToDate', '>=' , $time)
+                                    ->orWhere('MessageTarget', 1)
                                     ->orderBy('id', 'desc')
-                                    ->first();
+                                    ->get();
 
 
         if(empty($message))
