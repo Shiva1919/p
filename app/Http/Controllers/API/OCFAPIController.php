@@ -18,6 +18,7 @@ use App\Models\API\BroadcastMessage;
 use App\Models\API\Packages;
 use App\Models\API\SubPackages;
 use DateTime;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\URL;
 use Throwable;
 
@@ -937,6 +938,29 @@ class OCFAPIController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->get();
 
+        if($message != null)
+        {
+            $description = $message[0]['MessageDesc']. "    ". $message[0]['MessageDescMarathi']. "     ". $message[0]['MessageDescHindi']. "       ". $message[0]['MessageDescKannada']. "     ". $message[0]['MessageDescGujarathi'];
+        }
+
+        $data = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+                                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+                                     'AllPreferredLanguages', 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+                                     'URLString', 'SpecialKeyToClose', DB::raw('"'.$description.'" AS MessageDesc'),
+                                    )
+                                    ->where('MessageTarget', $request->messagetarget)
+                                    ->where('RoleCode', $request->rolecode)
+                                    ->where('CustomerCode', $request->customercode)
+                                    ->where('CompanyCode', $request->companycode)
+                                    ->where('PackageType', $request->packagetype)
+                                    ->where('PackageSubType', $request->packagesubtype)
+                                    ->where('DateFrom','>=', $time)
+                                    ->where('ToDate', '>=' , $time)
+                                    ->orWhere('MessageTarget', 1)
+                                    ->orderBy('id', 'desc')
+                                    ->get();
+
+        return $data;
 
         if(empty($message))
         {

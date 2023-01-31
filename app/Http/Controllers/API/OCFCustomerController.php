@@ -28,11 +28,12 @@ class OCFCustomerController extends Controller
         $key = config('global.key');
 
         $customer = DB::Table('customer_master')
-        ->select('id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','city','concernperson','packagecode','subpackagecode',
+        ->select('id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','concernperson','packagecode','subpackagecode',
                 DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(email),"'.$key.'") AS CHAR) AS email'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno),"'.$key.'") AS CHAR) AS whatsappno'),
-                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone'))
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(city),"'.$key.'") AS CHAR) AS city'))
                 ->where('role_id',10)->where('active', 1)->orderBy('name','asc')
         ->get();
     //  $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
@@ -99,7 +100,8 @@ class OCFCustomerController extends Controller
                 'active' => 'required',
                 'concernperson' => 'required',
                 'packagecode' => 'required',
-                'subpackagecode' => 'required'
+                'subpackagecode' => 'required',
+                'customerlanguage' => ''
             );
 
             $validator = Validator::make($request->all(), $rules);
@@ -140,6 +142,7 @@ class OCFCustomerController extends Controller
                 $insert_customers->role_id = $role_id;
                 $insert_customers->packagecode = $request->packagecode;
                 $insert_customers->subpackagecode = $request->subpackagecode;
+                $insert_customers->customerlanguage = $request->customerlanguage;
                 $insert_customers->save();
                 if(!empty($insert_customers->id))
                 {
@@ -271,7 +274,8 @@ class OCFCustomerController extends Controller
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',
-            'subpackagecode' => ''
+            'subpackagecode' => '',
+            'customerlanguage' => ''
         ]);
         if($validator->fails())
         {
@@ -295,6 +299,7 @@ class OCFCustomerController extends Controller
         $customer->subpackagecode = $request->subpackagecode;
         $customer->role_id = $role_id;
         $customer->password = $password;
+        $customer->customerlanguage = $request->customerlanguage;
         $customer->save();
 
         if(!empty($request->id)) {

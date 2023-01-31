@@ -17,7 +17,7 @@ class OCFCustomer extends Model implements Auditable
 
     protected $auditTimestamps = true;
 
-    protected static $logAttributes = [ 'name', 'entrycode', 'address1', 'address2', 'otp', 'isverified', 'phone', 'whatsappno', 'email', 'state', 'district', 'taluka', 'city', 'role_id', 'noofbranch', 'password', 'concernperson', 'packagename','subpackagecode', 'customercode'];
+    protected static $logAttributes = [ 'name', 'entrycode', 'address1', 'address2', 'otp', 'isverified', 'phone', 'whatsappno', 'email', 'state', 'district', 'taluka', 'city', 'role_id', 'noofbranch', 'password', 'concernperson', 'packagename','subpackagecode', 'customercode', 'customerlanguage'];
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
@@ -27,7 +27,7 @@ class OCFCustomer extends Model implements Auditable
     {
         return "You have {$eventName} Customer";
     }
-    
+
     public $table="customer_master";
     // public $timestamps = false;
     protected $primaryKey = 'id';
@@ -55,7 +55,8 @@ class OCFCustomer extends Model implements Auditable
         'packagename',
         'packagecode',
         'subpackagecode',
-        'customercode'
+        'customercode',
+        'customerlanguage'
     ];
 
     // public function decryptname()
