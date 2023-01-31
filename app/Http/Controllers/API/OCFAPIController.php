@@ -960,7 +960,7 @@ class OCFAPIController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->get();
 
-        return $data;
+
 
         if(empty($message))
         {
@@ -968,7 +968,7 @@ class OCFAPIController extends Controller
         }
         else
         {
-            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $message]);
+            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $data]);
         }
     }
 
