@@ -20,7 +20,7 @@ class UsersController extends Controller
     {
         $user = Users::leftjoin('roles', 'users.role_id', '=', 'roles.id')->where('users.role_id', '!=', 10)->where('users.active', 1)->orderBy('users.name','asc')
                         ->get( ['roles.name as rolename','users.*']);
-        //  $user = Users::where('active', 1)->orderBy('name', 'asc')->limit(10)->get();
+          $user = Users::where('active', 1)->orderBy('name', 'asc')->limit(10)->get();
         return $user;
     }
     public function getdata($search,$limit1=0,$limit2=10){

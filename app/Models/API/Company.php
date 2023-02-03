@@ -13,7 +13,7 @@ class Company extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
     use HasFactory, LogsActivity;
 
-    protected static $logAttributes = [ 'customercode', 'companyname', 'panno', 'gstno', 'InstallationType', 'InstallationDesc'];
+    protected static $logAttributes = [ 'customercode', 'companyname', 'panno', 'gstno', 'gsttype', 'InstallationType', 'InstallationDesc'];
 
     protected static $recordEvents = ['created', 'updated', 'deleted'];
 
@@ -32,6 +32,7 @@ class Company extends Model implements Auditable
         'companyname',
         'panno',
         'gstno',
+        'gsttype',
         'InstallationType',
         'InstallationDesc'
     ];

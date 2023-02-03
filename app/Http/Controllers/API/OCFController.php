@@ -320,4 +320,28 @@ class OCFController extends Controller
         }
         return response()->json(['message'=> 'OCF Deactivated','Customer'=>$customer]);
     }
+
+
+    public function ocfactive()
+    {
+        $key = config('global.key');
+
+        $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'), 'ocf_master.DocNo')
+                                ->leftjoin('ocf_master', 'customer_master.id', '=', 'ocf_master.customercode' )
+                        ->get();
+
+        $customer = OCF::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'), 'ocf_master.customercode','ocf_master.DocNo')
+                        ->leftjoin('customer_master', 'ocf_master.customercode', '=', 'customer_master.id')
+                        ->where('ocf_master.active', 1)->toSql();
+        return $customer;
+    }
+
 }

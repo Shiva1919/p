@@ -493,6 +493,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'laravel/legacy-factories' => array(
+            'pretty_version' => 'v1.3.2',
+            'version' => '1.3.2.0',
+            'reference' => 'cc6720da81094c82ea9f4737d615dd3d71f7f43d',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laravel/legacy-factories',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'laravel/passport' => array(
             'pretty_version' => 'v10.4.1',
             'version' => '10.4.1.0',

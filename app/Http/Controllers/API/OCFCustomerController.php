@@ -25,6 +25,7 @@ class OCFCustomerController extends Controller
 
     {           //vikram changes
         $key = config('global.key');
+<<<<<<< HEAD
         $customer = DB::table('customer_master')
                         ->select('customer_master.id', DB::raw('AES_DECRYPT(UNHEX(name), "'.$key.'") AS name'), 'customer_master.entrycode',
                         DB::raw('AES_DECRYPT(UNHEX(email), "'.$key.'")  AS email'),
@@ -39,6 +40,23 @@ class OCFCustomerController extends Controller
                         ->get();
                         // DB::raw('AES_DECRYPT(UNHEX(city), "'.$key.'")  AS city'),
           return response()->json($customer);
+=======
+
+        $customer = DB::Table('customer_master')
+        ->select('id','entrycode','otp','serialotp','isverified','role_id','address1','address2','state','district','taluka','concernperson','packagecode','subpackagecode',
+                DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(email),"'.$key.'") AS CHAR) AS email'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno),"'.$key.'") AS CHAR) AS whatsappno'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(phone),"'.$key.'") AS CHAR) AS phone'),
+                DB::raw('CAST(AES_DECRYPT(UNHEX(city),"'.$key.'") AS CHAR) AS city'))
+                ->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+        ->get();
+    //  $customer = DB::Table('customer_master')->where('role_id',10)->where('active', 1)->orderBy('name','asc')
+    //             ->get();
+
+                return $customer;
+                       return response()->json($customer);
+>>>>>>> be348b7c492430240e0b4638f2d66cb311b34260
     }
 
    public function deactivecustomerslist(){
@@ -113,7 +131,8 @@ class OCFCustomerController extends Controller
                 'active' => 'required',
                 'concernperson' => 'required',
                 'packagecode' => 'required',
-                'subpackagecode' => 'required'
+                'subpackagecode' => 'required',
+                'customerlanguage' => ''
             );
 
             $validator = Validator::make($request->all(), $rules);
@@ -154,7 +173,11 @@ class OCFCustomerController extends Controller
                 $insert_customers->role_id = $role_id;
                 $insert_customers->packagecode = $request->packagecode;
                 $insert_customers->subpackagecode = $request->subpackagecode;
+<<<<<<< HEAD
                 $insert_customers->customerlanguage = $request->language;
+=======
+                $insert_customers->customerlanguage = $request->customerlanguage;
+>>>>>>> be348b7c492430240e0b4638f2d66cb311b34260
                 $insert_customers->save();
                 if(!empty($insert_customers->id))
                 {
@@ -173,6 +196,7 @@ class OCFCustomerController extends Controller
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','$key'))") ,
+                               'gsttype' => $data->gsttype,
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 
@@ -309,7 +333,8 @@ class OCFCustomerController extends Controller
             'active' => '',
             'concernperson' => '',
             'packagecode' => '',
-            'subpackagecode' => ''
+            'subpackagecode' => '',
+            'customerlanguage' => ''
         ]);
         if($validator->fails())
         {
@@ -333,7 +358,11 @@ class OCFCustomerController extends Controller
         $customer->subpackagecode = $request->subpackagecode;
         $customer->role_id = $role_id;
         $customer->password = $password;
+<<<<<<< HEAD
         $customer->customerlanguage = $request->language;
+=======
+        $customer->customerlanguage = $request->customerlanguage;
+>>>>>>> be348b7c492430240e0b4638f2d66cb311b34260
         $customer->save();
 
         if(!empty($request->id)) {
@@ -350,9 +379,16 @@ class OCFCustomerController extends Controller
                            array(
                                'customercode'=> $customer->id,
                             //    'comapnycode'=> $ocfcompanyflastid->id+1,
+<<<<<<< HEAD
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst','$key'))") ,
+=======
+                               'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
+                               'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),
+                               'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','$key'))") ,
+                               'gsttype' => $data->gsttype,
+>>>>>>> be348b7c492430240e0b4638f2d66cb311b34260
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 
