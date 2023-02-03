@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Expr\AssignOp\Concat;
 use PhpParser\Node\Expr\FuncCall;
 use Validator;
 class OCFController extends Controller
@@ -352,26 +353,23 @@ class OCFController extends Controller
     }
 
 
-    public function ocfactive()
+    public function ocfactive(Request $request)
     {
         $key = config('global.key');
 
         $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-
-                                DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'), 'ocf_master.DocNo')
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),'company_master.companyname',
+                                'company_master.panno', 'company_master.gstno', DB::raw("CONCAT('ocf_master.Series','ocf_master.DocNo') as OCFNo") ,'ocf_master.*')
+                                ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode' )
                                 ->leftjoin('ocf_master', 'customer_master.id', '=', 'ocf_master.customercode' )
+                                ->where('customer_master.id', $request->id)
+                                ->where('company_master.customercode', $request->id)
+                                ->where('ocf_master.active', 1)
                         ->get();
 
-        $customer = OCF::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
-
-                        DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'), 'ocf_master.customercode','ocf_master.DocNo')
-                        ->leftjoin('customer_master', 'ocf_master.customercode', '=', 'customer_master.id')
-                        ->where('ocf_master.active', 1)->toSql();
-        return $customer;
+        return $ocf;
     }
 
 }
