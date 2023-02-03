@@ -56,7 +56,8 @@ class OCFCustomer extends Model implements Auditable
         'packagecode',
         'subpackagecode',
         'customercode',
-        'customerlanguage'
+        'customerlanguage',
+       'messageID'
     ];
 
     // public function decryptname()

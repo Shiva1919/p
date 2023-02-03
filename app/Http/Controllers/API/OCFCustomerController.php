@@ -161,6 +161,7 @@ class OCFCustomerController extends Controller
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','$key'))") ,
+                               'gsttype' => $data->gsttype,
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 
@@ -319,6 +320,7 @@ class OCFCustomerController extends Controller
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','$key'))") ,
+                               'gsttype' => $data->gsttype,
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 

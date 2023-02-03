@@ -19,6 +19,7 @@ use App\Models\API\Packages;
 use App\Models\API\SubPackages;
 use DateTime;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\URL;
 use Throwable;
 
@@ -919,6 +920,8 @@ class OCFAPIController extends Controller
 
 
         $time = date('Y-m-d');
+
+                             ;
         $message = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
                                     DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
                                      'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
@@ -943,23 +946,118 @@ class OCFAPIController extends Controller
             $description = $message[0]['MessageDesc']. "    ". $message[0]['MessageDescMarathi']. "     ". $message[0]['MessageDescHindi']. "       ". $message[0]['MessageDescKannada']. "     ". $message[0]['MessageDescGujarathi'];
         }
 
-        $data = BroadcastMessage::select('id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
-                                    DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
-                                     'AllPreferredLanguages', 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
-                                     'URLString', 'SpecialKeyToClose', DB::raw('"'.$description.'" AS MessageDesc'),
-                                    )
-                                    ->where('MessageTarget', $request->messagetarget)
-                                    ->where('RoleCode', $request->rolecode)
-                                    ->where('CustomerCode', $request->customercode)
-                                    ->where('CompanyCode', $request->companycode)
-                                    ->where('PackageType', $request->packagetype)
-                                    ->where('PackageSubType', $request->packagesubtype)
-                                    ->where('DateFrom','>=', $time)
-                                    ->where('ToDate', '>=' , $time)
-                                    ->orWhere('MessageTarget', 1)
-                                    ->orderBy('id', 'desc')
-                                    ->get();
+        $all = OCFCustomer::select('broadcast_messages.id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'PackageSubType', 'RoleCode',
+                        'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                        'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                        'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                        'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                        ->leftjoin('broadcast_messages', 'customer_master.messageID', '=', 'broadcast_messages.MessageTarget')
+                        ->where('MessageTarget', 1)
+                        ->whereBetween('DateFrom', [$message[0]['DateFrom'], $message[0]['ToDate']]);
+        if($request->messagetarget == 1)
+        {
+            $data =  OCFCustomer::select('broadcast_messages.id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'PackageSubType', 'RoleCode',
+                                'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                                'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                                'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                                'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                                ->leftjoin('broadcast_messages', 'customer_master.messageID', '=', 'broadcast_messages.MessageTarget')
+                                ->where('MessageTarget', 1)
+                                ->whereBetween('DateFrom', [$message[0]['DateFrom'], $message[0]['ToDate']])
+                                ->get();
+        }
+        elseif($request->messagetarget == 2)
+        {
+            $data = Packages::select('broadcast_messages.id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'PackageSubType', 'RoleCode',
+                            'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                            'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                            'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                            'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                            ->leftjoin('broadcast_messages', 'acme_package.id', '=', 'broadcast_messages.PackageType')
+                            ->leftjoin('customer_master', 'acme_package.id', '=', 'customer_master.packagecode')
+                            ->where('acme_package.id', $request->packagetype)
+                            ->where('MessageTarget', $request->messagetarget)
+                            ->where('RoleCode', $request->rolecode)
+                            ->where('GstType', $request->gsttype)
+                            ->whereBetween('DateFrom', [$time, $message[0]['ToDate']])
+                            ->unionAll($all)
+                            ->get();
+        }
+        elseif($request->messagetarget == 3)
+        {
 
+            $data = Packages::select('broadcast_messages.id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'broadcast_messages.PackageType', 'PackageSubType', 'RoleCode',
+                            'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                            'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                            'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                            'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                            ->leftjoin('broadcast_messages', 'acme_package.id', '=', 'broadcast_messages.PackageType')
+                            ->leftjoin('customer_master', 'acme_package.id', '=', 'customer_master.packagecode')
+                            ->leftjoin('acme_subpackage', 'acme_package.id', '=', 'acme_subpackage.packagetype')
+                            ->where('acme_package.id', $request->packagetype)
+                            ->where('acme_subpackage.id', $request->subpackagetype)
+                            ->where('MessageTarget', $request->messagetarget)
+                            ->where('RoleCode', $request->rolecode)
+                            ->where('GstType', $request->gsttype)
+                            ->whereBetween('DateFrom', [$time, $message[0]['ToDate']])
+                            ->unionAll($all)
+                            ->get();
+        }
+        elseif($request->messagetarget == 4)
+        {
+            $data = OCFCustomer::select('broadcast_messages.id', 'MessageTarget', 'CustomerCode', 'CompanyCode', 'broadcast_messages.PackageType', 'PackageSubType', 'RoleCode',
+                            'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                            'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                            'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                            'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                            DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                            ->leftjoin('broadcast_messages', 'customer_master.id', '=', 'broadcast_messages.CustomerCode')
+                            ->where('customer_master.id', $request->customercode)
+                            ->where('MessageTarget', $request->messagetarget)
+                            ->where('RoleCode', $request->rolecode)
+                            ->where('GstType', $request->gsttype)
+                            ->whereBetween('DateFrom', [$time, $message[0]['ToDate']])
+                            ->unionAll($all)
+                            ->get();
+        }
+        elseif($request->messagetarget == 5)
+        {
+            $data = OCFCustomer::select('broadcast_messages.id', 'MessageTarget', 'broadcast_messages.CustomerCode', 'CompanyCode', 'broadcast_messages.PackageType', 'PackageSubType', 'RoleCode',
+                                'GstType', 'DateFrom', 'ToDate', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"AcmeInfovision@1994#") AS CHAR) AS MessageTitle'),
+                                'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"AcmeInfovision@1994#") AS CHAR) AS MessageDesc'),
+                                'broadcast_messages.Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText', 'URLString',
+                                'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescMarathi'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescHindi'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"AcmeInfovision@1994#") AS CHAR) AS MessageDescKannada'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"AcmeInfovision@1994#") AS CHAR) AS MessageDescGujarathi'), 'customer_master.customerlanguage')
+                                ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode')
+                                ->leftjoin('broadcast_messages', 'customer_master.id', '=', 'broadcast_messages.CustomerCode')
+                                ->where('customer_master.id', $request->customercode)
+                                ->where('company_master.id', $request->companycode)
+                                ->where('MessageTarget', $request->messagetarget)
+                                ->where('RoleCode', $request->rolecode)
+                                ->where('GstType', $request->gsttype)
+                                ->whereBetween('DateFrom', [$time, $message[0]['ToDate']])
+                                ->unionAll($all)
+                                ->get();
+        }
+        else{
+            return response()->json(['message' => 'Invalid Data', 'status' => 1]);
+        }
 
 
         if(empty($message))
@@ -968,7 +1066,7 @@ class OCFAPIController extends Controller
         }
         else
         {
-            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $data]);
+            return response()->json(['message' => 'Broadcast Message', 'status' => 0, 'Data' => $message]);
         }
     }
 
