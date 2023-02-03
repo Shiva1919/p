@@ -20,13 +20,13 @@ class PackagesController extends Controller
      */
     public function index()
     {
-        $package = Packages::where('active', 1)->orderBy('packagename', 'asc')->get();
+        $package = Packages::where('active', 1)->orderBy('id', 'desc')->get();
         return response()->json($package);
     }
 
     public function deactivepackageslist()
     {
-        $package = Packages::where('active', 0)->orderBy('packagename', 'asc')->get();
+        $package = Packages::where('active', 0)->orderBy('id', 'desc')->get();
         return response()->json($package);
     }
 
@@ -136,13 +136,13 @@ class PackagesController extends Controller
 
     public function subpackageindex($packageid)
     {
-        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('subpackagename', 'asc')->get();
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 1)->orderBy('id','desc')->get();
         return response()->json($subpackage);
     }
 
     public function deactivesubpackageslist($packageid)
     {
-        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('subpackagename', 'asc')->get();
+        $subpackage = SubPackages::where('packagetype', $packageid)->where('active', 0)->orderBy('id','desc')->get();
         return response()->json($subpackage);
     }
 
@@ -206,13 +206,13 @@ class PackagesController extends Controller
 
     public function moduleindex($packageid)
     {
-        $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('ModuleName', 'asc')->get();
+        $module = Modules::where('producttype', $packageid)->where('active', 1)->orderBy('id', 'desc')->get();
         return response()->json($module);
     }
 
     public function deactivemoduleslist($packageid)
     {
-        $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('ModuleName', 'asc')->get();
+        $module = Modules::where('producttype', $packageid)->where('active', 0)->orderBy('id', 'desc')->get();
         return response()->json($module);
     }
 

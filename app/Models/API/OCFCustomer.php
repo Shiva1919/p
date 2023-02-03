@@ -27,7 +27,7 @@ class OCFCustomer extends Model implements Auditable
     {
         return "You have {$eventName} Customer";
     }
-    
+
     public $table="customer_master";
     // public $timestamps = false;
     protected $primaryKey = 'id';
@@ -49,7 +49,7 @@ class OCFCustomer extends Model implements Auditable
         'taluka',
         'city',
         'role_id',
-        // 'noofbranch',
+        'customerlanguage',
         'password',
         'concernperson',
         'packagename',
