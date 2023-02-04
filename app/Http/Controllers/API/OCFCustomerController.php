@@ -176,11 +176,10 @@ class OCFCustomerController extends Controller
                        ->insert(
                            array(
                                'customercode'=> $insert_customers->id,
-                            //    'comapnycode'=> $ocfcompanyflastid->id+1,
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company_name','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan_no','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst_no','$key'))") ,
-                               'gsttype' => $data->gsttype,
+                               'gsttype' => $data->gst_type,
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 
@@ -362,6 +361,7 @@ class OCFCustomerController extends Controller
                                'companyname'=> DB::raw("HEX(AES_ENCRYPT('$data->company','$key'))"),
                                'panno'=> DB::raw("HEX(AES_ENCRYPT('$data->pan','$key'))"),
                                'gstno'=>DB::raw("HEX(AES_ENCRYPT('$data->gst','$key'))") ,
+                               'gsttype' => $data->gst_type,
                                'InstallationType' => $data->InstallationType,
                                'InstallationDesc' => $data->InstallationDesc
 
@@ -375,11 +375,12 @@ class OCFCustomerController extends Controller
                 else{
 
 
-                     $update_data= Company::find($data->id);
+                $update_data= Company::find($data->id);
                   $update_data->companyname=DB::raw("HEX(AES_ENCRYPT('$data->company','$key'))");
                   $update_data->panno=DB::raw("HEX(AES_ENCRYPT('$data->pan','$key'))");
                   $update_data->gstno=DB::raw("HEX(AES_ENCRYPT('$data->gst','$key'))");
                   $update_data->InstallationType=$data->InstallationType;
+                  $update_data->gsttype=$data->gst_type;
                   $update_data->InstallationDesc=$data->InstallationDesc;
                   $update_data->save();
                 }

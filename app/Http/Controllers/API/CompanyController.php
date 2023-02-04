@@ -60,7 +60,7 @@ class CompanyController extends Controller
     {
          $key = config('global.key');
 
-        $company = Company::where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname),"'.$key.'") AS CHAR) AS companyname'),
+        $company = Company::where('customercode', $id)->get(['id','customercode','expirydates','gsttype','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname),"'.$key.'") AS CHAR) AS companyname'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
         return $company;
@@ -71,7 +71,7 @@ class CompanyController extends Controller
     public function customer_wise_company($id)
     {
         $key = config('global.key');
-        $companys = DB::table('company_master')->where('customercode', $id)->get(['id','customercode','expirydates','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
+        $companys = DB::table('company_master')->where('customercode', $id)->get(['id','customercode','expirydates','gsttype','InstallationType','InstallationDesc','created_at','updated_at',DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
                 DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno')]);
         // ->get();
