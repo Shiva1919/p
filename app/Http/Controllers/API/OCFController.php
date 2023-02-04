@@ -364,8 +364,7 @@ class OCFController extends Controller
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'),
-                                DB::raw('CONCAT(srno_ocf_master.Series,srno_ocf_master.DocNo) AS OCFNo'),'ocf_master.active',
-                                'ispassed')
+                                DB::raw('CONCAT(srno_ocf_master.Series,srno_ocf_master.DocNo) AS OCFNo'),'ocf_master.active','ispassed')
                                 ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode' )
                                 ->leftjoin('ocf_master', 'company_master.id', '=', 'ocf_master.companycode' )
                                 ->where('ocf_master.active', 1)
