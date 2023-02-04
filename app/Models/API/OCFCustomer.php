@@ -49,7 +49,7 @@ class OCFCustomer extends Model implements Auditable
         'taluka',
         'city',
         'role_id',
-        // 'noofbranch',
+        'customerlanguage',
         'password',
         'concernperson',
         'packagename',

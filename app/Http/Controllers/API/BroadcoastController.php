@@ -31,8 +31,17 @@ class BroadcoastController extends Controller
 
     public function broadCast_deactive()
     {
-        $Broada = BroadcastMessage::where('Active',0)->orderBy('id','desc')->get();
-        return $Broada;
+        $key = config('global.key');
+        $Broad = BroadcastMessage::select('id','MessageTarget', 'CustomerCode', 'CompanyCode', 'PackageType', 'RoleCode', 'GstType', 'DateFrom', 'ToDate',
+        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageTitle),"'.$key.'") AS CHAR) AS MessageTitle'),
+        'AllPreferredLanguages', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDesc),"'.$key.'") AS CHAR) AS MessageDesc'), 'Active', 'HowManyDaysToDisplay', 'AllowToMarkAsRead', 'UrlButtonText',
+        'URLString', 'SpecialKeyToClose', DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescMarathi),"'.$key.'") AS CHAR) AS MessageDescMarathi'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescHindi),"'.$key.'") AS CHAR) AS MessageDescHindi'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescKannada),"'.$key.'") AS CHAR) AS MessageDescKannada'),
+        DB::raw('CAST(AES_DECRYPT(UNHEX(MessageDescGujarathi),"'.$key.'") AS CHAR) AS MessageDescGujarathi'))
+        ->where('Active',0)->orderBy('id','desc')
+        ->get();
+return $Broad;
     }
 
     /**

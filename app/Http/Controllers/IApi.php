@@ -48,16 +48,16 @@ class IApi extends Controller
         $api->CreationDateTime = date('Y-m-d H:i:s');
         $api->PaymentReceived = $request->PaymentReceived;
          //api log
-        $apilog = new Apilog;
-        $apilog->GSTIN = $request->Gstin;
-        $apilog->apitype = "Post";
-        $apilog->apidata = $api;
-        $apilog->apiresponse = "['status'=>200,'message'=>'Added Successfully']";
-        $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+        // $apilog = new Apilog;
+        // $apilog->GSTIN = $request->Gstin;
+        // $apilog->apitype = "Post";
+        // $apilog->apidata = $api;
+        // $apilog->apiresponse = "['status'=>200,'message'=>'Added Successfully']";
+        // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
 // return $apilog;
         // $log=$api;
         $api->save();
-        $apilog->save();
+        // $apilog->save();
         return response()->json([
             'status'=>200,
             'message'=>'Added Successfully'
@@ -109,24 +109,24 @@ public function activation($owncode,$id){
 
 
        $data->save();
-        $apilog = new Apilog;
-        $apilog->apitype = "GET";
-        $apilog->apidata = $data;
-        $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
-        $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
-        $apilog->save();
+        // $apilog = new Apilog;
+        // $apilog->apitype = "GET";
+        // $apilog->apidata = $data;
+        // $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
+        // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+        // $apilog->save();
         return response()->json([
           'status'=>200,
           'message'=>'Update Successfully'
       ]);
     }
     else{
-        $apilog = new Apilog;
-        $apilog->apitype = "GET";
-        $apilog->apidata = "";
-        $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
-        $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
-        $apilog->save();
+        // $apilog = new Apilog;
+        // $apilog->apitype = "GET";
+        // $apilog->apidata = "";
+        // $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
+        // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+        // $apilog->save();
         return response()->json([
             'status'=>404,
             'message'=>'data Not Found'
@@ -149,25 +149,25 @@ public function Payment($owncode,$id){
         }
 
       $data->save();
-        $apilog = new Apilog;
-         $apilog->apitype = "GET";
-        $apilog->apidata = $data;
-        $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
-        $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
-        $apilog->save();
+        // $apilog = new Apilog;
+        //  $apilog->apitype = "GET";
+        // $apilog->apidata = $data;
+        // $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
+        // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+        // $apilog->save();
         return response()->json([
           'status'=>200,
           'message'=>'Update Successfully'
       ]);
     }
     else{
-        $apilog = new Apilog;
-        $apilog->GSTIN = "";
-        $apilog->apitype = "GET";
-        $apilog->apidata = "";
-        $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
-        $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
-        $apilog->save();
+        // $apilog = new Apilog;
+        // $apilog->GSTIN = "";
+        // $apilog->apitype = "GET";
+        // $apilog->apidata = "";
+        // $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
+        // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+        // $apilog->save();
         return response()->json([
             'status'=>404,
             'message'=>'data Not Found'
@@ -190,31 +190,31 @@ public function Payment($owncode,$id){
 
 
             $data->save();
-            $apilog = new Apilog;
-            $apilog->GSTIN = $request->Gstin;
-            $apilog->apitype = "Put";
-            $apilog->apidata = $data;
-            $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
-            $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
-    // return $apilog;
-            // $log=$api;
+    //         $apilog = new Apilog;
+    //         $apilog->GSTIN = $request->Gstin;
+    //         $apilog->apitype = "Put";
+    //         $apilog->apidata = $data;
+    //         $apilog->apiresponse = "['status'=>200,'message'=>'Update Successfully']";
+    //         $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+    // // return $apilog;
+    //         // $log=$api;
 
-            $apilog->save();
+    //         $apilog->save();
             return response()->json([
               'status'=>200,
               'message'=>'Update Successfully'
           ]);
         }
         else{
-            $apilog = new Apilog;
-            $apilog->GSTIN = "";
-            $apilog->apitype = "Put";
-            $apilog->apidata = "";
-            $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
-            $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
+            // $apilog = new Apilog;
+            // $apilog->GSTIN = "";
+            // $apilog->apitype = "Put";
+            // $apilog->apidata = "";
+            // $apilog->apiresponse = "['status'=>404,'message'=>'data Not Found']";
+            // $apilog->ApiTimeStamp=date('Y-m-d H:i:s');
     // return $apilog;
             // $log=$api;
-            $apilog->save();
+            // $apilog->save();
             return response()->json([
                 'status'=>404,
                 'message'=>'data Not Found'

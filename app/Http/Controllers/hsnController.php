@@ -7,8 +7,9 @@ use Illuminate\Support\Facades\DB;
 class hsnController extends Controller
 {
    function index($id){
-    $query =  DB::connection('mysql_2')->table('HsnCodesTable')->where('hsncode', $id)->get();
-    if (count($query)) {
+     $id=(int)$id;
+    $query =  DB::connection('mysql_2')->table('HsnCodesTable')->where('hsncode',$id)->get();
+    if (count($query)){
         return response()->json(['data'=>$query[0],'status'=> 1]);
     }
     else{
