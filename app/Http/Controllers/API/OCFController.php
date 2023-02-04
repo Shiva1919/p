@@ -89,6 +89,7 @@ class OCFController extends Controller
                 $ocf_date= date("Y-m-d", strtotime($request->ocf_date));
                 $insert_ocf->ocf_date =  $ocf_date;
                 $insert_ocf->AmountTotal=$request->module_total;
+
                 $insert_ocf->save();
 
                 if(!empty($insert_ocf->id))
@@ -356,20 +357,63 @@ class OCFController extends Controller
     public function ocfactive(Request $request)
     {
         $key = config('global.key');
-
-        $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+        if($request->ispassed == "U")
+        {
+            $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
                                 DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),'company_master.companyname',
-                                'company_master.panno', 'company_master.gstno', DB::raw("CONCAT('ocf_master.Series','ocf_master.DocNo') as OCFNo") ,'ocf_master.*')
+                                'company_master.panno', 'company_master.gstno', DB::raw('CONCAT(srno_ocf_master.Series,srno_ocf_master.DocNo) AS OCFNo'))
                                 ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode' )
                                 ->leftjoin('ocf_master', 'customer_master.id', '=', 'ocf_master.customercode' )
                                 ->where('customer_master.id', $request->id)
                                 ->where('company_master.customercode', $request->id)
+                                ->where('ocf_master.ispassed', "U")
                                 ->where('ocf_master.active', 1)
-                        ->get();
+                                ->get();
+        }
+        elseif($request->ispassed == "P")
+        {
+            $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'),
+                                DB::raw('CONCAT(srno_ocf_master.Series,srno_ocf_master.DocNo) AS OCFNo'))
+                                ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode' )
+                                ->leftjoin('ocf_master', 'customer_master.id', '=', 'ocf_master.customercode' )
+                                ->where('customer_master.id', $request->id)
+                                ->where('company_master.customercode', $request->id)
+                                ->where('ocf_master.ispassed', "P")
+                                ->where('ocf_master.active', 1)
+                                ->get();
 
+        }
+        elseif($request->ispassed == "R")
+        {
+            $ocf = OCFCustomer::select('customer_master.id', DB::raw('CAST(AES_DECRYPT(UNHEX(name),"'.$key.'") AS CHAR) AS name'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(phone), "'.$key.'") AS CHAR) AS phone'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(whatsappno), "'.$key.'") AS CHAR) AS whatsappno'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(city), "'.$key.'") AS CHAR) AS city'),DB::raw('CAST(AES_DECRYPT(UNHEX(companyname), "'.$key.'") AS CHAR) AS companyname'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(panno), "'.$key.'") AS CHAR) AS panno'),
+                                DB::raw('CAST(AES_DECRYPT(UNHEX(gstno), "'.$key.'") AS CHAR) AS gstno'),
+                                DB::raw('CONCAT(srno_ocf_master.Series,srno_ocf_master.DocNo) AS OCFNo'))
+                                ->leftjoin('company_master', 'customer_master.id', '=', 'company_master.customercode' )
+                                ->leftjoin('ocf_master', 'customer_master.id', '=', 'ocf_master.customercode' )
+                                ->where('customer_master.id', $request->id)
+                                ->where('company_master.customercode', $request->id)
+                                ->where('ocf_master.ispassed', "R")
+                                ->where('ocf_master.active', 1)
+                                ->get();
+        }
+        else
+        {
+            return "FAIL";
+        }
         return $ocf;
+
+
     }
 
 }
